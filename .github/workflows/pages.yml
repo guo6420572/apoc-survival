@@ -1,0 +1,46 @@
+name: Deploy to GitHub Pages
+
+# 纯静态站点：把仓库根目录整个发到 GitHub Pages。
+# ★ configure-pages 带 enablement: true —— 如果仓库还没开 Pages，
+#   这个步骤会**自动帮你开**，省掉去 Settings 里手点一下。
+#   开不了的话（权限不足）会报错，那时改成在仓库 Settings → Pages
+#   把 Source 选成 "GitHub Actions" 即可。
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+"
