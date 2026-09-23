@@ -1,0 +1,58 @@
+/* base.css — 变量、重置 */
+:root {
+  --bg-deep:    #12100e;
+  --bg-panel:   #1c1917;
+  --bg-card:    #262220;
+  --border:     #3f3a34;
+  --border-lit: #5a524a;
+
+  --text-main:  #e7e2d8;
+  --text-sub:   #9a9187;
+  --text-dim:   #6b645c;
+
+  --accent:     #d97706;
+  --accent-dim: #78350f;
+  --danger:     #dc2626;
+  --hp:         #b91c1c;
+  --exp:        #0ea5e9;
+  --gold:       #fbbf24;
+
+  --q0: #d4d4d4;  --q1: #4ade80;  --q2: #38bdf8;
+  --q3: #a855f7;  --q4: #fb923c;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  /* 移动端浏览器地址栏会收缩，100vh 会算错留白条；dvh 跟随实际可视高度 */
+  height: 100dvh;
+  background: var(--bg-deep);
+  color: var(--text-main);
+  font-family: "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", sans-serif;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  user-select: none;
+}
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background .12s, border-color .12s;
+}
+button:hover:not(:disabled) { background: #322c29; border-color: var(--border-lit); }
+button:active:not(:disabled) { transform: translateY(1px); }
+button:disabled { opacity: .4; cursor: not-allowed; }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-lit); }
+
+[hidden] { display: none !important; }

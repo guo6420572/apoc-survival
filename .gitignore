@@ -1,0 +1,2 @@
+# 本目录是 tools/build_web.py 生成的发布包，不要直接在这里改代码
+# 改完源项目后重跑：python3 tools/build_web.py

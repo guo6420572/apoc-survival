@@ -1,0 +1,456 @@
+/* panels.css — 面板 / 弹窗 / Toast / Tooltip
+   面板在右侧 452px 停靠栏里显示，所以内部一律**单列纵向排布**，不做左右分栏。 */
+
+/* ---------- 通用面板外壳 ---------- */
+.panel {
+  position: absolute;
+  inset: 10px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: flex; flex-direction: column;
+  box-shadow: 0 12px 40px rgba(0,0,0,.6);
+  overflow: hidden;
+}
+.panel-head {
+  flex: 0 0 44px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 6px 0 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-card);
+}
+.panel-head h2 { font-size: 14px; font-weight: 700; }
+.panel-head h2 small { color: var(--text-sub); font-weight: 400; margin-left: 8px; font-size: 12px; }
+.panel-close {
+  width: 32px; height: 32px; font-size: 15px;
+  background: transparent; border: none; color: var(--text-sub);
+}
+.panel-close:hover { color: var(--text-main); background: transparent; }
+.panel-body { flex: 1; overflow-y: auto; padding: 12px 14px; }
+.panel-foot {
+  flex: 0 0 auto; padding: 9px 14px;
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+
+/* ---------- 角色面板（单列） ---------- */
+.char-wrap { display: flex; flex-direction: column; gap: 12px; }
+
+.char-portrait {
+  display: flex; align-items: center; gap: 14px;
+  padding: 10px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border); border-radius: 6px;
+}
+.char-portrait .face { font-size: 40px; line-height: 1; }
+.char-portrait .lv { font-size: 19px; font-weight: 700; color: var(--accent); }
+.char-portrait .exp { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
+.char-portrait .meta { flex: 1; min-width: 0; }
+.char-portrait .meta > div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.stat-list { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+.stat-row {
+  display: flex; justify-content: space-between;
+  padding: 4px 0; border-bottom: 1px dashed #2a2622;
+}
+.stat-row .k { color: var(--text-sub); }
+.stat-row .v { font-weight: 700; }
+
+.alloc-box h3 { font-size: 12px; color: var(--text-sub); font-weight: 400; margin-bottom: 8px; }
+.alloc-box h3 b { color: var(--accent); font-size: 15px; }
+.alloc-row { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.alloc-row .nm { flex: 1; min-width: 0; }
+.alloc-row .nm small { display: block; color: var(--text-dim); font-size: 11px; }
+.alloc-row .cur { width: 32px; text-align: right; font-weight: 700; }
+.alloc-row button { width: 30px; height: 28px; font-size: 15px; line-height: 1; flex: 0 0 30px; }
+
+/* ---------- 背包（单列） ---------- */
+.bag-wrap { display: flex; flex-direction: column; gap: 14px; }
+.equip-col h3, .bag-col h3 { font-size: 12px; color: var(--text-sub); font-weight: 400; margin-bottom: 7px; }
+.equip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 7px; }
+
+.slot {
+  position: relative;
+  height: 80px; padding: 5px;
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  cursor: pointer; overflow: hidden;
+}
+.slot:hover { border-color: var(--border-lit); }
+.slot .ico { font-size: 22px; }
+.slot .nm { font-size: 10px; text-align: center; line-height: 1.2; margin-top: 2px;
+            overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.slot .tag { position: absolute; top: 2px; left: 4px; font-size: 9px; color: var(--text-dim); }
+.slot .lv { position: absolute; bottom: 1px; right: 4px; font-size: 10px; color: var(--text-sub); }
+.slot .set-tag {
+  position: absolute; top: 2px; right: 4px; font-size: 9px; font-weight: 700;
+  color: var(--q3); line-height: 1;
+}
+.tt-set-name { font-size: 12px; font-weight: 700; color: var(--q3); margin: 4px 0 3px; }
+.tt-set-name .on { color: var(--q1); }
+.tt-set-row { font-size: 11px; color: var(--text-dim); line-height: 1.5; }
+.tt-set-row.on { color: var(--q1); }
+.slot.empty { border-style: dashed; opacity: .5; }
+.slot.empty .nm { color: var(--text-dim); }
+
+.bag-col { display: flex; flex-direction: column; min-height: 0; }
+.bag-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, 52px); gap: 6px;
+  align-content: start;
+}
+.bag-cell {
+  position: relative; width: 52px; height: 52px;
+  background: var(--bg-card); border: 2px solid var(--border);
+  border-radius: 5px; display: flex; align-items: center; justify-content: center;
+  font-size: 21px; cursor: pointer;
+}
+.bag-cell:hover { border-color: var(--border-lit); transform: translateY(-1px); }
+.bag-cell .lv { position: absolute; bottom: 1px; right: 3px; font-size: 9px; color: var(--text-sub); }
+.bag-cell.sel { outline: 2px solid var(--accent); outline-offset: 1px; }
+/* 背包格子按品质上色（白/绿/蓝/紫/橙），和装备栏、tooltip 的配色一致 */
+.bag-cell.q0 { border-color: var(--q0); }
+.bag-cell.q1 { border-color: var(--q1); }
+.bag-cell.q2 { border-color: var(--q2); }
+.bag-cell.q3 { border-color: var(--q3); }
+.bag-cell.q4 { border-color: var(--q4); }
+
+/* ---------- 科技树（上树 + 下详情） ---------- */
+.tech-layout { display: flex; flex-direction: column; gap: 12px; height: 100%; min-height: 0; }
+.tech-main { flex: 1; overflow-y: auto; min-height: 0; }
+.tech-detail {
+  flex: 0 0 auto;
+  max-height: 46%;
+  overflow-y: auto;
+  background: var(--bg-card);
+  border: 1px solid var(--border); border-radius: 6px; padding: 12px;
+}
+.tech-tabs { display: flex; gap: 5px; margin-bottom: 12px; }
+.tech-tabs button { flex: 1; height: 32px; font-size: 12px; }
+.tech-tabs button.active { border-color: var(--accent); color: var(--accent); background: #2a1f12; }
+/* 当前武器那条线 = 唯一生效的线；其余标「挂起」 */
+.tech-tabs button.live { border-color: var(--q1); }
+.tech-tabs .tab-live { color: var(--q1); font-style: normal; font-size: 9px; margin-left: 3px; }
+.tech-tabs .tab-idle { color: var(--text-dim); font-style: normal; font-size: 9px; margin-left: 3px; }
+/* 异线节点：已解锁但当前不生效，压暗 + 去饱和，和"未解锁"区分开（那是半透明） */
+.node.idle { filter: grayscale(.7); opacity: .72; }
+.tech-reset { margin: 8px 0 12px; }
+.tech-reset button { width: 100%; height: 30px; font-size: 11px; }
+
+.tech-layer { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.tech-layer .pos { width: 18px; text-align: center; color: var(--text-dim); font-size: 10px; }
+.tech-link { height: 12px; display: flex; justify-content: center; }
+.tech-link i { display: block; width: 2px; background: var(--border); }
+.tech-link.on i { background: var(--accent); }
+
+.node {
+  position: relative; width: 62px; height: 56px; padding: 3px;
+  background: var(--bg-card); border: 2px solid var(--border); border-radius: 6px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  cursor: pointer; text-align: center;
+}
+.node.main { width: 76px; height: 64px; }
+.node .ico { font-size: 16px; }
+.node .nm { font-size: 10px; line-height: 1.15; margin-top: 2px; }
+.node .lv { position: absolute; bottom: 1px; right: 3px; font-size: 10px; color: var(--accent); font-weight: 700; }
+.node.locked { opacity: .38; }
+.node.can { border-color: var(--accent); animation: glow 1.3s ease-in-out infinite alternate; }
+@keyframes glow {
+  from { box-shadow: 0 0 0 rgba(217,119,6,0); }
+  to   { box-shadow: 0 0 10px rgba(217,119,6,.55); }
+}
+.node.owned { border-color: var(--q1); }
+.node.sel { outline: 2px solid var(--text-main); outline-offset: 1px; }
+/* 正在装备的武器：边框加亮 + 左上角一个「装」标。
+   没有这个标的话，玩家换完武器得逐个点进详情才知道当前在用哪把 */
+.node.eq { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.node .eq {
+  position: absolute; top: 1px; left: 3px; font-size: 9px;
+  color: var(--accent); font-weight: 700; line-height: 1;
+}
+
+.tech-detail h3 { font-size: 14px; margin-bottom: 3px; }
+.tech-detail .sub { color: var(--text-sub); font-size: 12px; margin-bottom: 10px; }
+.tech-detail .eff { font-size: 12px; line-height: 1.65; margin-bottom: 8px; }
+.tech-detail .eff .next { color: var(--q1); }
+.tech-detail .cost { font-size: 12px; color: var(--text-sub); line-height: 1.7; margin-bottom: 10px; }
+.tech-detail .cost .lack { color: var(--danger); }
+.tech-detail button { width: 100%; height: 32px; }
+
+/* ---------- 关卡选择 ---------- */
+.scene-block { margin-bottom: 14px; }
+.scene-block h3 { font-size: 13px; color: var(--accent); margin-bottom: 7px; }
+.scene-block h3 small { display: block; color: var(--text-dim); font-weight: 400; margin-top: 2px; font-size: 11px; }
+.stage-grid { display: flex; flex-wrap: wrap; gap: 5px; }
+.stage-btn {
+  position: relative; width: 42px; height: 42px;
+  background: var(--bg-card); border: 2px solid var(--border); border-radius: 5px;
+  font-weight: 700;
+}
+.stage-btn.boss { background: #2a1a1a; }
+.stage-btn.boss::after { content: '★'; position: absolute; top: 1px; right: 3px; font-size: 9px; color: var(--accent); }
+.stage-btn.cleared { border-color: var(--q1); color: var(--q1); }
+.stage-btn.current { border-color: var(--accent); background: #2a1f12; color: var(--accent); }
+.stage-btn.locked { opacity: .3; cursor: not-allowed; }
+
+/* ---------- 设置 ---------- */
+.set-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 10px 0; border-bottom: 1px solid #2a2622;
+}
+.set-row .desc { color: var(--text-dim); font-size: 11px; margin-top: 2px; }
+.switch {
+  position: relative; width: 44px; height: 24px; flex: 0 0 44px;
+  background: #0c0a09; border: 1px solid var(--border); border-radius: 12px; cursor: pointer;
+}
+.switch::after {
+  content: ''; position: absolute; top: 2px; left: 2px;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--text-dim); transition: .15s;
+}
+.switch.on { border-color: var(--accent); }
+.switch.on::after { left: 22px; background: var(--accent); }
+
+/* ---------- 弹窗层（三选一 / 离线） ---------- */
+.modal-mask {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,.72);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.perk-modal { text-align: center; max-width: 100%; }
+.perk-modal h3 { font-size: 17px; margin-bottom: 16px; letter-spacing: 2px; }
+.perk-modal h3 .timer { color: var(--accent); font-size: 21px; margin-left: 6px; }
+.perk-modal h3 .timer.urgent { color: var(--danger); }
+.perk-list { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+.perk-card {
+  position: relative;
+  width: 170px; min-height: 168px; padding: 18px 14px;
+  background: var(--bg-card); border: 2px solid var(--border); border-radius: 8px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+}
+.perk-card:hover { transform: translateY(-3px); }
+.perk-card .perk-icon { font-size: 32px; }
+.perk-card .perk-name { font-size: 15px; font-weight: 700; }
+.perk-card .perk-desc { font-size: 12px; color: var(--text-sub); line-height: 1.5; }
+.perk-card .key { position: absolute; bottom: 5px; font-size: 10px; color: var(--text-dim); }
+.perk-card.rare      { border-color: var(--q2); }
+.perk-card.rare .perk-name { color: var(--q2); }
+.perk-card.legendary { border-color: var(--q4); box-shadow: 0 0 22px rgba(251,146,60,.45); }
+.perk-card.legendary .perk-name { color: var(--q4); }
+
+.offline-modal {
+  min-width: 300px; max-width: 92%; padding: 22px 24px;
+  background: var(--bg-panel); border: 1px solid var(--border-lit);
+  border-radius: 8px; box-shadow: 0 16px 48px rgba(0,0,0,.8);
+}
+.offline-modal h3 { font-size: 16px; margin-bottom: 4px; }
+.offline-modal .sub { color: var(--text-dim); font-size: 12px; margin-bottom: 14px; }
+.offline-modal .line { display: flex; justify-content: space-between; padding: 5px 0; font-size: 13px; }
+.offline-modal .line b { color: var(--q1); }
+.offline-modal button { width: 100%; height: 38px; margin-top: 16px;
+                        border-color: var(--accent); color: var(--accent); font-weight: 700; }
+
+/* ---------- 武器选择弹窗（角色面板的武器行 / 科技树的武器节点） ---------- */
+.c-weapon-btn { cursor: pointer; }
+.c-school { font-size: 11px; }
+.exp-dim { color: var(--text-dim); }
+.c-weapon-btn:hover { text-decoration: underline; }
+.wp-swap { color: var(--text-dim); font-size: 11px; }
+
+.wp-modal {
+  width: 100%; max-width: 420px; max-height: 86%;
+  padding: 18px 16px; display: flex; flex-direction: column;
+  background: var(--bg-panel); border: 1px solid var(--border-lit);
+  border-radius: 8px; box-shadow: 0 16px 48px rgba(0,0,0,.8);
+}
+.wp-modal h3 { font-size: 16px; margin-bottom: 4px; }
+.wp-hint { color: var(--text-dim); font-size: 11px; line-height: 1.5; margin-bottom: 12px; }
+.wp-list { flex: 1; overflow-y: auto; }
+.wp-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px; margin-bottom: 6px;
+  background: var(--bg-card); border: 2px solid var(--border); border-radius: 6px;
+  cursor: pointer;
+}
+.wp-row:hover { border-color: var(--border-lit); }
+.wp-row.on { border-color: var(--accent); }
+.wp-ico { flex: 0 0 auto; }
+.wp-main { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.wp-main b { font-size: 13px; }
+.wp-main .wp-lv { color: var(--accent); font-size: 11px; }
+.wp-main small { color: var(--text-dim); font-size: 10px; }
+.wp-score { flex: 0 0 auto; color: var(--q1); font-size: 13px; font-weight: 700; }
+.wp-tag { font-size: 10px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; }
+.wp-tag.cur  { background: var(--accent); color: #000; }
+.wp-tag.up   { color: var(--q1); border: 1px solid var(--q1); }
+.wp-tag.down { color: var(--text-dim); border: 1px solid var(--border); }
+.wp-modal .wp-close { width: 100%; height: 34px; margin-top: 10px; }
+
+/* ---------- 窄屏：面板变成居中弹窗 ---------- */
+@media (max-width: 1180px) {
+  #dock .panel {
+    inset: auto;
+    width: min(620px, calc(100% - 24px));
+    height: min(88%, calc(100% - 24px));
+    margin: auto;
+  }
+}
+
+/* ---------- Toast ---------- */
+#toasts {
+  position: absolute; right: 14px; bottom: 14px;
+  display: flex; flex-direction: column-reverse; gap: 8px;
+  z-index: 300; pointer-events: none; max-width: 320px;
+}
+.toast {
+  padding: 9px 13px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border); border-left: 3px solid var(--border-lit);
+  border-radius: 4px; font-size: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,.6);
+  animation: toast-in .2s ease-out;
+}
+@keyframes toast-in { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
+.toast.out { opacity: 0; transform: translateX(24px); transition: .25s; }
+.toast.success { border-left-color: var(--q1); }
+.toast.warn    { border-left-color: var(--accent); }
+.toast.danger  { border-left-color: var(--danger); }
+.toast.shake   { animation: toast-in .2s ease-out, shake .35s .2s 2; }
+@keyframes shake { 0%,100% { transform: none; } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+
+/* ---------- Tooltip ---------- */
+#tooltip {
+  /* fixed + 顶层：不能用 absolute 挂在 stage-wrap 里，那样会被面板盖住、被容器裁掉 */
+  position: fixed; z-index: 999; pointer-events: none;
+  max-width: 250px; padding: 10px 12px;
+  background: #14110f; border: 1px solid var(--border-lit);
+  border-radius: 5px; font-size: 12px; line-height: 1.6;
+  box-shadow: 0 8px 26px rgba(0,0,0,.8);
+}
+#tooltip .tt-name { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+#tooltip .tt-sub  { color: var(--text-dim); font-size: 11px; margin-bottom: 6px; }
+#tooltip .tt-attr { display: flex; justify-content: space-between; }
+#tooltip .tt-attr .k { color: var(--text-sub); }
+#tooltip .tt-affix { color: var(--q2); }
+#tooltip hr { border: none; border-top: 1px solid #2a2622; margin: 6px 0; }
+
+/* 强化行：单独一行、用主题橙，一眼能从属性里跳出来 */
+#tooltip .tt-enh {
+  font-size: 11px; color: var(--gold); margin-bottom: 4px;
+  background: rgba(217, 119, 6, .12); border-radius: 3px; padding: 1px 5px;
+  display: inline-block;
+}
+/* 悬浮对比区块 */
+#tooltip .tt-cmp-head {
+  font-size: 11px; color: var(--accent); margin: 2px 0 1px;
+  border-left: 2px solid var(--accent); padding-left: 5px;
+}
+#tooltip .tt-cmp-score { font-size: 11px; color: var(--text-sub); margin-bottom: 2px; }
+#tooltip .tt-delta { font-style: normal; font-size: 11px; margin-left: 4px; }
+#tooltip .tt-delta.up   { color: var(--q1); }   /* 涨：绿 */
+#tooltip .tt-delta.down { color: var(--danger); } /* 跌：红 */
+#tooltip .tt-delta.same { color: var(--text-dim); }
+
+/* 选中装备的操作条：紧贴在批量操作条上方 */
+.bag-actions {
+  border-top: 1px solid var(--border);
+  background: var(--bg-card);
+}
+
+/* ---------- 宠物栏 ---------- */
+.pet-box { min-height: 54px; }
+.pet-empty {
+  border: 1px dashed var(--border); border-radius: 6px;
+  padding: 8px 10px; color: var(--text-dim); font-size: 11px; line-height: 1.6;
+}
+.pet-empty small { color: var(--text-dim); opacity: .8; }
+.pet-card {
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 6px 8px; background: var(--bg-card);
+  display: flex; flex-direction: column; gap: 3px;
+}
+/* 阶位配色复用装备品质色，玩家不用再记一套颜色体系 */
+.pet-card.q0 { border-color: var(--q0); }
+.pet-card.q1 { border-color: var(--q1); }
+.pet-card.q2 { border-color: var(--q2); }
+.pet-card.q3 { border-color: var(--q3); }
+.pet-card.q4 { border-color: var(--q4); }
+.pet-top { display: flex; align-items: baseline; gap: 8px; font-size: 12px; }
+.pet-top b { font-size: 13px; }
+.pet-bar {
+  height: 5px; border-radius: 3px; background: #0c0a09;
+  border: 1px solid var(--border); overflow: hidden;
+}
+.pet-bar > i { display: block; height: 100%; background: linear-gradient(90deg, #7c3aed, #c4b5fd); width: 0%; }
+.pet-exp { font-size: 10px; color: var(--text-dim); }
+.pet-pool { font-size: 11px; color: var(--text-sub); line-height: 1.4; }
+.bag-actions button { height: 28px; padding: 0 12px; font-size: 12px; }
+
+/* 图标图片：统一等比缩放，不撑破格子 */
+.ico-img { object-fit: contain; display: block; }
+.slot .ico img { margin: 0 auto; }
+.bag-cell img { margin: 0 auto; }
+.node .ico img { margin: 0 auto; }
+.perk-card .perk-icon img { margin: 0 auto; }
+
+/* ============================================================
+   移动端面板：手机上停靠栏没有空间，面板改成接近全屏
+   ============================================================ */
+@media (max-width: 760px), (orientation: portrait) and (max-width: 900px) {
+
+  /* ★ 这里**故意不写** #dock .panel 的尺寸 —— 上面 @media (max-width:1180px) 那条
+     （width: min(620px, 100%-24px) / height: min(88%, 100%-24px) / margin: auto）
+     在手机宽度下已经是对的：实测 393×851 的屏上面板 rect=(12,51,369,749)，
+     左右各 12px、上下各 51px，正正居中。
+
+     踩过的坑：这里曾经写 width: calc(100%-12px) + margin: auto，结果面板贴死
+     左上角、只在右下留 12px 缝（rect=(0,0,381,839)）。原因是面板挂在 #overlay
+     底下，那是个**绝对定位的非 flex 容器** —— 绝对定位元素在这种容器里的
+     "静态位置"就是内容框左上角，auto 外边距没有可分的余量，居不了中。
+     两处写同一个东西必然打架，只留一处。 */
+  #dock { padding: env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 0px) 0; }
+
+  /* 面板头/底部加大，手指好点 */
+  .panel-head { flex: 0 0 50px; padding: 0 4px 0 14px; }
+  .panel-head h2 { font-size: 15px; }
+  .panel-close { width: 44px; height: 44px; font-size: 18px; }
+  .panel-foot { padding: 10px 12px; gap: 8px; }
+  .panel-foot button, .bag-actions button { min-height: 40px; font-size: 13px; }
+
+  /* 背包：手机上格子排 6 列就够，太大反而要滑很久 */
+  .bag-grid { grid-template-columns: repeat(auto-fill, 54px); gap: 7px; }
+  .bag-cell { width: 54px; height: 54px; }
+  .equip-grid { grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); }
+  .slot { height: 76px; }
+
+  /* 科技树：节点缩小，保证一行放得下三层 */
+  .node { width: 56px; height: 54px; }
+  .node.main { width: 68px; height: 62px; }
+  .node .nm { font-size: 9px; }
+  .tech-layer { gap: 5px; }
+  .tech-layer .pos { width: 14px; font-size: 9px; }
+
+  /* 属性列表：手机上单列，两列会挤成一团 */
+  .stat-list { grid-template-columns: 1fr; }
+
+  /* 词条三选一：竖排，卡片横向铺满 */
+  .perk-list { flex-direction: column; gap: 9px; width: 100%; }
+  .perk-card {
+    width: 100%; min-height: 0;
+    flex-direction: row; justify-content: flex-start;
+    gap: 12px; padding: 12px 14px; text-align: left;
+  }
+  .perk-card .perk-icon img, .perk-card .perk-icon { width: 46px !important; height: 46px !important; font-size: 34px; }
+  .perk-card .perk-name { font-size: 15px; }
+  .perk-card .key { display: none; }         /* 手机上没有键盘 */
+  .modal-mask { padding: 14px; }
+
+  /* 离线弹窗 */
+  .offline-modal { min-width: 0; width: 100%; }
+
+  /* Toast 挪到上方，别被底部按钮栏挡住 */
+  #toasts { right: 10px; left: 10px; bottom: auto; top: 10px; }
+  .toast { max-width: none; }
+}

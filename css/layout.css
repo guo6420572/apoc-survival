@@ -1,0 +1,336 @@
+/* layout.css — 竖版布局
+   宽屏：左侧竖排按钮栏 | 中间 9:16 画布 | 右侧面板停靠栏
+   窄屏：底排按钮栏 | 画布 | 面板变成盖在画面上的弹窗
+   （断点 1180px，改这里就能调） */
+
+#app {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- 顶部状态条 ---------- */
+#topbar {
+  flex: 0 0 54px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 0 16px;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+  z-index: 50;
+}
+.tb-group { display: flex; align-items: center; gap: 14px; }
+.tb-stage { color: var(--accent); font-weight: 700; letter-spacing: .5px; white-space: nowrap; }
+.tb-power { color: var(--text-sub); white-space: nowrap; }
+.tb-power b { color: var(--text-main); }
+.tb-bars { flex: 1; justify-content: center; max-width: 340px; min-width: 0; }
+.tb-res { color: var(--text-sub); }
+
+.bar {
+  position: relative;
+  height: 16px;
+  border-radius: 8px;
+  background: #0c0a09;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.bar-hp { width: 170px; }
+.bar-exp { width: 110px; height: 12px; }
+.bar > i { position: absolute; inset: 0 auto 0 0; display: block; width: 0%; transition: width .18s linear; }
+.bar-hp  > i { background: linear-gradient(180deg, #ef4444, var(--hp)); }
+.bar-exp > i { background: linear-gradient(180deg, #38bdf8, var(--exp)); }
+.bar-hp.low > i { animation: pulse-red .6s infinite alternate; }
+@keyframes pulse-red { from { opacity: .55; } to { opacity: 1; } }
+.bar > span {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; text-shadow: 0 1px 2px #000; pointer-events: none;
+}
+.tb-gold b { color: var(--gold); }
+
+/* ---------- 主区 ---------- */
+#main {
+  position: relative;
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  background: #08090a;
+}
+
+/* 左侧竖排按钮栏 */
+#rail {
+  flex: 0 0 78px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 0;
+  background: var(--bg-panel);
+  border-right: 1px solid var(--border);
+  z-index: 40;
+}
+#rail button {
+  position: relative;
+  width: 62px; height: 62px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 2px;
+  background: transparent; border: 1px solid transparent;
+}
+#rail button span { font-size: 20px; line-height: 1; }
+#rail button em { font-style: normal; font-size: 11px; color: var(--text-sub); }
+#rail button:hover { background: var(--bg-card); border-color: var(--border); }
+#rail button.active { border-color: var(--accent); background: #2a1f12; }
+#rail button.active em { color: var(--accent); }
+
+/* 画布 */
+#stage-wrap {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #000;
+  min-width: 0;
+}
+#game { display: block; }
+
+/* 右侧停靠栏 */
+#dock {
+  position: relative;
+  flex: 0 0 452px;
+  background: var(--bg-deep);
+  border-left: 1px solid var(--border);
+  overflow: hidden;
+  z-index: 60;
+}
+#overlay { position: absolute; inset: 0; pointer-events: none; }
+#overlay > * { pointer-events: auto; }
+
+/* 弹窗层：盖住整个主区（画布 + 两侧），与停靠栏无关 */
+#modal-layer { position: absolute; inset: 0; z-index: 200; pointer-events: none; }
+#modal-layer > * { pointer-events: auto; }
+
+/* ---------- 窄屏：停靠栏变成覆盖整个战场的弹窗层 ---------- */
+@media (max-width: 1180px) {
+  #main { flex-direction: column; }
+
+  #rail {
+    flex: 0 0 58px;
+    flex-direction: row;
+    justify-content: center;
+    gap: 4px;
+    padding: 0;
+    border-right: none;
+    border-top: 1px solid var(--border);
+    order: 2;
+  }
+  #rail button { width: 64px; height: 46px; }
+  #rail button span { font-size: 17px; }
+  #rail button em { display: none; }
+
+  #dock {
+    position: absolute;
+    inset: 0;
+    flex: none;
+    background: transparent;
+    border-left: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* 没有面板打开时，弹窗层不该挡住战场点击 */
+  #dock { pointer-events: none; }
+  body.panel-open #dock { pointer-events: auto; background: rgba(0, 0, 0, .72); }
+}
+
+/* ---------- 极窄（手机竖屏）----------
+   #topbar / .tb-bars 的规则已经并进下面那个全屏悬浮块了（520 ⊂ 760），
+   这里只留"在这个宽度下还要再砍掉什么"。 */
+@media (max-width: 520px) {
+  .tb-mat { display: none; }      /* 材料计数在小屏上挤不下，角色面板里能看 */
+}
+
+.badge {
+  position: absolute; top: 4px; right: 6px;
+  min-width: 17px; height: 17px; padding: 0 4px;
+  background: var(--danger); color: #fff;
+  border-radius: 9px; font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+
+
+/* 构建版本水印：用来判断浏览器加载的是不是最新代码。
+   如果这里显示的不是刚发布的版本号，就是缓存没清 —— Ctrl+F5。 */
+#build-stamp {
+  position: fixed; right: 6px; bottom: 4px; z-index: 999;
+  font-size: 11px; color: var(--text-dim); opacity: .55;
+  pointer-events: auto; user-select: text; cursor: default;
+}
+
+/* ============================================================
+   移动端适配
+   断点按「宽 ≤760px 或 竖屏且窄」判定，覆盖手机竖屏与小平板
+   ============================================================ */
+
+/* 全局：去掉移动端的点击高亮、双击缩放延迟、下拉刷新 */
+* { -webkit-tap-highlight-color: transparent; }
+html, body {
+  overscroll-behavior: none;        /* 禁止下拉刷新把页面拉走 */
+  touch-action: manipulation;       /* 去掉 300ms 点击延迟 */
+}
+button { touch-action: manipulation; }
+
+/* 横屏提示：默认不显示 */
+#rotate-hint { display: none; }
+
+/* ============================================================
+   全屏悬浮布局（手机 / 打包成 App 时用）
+   —— 画布铺满整屏，顶栏和按钮都做成半透明浮在画面上。
+   原来上下各占一条实心栏（顶栏 54px + 底栏 52px），画面被挤掉一截；
+   挂机游戏的画面就是全部卖点，那两条栏杆值不值 —— 不值。
+   ※ 桌面端（>760px 且非竖屏）不受影响，仍旧是左栏 | 画布 | 右停靠栏。
+   ============================================================ */
+@media (max-width: 760px), (orientation: portrait) and (max-width: 900px) {
+
+  /* ---------- 顶栏：浮在画面上，且不挡点击 ---------- */
+  #topbar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    z-index: 50;
+    flex: none;
+    min-height: 0;
+    padding: calc(env(safe-area-inset-top, 0px) + 6px) 12px 16px 12px;
+    gap: 8px;
+    flex-wrap: wrap;
+    border-bottom: none;
+    background: none;
+    /* 顶栏底下的战场是"走廊最深处"（天花板/远景墙），本来就没有玩法内容，
+       所以这里压一条渐变把字托住即可，不需要实心背景 */
+    background-image: linear-gradient(180deg,
+        rgba(8, 7, 6, .90) 0%, rgba(8, 7, 6, .72) 55%, rgba(8, 7, 6, 0) 100%);
+    /* ★ 关键：整条顶栏不吃点击。血条/金币都是只读的，
+       让它挡住下面的战场没有意义（面板打开时自有 #dock 接管）。 */
+    pointer-events: none;
+  }
+  .tb-stage { font-size: 13px; text-shadow: 0 1px 3px #000; }
+  .tb-power { font-size: 12px; text-shadow: 0 1px 3px #000; }
+  /* ★ flex: 1 0 100% —— 必须写 flex-basis 100%，光写 width:100% 换不了行。
+     坑在 base.css 的 `.tb-bars { flex: 1 }`：那等于 flex-basis: 0%，
+     flex 项的"假设主尺寸"就变成 0，永远不会触发换行，
+     于是血条和经验条被硬挤在第一行、和金币战力叠在一起（实测就这样）。 */
+  .tb-bars {
+    order: 3;
+    flex: 1 0 100%;
+    width: 100%;
+    max-width: none;
+    gap: 8px;
+    justify-content: flex-start;   /* 靠左排，不要撑满 */
+  }
+  /* ★ 血条**不能撑满整屏宽**。它是浮在画面上的，一条满屏的亮红条会把
+     整个战场拦腰截断，比它传达的信息显眼得多。给个固定宽度、靠左即可。 */
+  .bar-hp  { flex: 0 1 180px; width: 180px; height: 14px; }
+  .bar-exp { flex: 0 0 100px; width: 100px; height: 12px; }
+  .tb-res { gap: 8px; font-size: 12px; text-shadow: 0 1px 3px #000; }
+  .tb-mat img { width: 16px !important; height: 16px !important; }
+  .tb-gold img { width: 16px !important; height: 16px !important; }
+  /* 血条/经验条半透明，免得一条实心色块把画面割开 */
+  .bar { background: rgba(12, 10, 9, .62); border-color: rgba(255, 255, 255, .14); }
+  .bar > span { text-shadow: 0 1px 3px #000, 0 0 6px #000; }
+
+  /* ---------- 主区铺满整屏 ---------- */
+  #main {
+    position: absolute;
+    inset: 0;
+    flex-direction: column;
+  }
+  #stage-wrap {
+    position: absolute;
+    inset: 0;
+    flex: none;
+  }
+  /* ★ 画布用绝对定位居中，不用 flex 居中：
+     画布在高瘦屏上是"比容器宽"的（见 render.js 的 cover 适配），
+     flex 的 justify-content:center 遇到溢出项时会把左侧裁掉且拉不回来，
+     左右就不对称了。translate 居中天然对称。 */
+  #game {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    max-width: none;
+    max-height: none;
+  }
+
+  /* ---------- 按钮：底部悬浮胶囊 ---------- */
+  #rail {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
+    z-index: 45;
+    flex: none;
+    height: auto;
+    flex-direction: row;
+    justify-content: center;
+    gap: 2px;
+    padding: 5px 8px;
+    min-height: 0;
+    order: 0;
+    border: none;
+    border-top: none;
+    border-radius: 999px;
+    background: rgba(14, 12, 11, .68);
+    border: 1px solid rgba(255, 255, 255, .10);
+    /* 毛玻璃：内容从底下滚过时字仍然清楚 */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, .55);
+  }
+  #rail button {
+    width: auto;
+    min-width: 54px;
+    min-height: 50px;              /* ≥44px 才够手指点 */
+    height: 50px;
+    flex: none;
+    padding: 2px 4px;
+    border-radius: 14px;
+  }
+  #rail button span { font-size: 19px; }
+  #rail button em { font-size: 10px; display: block; }   /* 手机上保留文字，图标太抽象 */
+  #rail button.active { background: rgba(217, 119, 6, .22); }
+  .badge { top: 2px; right: 4px; }
+
+  /* ---------- 版本水印：挪到胶囊上方，不压按钮 ---------- */
+  #build-stamp {
+    right: auto; left: 6px;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 70px);
+    font-size: 10px;
+    opacity: .35;
+  }
+
+  /* 面板打开时：停靠栏（#dock，z-index 60）会盖住悬浮的顶栏(50)和按钮(45)，
+     这是我们要的 —— 面板弹出来时就该压住一切。层级差已经在上面留好了，
+     这里不用再调。 */
+}
+
+/* 手机横屏：画布只有很扁一条，直接提示竖屏 */
+@media (orientation: landscape) and (max-height: 520px) {
+  #rotate-hint {
+    display: flex;
+    position: fixed; inset: 0; z-index: 9999;
+    background: var(--bg-deep); color: var(--text-main);
+    flex-direction: column; align-items: center; justify-content: center;
+    gap: 14px; font-size: 18px; letter-spacing: 2px;
+  }
+  #rotate-hint > div:first-child { font-size: 56px; }
+  #app { display: none; }          /* 横屏时整个游戏藏起来，省得半截画面在转 */
+}
+
+/* 极窄（小屏手机 320~360） */
+@media (max-width: 380px) {
+  .tb-stage { font-size: 12px; }
+  .tb-power { display: none; }     /* 战力在这个宽度下挤掉，角色面板里能看 */
+  #rail button em { font-size: 9px; }
+}
