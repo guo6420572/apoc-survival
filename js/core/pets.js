@@ -169,8 +169,10 @@
       exp: p.exp,
       need: needExp(p.level),
       mul: levelMul(),
-      absorb: (C.PET_ABSORB[p.tier] || 0) * 100,     // 显示成百分数
-      inherit: (C.PET_INHERIT[p.tier] || 0) * 100,
+      /* 显示成百分数。★ 必须取整 —— 0.07×100 在浮点里是 7.000000000000001，
+         直接拼进界面就是"吸收 7.000000000000001%"，很难看。 */
+      absorb: Math.round((C.PET_ABSORB[p.tier] || 0) * 10000) / 100,
+      inherit: Math.round((C.PET_INHERIT[p.tier] || 0) * 10000) / 100,
       pool: p.stats || {}
     };
   }
