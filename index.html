@@ -9,9 +9,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="app-version" content="46">
 <title>我在末日独自生存</title>
-<link rel="stylesheet" href="css/base.css">
-<link rel="stylesheet" href="css/layout.css">
-<link rel="stylesheet" href="css/panels.css">
+<link rel="stylesheet" href="css/base.css?v=46">
+<link rel="stylesheet" href="css/layout.css?v=46">
+<link rel="stylesheet" href="css/panels.css?v=46">
 </head>
 <body>
 <div id="app">
@@ -61,59 +61,59 @@
 
 </div>
 
-<script src="js/data/config.js"></script>
-<script src="js/data/materials.js"></script>
+<script src="js/data/config.js?v=46"></script>
+<script src="js/data/materials.js?v=46"></script>
 <!-- scenes.js 必须在 protos.js 之前：protos 按场景表生成 -->
-<script src="js/data/scenes.js"></script>
+<script src="js/data/scenes.js?v=46"></script>
 <!-- difficulty.js 必须在 scenes.js 之后：compOf 要读 sceneOfStage -->
-<script src="js/data/difficulty.js"></script>
-<script src="js/data/protos.js"></script>
+<script src="js/data/difficulty.js?v=46"></script>
+<script src="js/data/protos.js?v=46"></script>
 <!-- sets.js 必须在 protos.js 之后：套装按 protoId 里的场景反查 -->
-<script src="js/data/sets.js"></script>
-<script src="js/data/affixes.js"></script>
-<script src="js/data/weapons.js"></script>
-<script src="js/data/tech.js"></script>
-<script src="js/data/monsters.js"></script>
-<script src="js/data/perks.js"></script>
+<script src="js/data/sets.js?v=46"></script>
+<script src="js/data/affixes.js?v=46"></script>
+<script src="js/data/weapons.js?v=46"></script>
+<script src="js/data/tech.js?v=46"></script>
+<script src="js/data/monsters.js?v=46"></script>
+<script src="js/data/perks.js?v=46"></script>
 
-<script src="js/core/eventbus.js"></script>
-<script src="js/core/rng.js"></script>
-<script src="js/core/formulas.js"></script>
-<script src="js/core/state.js"></script>
-<script src="js/core/stats.js"></script>
-<script src="js/core/inventory.js"></script>
-<script src="js/core/tech.js"></script>
+<script src="js/core/eventbus.js?v=46"></script>
+<script src="js/core/rng.js?v=46"></script>
+<script src="js/core/formulas.js?v=46"></script>
+<script src="js/core/state.js?v=46"></script>
+<script src="js/core/stats.js?v=46"></script>
+<script src="js/core/inventory.js?v=46"></script>
+<script src="js/core/tech.js?v=46"></script>
 <!-- ★ audio.js 曾经**漏在这个文件里**（漏了很久没人发现）：
      缺了它，APOC.Audio 会退化成 eventbus.js 里的空实现桩 —— 不报错、不崩溃，
      只是整个游戏从头到尾一点声音都没有。而 tools/audio_test.js 是直接加载
      audio.js 的，所以测试全绿。加 core 模块时务必同步这一个文件。 -->
-<script src="js/core/audio.js"></script>
+<script src="js/core/audio.js?v=46"></script>
 <!-- pets.js 在 stats.js / inventory.js 之后：stats.final() 调 Pets.stats() 取宠物加成，
      Inventory.autoDevour() 调 Pets.devour()。都只在运行时调用，但顺序摆对少一个坑 -->
-<script src="js/core/pets.js"></script>
-<script src="js/core/combat.js"></script>
-<script src="js/core/arena.js"></script>
-<script src="js/core/offline.js"></script>
-<script src="js/core/loop.js"></script>
+<script src="js/core/pets.js?v=46"></script>
+<script src="js/core/combat.js?v=46"></script>
+<script src="js/core/arena.js?v=46"></script>
+<script src="js/core/offline.js?v=46"></script>
+<script src="js/core/loop.js?v=46"></script>
 
 <!-- 音频清单：由 tools/sync_audio.py 生成。用 <script> 加载而不是 .json + fetch ——
      file:// 下双击打开时 fetch 本地文件会被 CORS 挡死，本作要保证双击能玩。
      必须排在 audio_assets.js 前面（后者 build() 时要读 APOC.AudioManifest）。 -->
-<script src="assets/audio/manifest.js"></script>
-<script src="js/ui/audio_assets.js"></script>
+<script src="assets/audio/manifest.js?v=46"></script>
+<script src="js/ui/audio_assets.js?v=46"></script>
 
-<script src="js/ui/toast.js"></script>
-<script src="js/ui/effects.js"></script>
-<script src="js/ui/sprites.js"></script>
-<script src="js/ui/render.js"></script>
-<script src="js/ui/hud.js"></script>
-<script src="js/ui/panel_char.js"></script>
-<script src="js/ui/panel_bag.js"></script>
-<script src="js/ui/panel_tech.js"></script>
-<script src="js/ui/panel_stage.js"></script>
-<script src="js/ui/panel_settings.js"></script>
-<script src="js/ui/panel_arena.js"></script>
+<script src="js/ui/toast.js?v=46"></script>
+<script src="js/ui/effects.js?v=46"></script>
+<script src="js/ui/sprites.js?v=46"></script>
+<script src="js/ui/render.js?v=46"></script>
+<script src="js/ui/hud.js?v=46"></script>
+<script src="js/ui/panel_char.js?v=46"></script>
+<script src="js/ui/panel_bag.js?v=46"></script>
+<script src="js/ui/panel_tech.js?v=46"></script>
+<script src="js/ui/panel_stage.js?v=46"></script>
+<script src="js/ui/panel_settings.js?v=46"></script>
+<script src="js/ui/panel_arena.js?v=46"></script>
 
-<script src="js/main.js"></script>
+<script src="js/main.js?v=46"></script>
 </body>
 </html>
