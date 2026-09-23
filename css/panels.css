@@ -212,6 +212,23 @@
 .switch.on { border-color: var(--accent); }
 .switch.on::after { left: 22px; background: var(--accent); }
 
+/* ---------- 难度选择（设置面板） ---------- */
+.diff-row {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  padding: 10px 0; border-bottom: 1px solid #2a2622;
+}
+.diff-btn {
+  flex: 1 1 0; min-width: 62px; height: 40px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  line-height: 1.15; font-size: 12px;
+}
+.diff-btn em { font-style: normal; font-size: 10px; color: var(--text-dim); margin-top: 1px; }
+.diff-btn.on {
+  border-color: var(--accent); background: #2a1f12;
+  color: var(--accent); font-weight: 700;
+}
+.diff-btn.on em { color: var(--accent); }
+
 /* ---------- 弹窗层（三选一 / 离线） ---------- */
 .modal-mask {
   position: absolute; inset: 0;

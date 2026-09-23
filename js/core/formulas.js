@@ -20,9 +20,13 @@
     var t = C.TIER[m.tier];
     var p = POW(K);
     var d = mod || APOC.Difficulty.forStage(K);
+    /* ★ 世界难度乘区（普通 1 / 困难 10 / 噩梦 100 / 地狱 1000，见 core/world.js）。
+       放在 mod 之外单独乘：割草关显式传的是 Difficulty.IDENT（它绕开的是**按关**难度表），
+       但"世界难度"是另一根轴，割草关同样要受影响。exp/gold/def 不乘 —— 只放大强度。 */
+    var w = (APOC.World && APOC.World.monMul) ? APOC.World.monMul() : 1;
     return {
-      hp:  Math.round(C.MON_HP  * p * t.hp * m.hpMul * d.hpMul),
-      atk: C.MON_ATK * p * t.atk * m.atkMul * d.atkMul,
+      hp:  Math.round(C.MON_HP  * p * t.hp * m.hpMul * d.hpMul * w),
+      atk: C.MON_ATK * p * t.atk * m.atkMul * d.atkMul * w,
       def: C.MON_DEF * Math.pow(p, C.MON_DEF_EXP) * t.def * m.defMul,
       exp: Math.round(C.MON_EXP * Math.pow(p, C.MON_EXP_EXP) * t.exp * m.expMul),
       gold: C.GOLD_BASE * Math.pow(p, C.GOLD_EXP) * t.gold

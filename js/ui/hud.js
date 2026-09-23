@@ -123,6 +123,9 @@
     var inScene = scene ? (D.progress.stage - scene.stageFrom + 1) : D.progress.stage;
     var stageTxt = (scene ? scene.name : '未知') + ' ' + inScene + '-' + D.progress.stage;
     if (APOC.Arena.isActive()) stageTxt += ' · 割草';
+    /* 非普通难度必须一直挂在关卡名上 —— 切档会归零进度，
+       玩家忘了自己在噩梦档、只看到"怪怎么突然这么硬"，是最容易劝退的一种体验。 */
+    if (APOC.World && !APOC.World.isNormal()) stageTxt += ' · ' + APOC.World.name();
     setText(el.stage, 'stage', stageTxt);
 
     setText(el.power, 'power', F.fmt(s.bp));

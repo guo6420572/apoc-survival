@@ -45,6 +45,10 @@
       pet: (APOC.Pets && APOC.Pets.makePet)
         ? APOC.Pets.makePet(C.PET_STARTER_TIER) : null,
 
+      /* 世界难度（普通/困难/噩梦/地狱）。tier 是 Config.WORLD_TIERS 的下标。
+         放在顶层而不是 settings 里：它是进度，不是"显示选项"。 */
+      world: { tier: 0 },
+
       stats: { totalKills: 0, totalDeaths: 0, totalGoldEarned: 0 },
 
       settings: {

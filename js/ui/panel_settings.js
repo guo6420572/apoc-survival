@@ -20,7 +20,16 @@
     body = el.querySelector('.panel-body');
 
     var html = '';
-    html += '<h3 style="font-size:12px;color:var(--text-sub);font-weight:400;margin-bottom:6px">挂机选项</h3>';
+    html += '<h3 style="font-size:12px;color:var(--text-sub);font-weight:400;margin-bottom:6px">难度</h3>';
+    html += '<div class="set-row">' +
+      '<div><div>世界难度：<b id="set-world-name" style="color:var(--accent)">普通</b></div>' +
+      '<div class="desc">怪物生命与攻击 ×1 / ×10 / ×100 / ×1000。' +
+      '<b style="color:var(--danger)">每次切换都会结算一次</b>：等级归零、科技树清空、' +
+      '加点保留 25%、宠物属性保留 50%（金币 / 材料 / 装备 / 关卡进度不受影响）。</div></div>' +
+      '</div>';
+    html += '<div id="set-world" class="diff-row"></div>';
+
+    html += '<h3 style="font-size:12px;color:var(--text-sub);font-weight:400;margin:18px 0 6px">挂机选项</h3>';
     TOGGLES.forEach(function (t) {
       html += '<div class="set-row">' +
         '<div><div>' + t.n + '</div><div class="desc">' + t.d + '</div></div>' +
@@ -52,6 +61,7 @@
 
     body.innerHTML = html;
     APOC.UI.overlay().appendChild(el);
+    renderWorld();
 
     body.addEventListener('input', function (ev) {
       if (ev.target.id === 'set-vol') {
@@ -65,6 +75,20 @@
     });
 
     body.addEventListener('click', function (ev) {
+      /* ---- 世界难度 ---- */
+      var wb = ev.target.closest ? ev.target.closest('[data-world]') : null;
+      if (wb) {
+        var wi = parseInt(wb.dataset.world, 10);
+        var W = APOC.World;
+        if (wi === W.index()) return;
+        if (!confirm(switchWorldText(wi))) return;
+        var r = W.switchTo(wi);
+        if (!r.ok) return;
+        APOC.UI.toast('warn', '已切换到「' + r.tier.name + '」，等级与科技已归零');
+        APOC.enterStage(APOC.State.data.progress.stage);   // 属性全变了，重建战场
+        refresh();
+        return;
+      }
       var sw = ev.target.closest ? ev.target.closest('[data-toggle]') : null;
       if (sw) {
         var k = sw.dataset.toggle;
@@ -166,6 +190,37 @@
     box.innerHTML = html;
   }
 
+  /* 切换难度的确认文案。★ 把"要付出什么代价"逐条摆出来 ——
+     这是不可撤销的操作，只写"确定切换吗"等于把玩家坑一次。 */
+  function switchWorldText(wi) {
+    var W = APOC.World;
+    var to = W.tiers()[wi], from = W.cur();
+    var p = APOC.State.data.player;
+    return '切换到「' + to.name + '」？\n\n' +
+      '怪物生命与攻击：×' + from.mul + ' → ×' + to.mul + '\n\n' +
+      '本次切换立刻结算：\n' +
+      '· 等级归零（Lv.' + p.level + ' → Lv.1）\n' +
+      '· 科技树全部清空（武器退回初始手枪）\n' +
+      '· 加点保留 25%\n' +
+      '· 宠物属性保留 50%\n\n' +
+      '金币 / 材料 / 装备 / 关卡进度不受影响。此操作不可撤销，' +
+      '且切回低难度时同样会再结算一次。';
+  }
+
+  function renderWorld() {
+    var box = body.querySelector('#set-world');
+    if (!box) return;
+    var W = APOC.World;
+    var html = '';
+    W.info().list.forEach(function (t) {
+      html += '<button class="diff-btn' + (t.on ? ' on' : '') + '" data-world="' + t.index + '">' +
+        t.name + '<em>×' + t.mul + '</em></button>';
+    });
+    box.innerHTML = html;
+    var nm = body.querySelector('#set-world-name');
+    if (nm) nm.textContent = W.name();
+  }
+
   function syncSwitches() {
     var s = APOC.State.data.settings;
     Array.prototype.forEach.call(body.querySelectorAll('[data-toggle]'), function (sw) {
@@ -177,6 +232,7 @@
     if (!el || el.hidden) return;
     var s = APOC.State.data.settings;
     syncSwitches();
+    renderWorld();
     renderSlots();
     var vol = body.querySelector('#set-vol');
     if (vol) vol.value = Math.round((s.volume === undefined ? 0.7 : s.volume) * 100);
