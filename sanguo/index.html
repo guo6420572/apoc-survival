@@ -1,0 +1,626 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#07090c">
+<title>三国 · 将星录</title>
+<link rel="stylesheet" href="style.css?v=20261123z45">
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-seal">将</span>
+      <div class="brand-txt">
+        <h1>三国<span>·</span>将星录</h1>
+        <small>汉末群雄 · 星命共鸣</small>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div id="status" class="status">读取武将数据…</div>
+      <button id="openSettings" class="icon-btn" title="设置">设</button>
+    </div>
+  </header>
+
+  <div class="hud">
+    <div id="wallet" class="wallet"></div>
+    <div id="staminaLine" class="stamina-line"></div>
+  </div>
+
+  <nav id="nav">
+    <button data-nav="home" class="active"><i class="seal" data-ch="城"></i><span>主城</span></button>
+    <button data-nav="campaign"><i class="seal" data-ch="战"></i><span>征战</span></button>
+    <button data-nav="recruit"><i class="seal" data-ch="招"></i><span>招募</span></button>
+    <button data-nav="shop"><i class="seal" data-ch="商"></i><span>商城</span></button>
+    <button data-nav="tower"><i class="seal" data-ch="塔"></i><span>将星塔</span></button>
+    <button data-nav="roster"><i class="seal" data-ch="将"></i><span>武将</span></button>
+  </nav>
+
+  <main class="game-main">
+  <section id="homeScreen" class="screen-page home-screen">
+    <div id="homeHero" class="home-hero"></div>
+    <div id="questTracker" class="quest-tracker"></div>
+    <div class="city-primary home-tiles">
+      <button data-go="campaign"><i class="tile-ico" data-ch="战"></i><span class="tile-txt"><b>征战</b><em>主线闯关</em></span></button>
+      <button data-go="recruit"><i class="tile-ico" data-ch="招"></i><span class="tile-txt"><b>招募</b><em>招贤纳士</em></span></button>
+      <button data-go="shop"><i class="tile-ico" data-ch="商"></i><span class="tile-txt"><b>商城</b><em>军需补给</em></span></button>
+      <button data-go="tower"><i class="tile-ico" data-ch="塔"></i><span class="tile-txt"><b>将星塔</b><em>百层试炼</em></span></button>
+      <button data-go="dungeon"><i class="tile-ico" data-ch="副"></i><span class="tile-txt"><b>副本</b><em>材料产出</em></span></button>
+      <button data-go="secret"><i class="tile-ico" data-ch="秘"></i><span class="tile-txt"><b>秘境</b><em>随机构筑</em></span></button>
+    </div>
+    <div class="city-secondary home-tiles">
+      <button data-go="ancient"><i class="tile-ico" data-ch="古"></i><span class="tile-txt"><b>上古</b><em>神兽神兵</em></span></button>
+      <button data-go="trial"><i class="tile-ico" data-ch="炼"></i><span class="tile-txt"><b>试炼</b><em>每日轮换</em></span></button>
+      <button data-go="worldboss"><i class="tile-ico" data-ch="伐"></i><span class="tile-txt"><b>世界首领</b><em>每日伤害</em></span></button>
+      <button data-go="expedition"><i class="tile-ico" data-ch="遣"></i><span class="tile-txt"><b>内政</b><em>挂机派遣</em></span></button>
+      <button data-go="survival"><i class="tile-ico" data-ch="垓"></i><span class="tile-txt"><b>无尽</b><em>生存挑战</em></span></button>
+      <button data-go="achieve"><i class="tile-ico" data-ch="勋"></i><span class="tile-txt"><b>功勋</b><em>成就·收集</em></span></button>
+      <button data-go="season"><i class="tile-ico" data-ch="赛"></i><span class="tile-txt"><b>赛季</b><em>六周目标</em></span></button>
+      <button data-go="roster"><i class="tile-ico" data-ch="将"></i><span class="tile-txt"><b>武将</b><em>背包编队</em></span></button>
+      <button data-go="growth"><i class="tile-ico" data-ch="养"></i><span class="tile-txt"><b>养成</b><em>技能装备</em></span></button>
+      <button data-go="codex"><i class="tile-ico" data-ch="鉴"></i><span class="tile-txt"><b>图鉴</b><em>二百将星</em></span></button>
+      <button data-go="bag"><i class="tile-ico" data-ch="包"></i><span class="tile-txt"><b>背包</b><em>技能书·秘宝</em></span></button>
+      <button data-go="quest"><i class="tile-ico" data-ch="令"></i><span class="tile-txt"><b>任务</b><em>主线日常</em></span></button>
+      <button data-go="story"><i class="tile-ico" data-ch="书"></i><span class="tile-txt"><b>剧情</b><em>章节故事</em></span></button>
+      <button data-go="travel"><i class="tile-ico" data-ch="游"></i><span class="tile-txt"><b>游历</b><em>江湖奇遇</em></span></button>
+    </div>
+    <div id="homeInfo" class="home-info"></div>
+  </section>
+
+  <section id="recruitScreen" class="screen-page" hidden>
+    <div class="page-head">
+      <div class="ph-title"><span class="ph-kicker">招贤馆</span><h2>招募</h2></div>
+      <button data-back class="ph-back">‹ 返回主城</button>
+    </div>
+    <div id="gachaStage" class="gacha-stage"></div>
+    <div class="pool-tabs">
+      <button data-pool="normal" class="active">招贤纳士</button>
+      <button data-pool="limited">群英 UP</button>
+      <button data-pool="faction">四方阵营</button>
+      <button data-pool="newbie">桃园结义</button>
+      <button data-pool="event">活动纪念</button>
+    </div>
+    <div id="factionTabs" class="filters" hidden></div>
+    <div id="gachaInfo" class="gacha-info"></div>
+    <div id="gachaRates" class="gacha-rates"></div>
+    <div class="gacha-btns">
+      <button id="pull1">单抽</button>
+      <button id="pull10" class="menu-primary">十连</button>
+    </div>
+    <div class="section-head"><span class="section-kicker">结果</span><h3>召贤录</h3><em>SUMMON RESULT</em></div>
+    <div id="gachaResult" class="gacha-result"></div>
+  </section>
+
+  <section id="shopScreen" class="screen-page" hidden>
+    <div class="page-head">
+      <div class="ph-title"><span class="ph-kicker">军需处</span><h2>商城</h2></div>
+      <button data-back class="ph-back">‹ 返回主城</button>
+    </div>
+    <div class="shop-banner">
+      <div class="sb-art"></div>
+      <div class="sb-txt"><span>军需补给</span><h3>限时军需 · 招贤令</h3><p>铜钱与塔币可换取招募、养成与体力物资。</p></div>
+    </div>
+    <div class="shop-tools"><div id="shopTabs" class="pool-tabs shop-tabs"></div><button id="openBag" class="mini">背包</button></div>
+    <div id="shopGrid" class="shop-grid"></div>
+  </section>
+
+  <section id="dungeonScreen" class="screen-page" hidden>
+    <div class="page-head">
+      <div class="ph-title"><span class="ph-kicker">材料本</span><h2>副本</h2></div>
+      <button data-back class="ph-back">‹ 返回主城</button>
+    </div>
+    <div id="dungeonGrid" class="dungeon-grid"></div>
+  </section>
+
+  <section id="secretScreen" class="screen-page" hidden>
+    <div class="page-head">
+      <div class="ph-title"><span class="ph-kicker">Roguelike</span><h2>秘境</h2></div>
+      <button data-back class="ph-back">‹ 返回主城</button>
+    </div>
+    <div id="secretInfo" class="tower-info"></div>
+    <div id="secretBlessings" class="buff-grid"></div>
+    <div id="secretEnemies" class="tower-enemies"></div>
+    <button id="secretStart" class="start">开始秘境</button>
+    <button id="secretSweep" class="ghost">扫荡秘境</button>
+  </section>
+
+  <section id="ancientScreen" class="screen-page" hidden>
+    <div class="page-head">
+      <div class="ph-title"><span class="ph-kicker">终局</span><h2>上古副本</h2></div>
+      <button data-back class="ph-back">‹ 返回主城</button>
+    </div>
+    <div id="ancientGrid" class="dungeon-grid"></div>
+  </section>
+
+  <section id="trialScreen" class="screen-page" hidden>
+    <div class="page-head">
+      <div class="ph-title"><span class="ph-kicker">每日轮换</span><h2>试炼</h2></div>
+      <button data-back class="ph-back">‹ 返回主城</button>
+    </div>
+    <div id="trialInfo" class="tower-info"></div>
+    <div id="trialList" class="trial-grid"></div>
+  </section>
+
+  <section id="survivalScreen" class="screen-page" hidden>
+    <div class="page-head">
+      <div class="ph-title"><span class="ph-kicker">无限挑战</span><h2>无尽生存</h2></div>
+      <button data-back class="ph-back">‹ 返回主城</button>
+    </div>
+    <div id="survivalInfo" class="tower-info"></div>
+    <div id="survivalUpgrades"></div>
+    <div id="survivalChoices"></div>
+    <div id="survivalMilestones"></div>
+    <div class="surv-actions"><button id="survivalStart" class="start">开始无尽生存</button>
+      <button id="survivalAbandon" class="mini ghost" hidden>放弃本轮</button></div>
+  </section>
+
+  <section id="expeditionScreen" class="screen-page" hidden>
+    <div class="page-head">
+      <div class="ph-title"><span class="ph-kicker">内政</span><h2>派遣</h2></div>
+      <button data-back class="ph-back">‹ 返回主城</button>
+    </div>
+    <div id="expeditionInfo" class="tower-info"></div>
+    <div id="expeditionMissions" class="exp-mission-grid"></div>
+    <div class="season-sub">派遣队伍</div>
+    <div id="expeditionSlots" class="exp-slots"></div>
+  </section>
+
+  <section id="worldbossScreen" class="screen-page" hidden>
+    <div class="page-head">
+      <div class="ph-title"><span class="ph-kicker">每日讨伐</span><h2>世界首领</h2></div>
+      <button data-back class="ph-back">‹ 返回主城</button>
+    </div>
+    <div id="worldbossInfo" class="tower-info"></div>
+    <div id="worldbossTiers"></div>
+    <button id="worldbossChallenge" class="start">需要 5 人编队</button>
+  </section>
+
+  <section id="achieveScreen" class="screen-page" hidden>
+    <div class="page-head">
+      <div class="ph-title"><span class="ph-kicker">功勋</span><h2>成就</h2></div>
+      <button data-back class="ph-back">‹ 返回主城</button>
+    </div>
+    <div id="achSummary" class="tower-info"></div>
+    <div id="achTabs" class="pool-tabs"></div>
+    <div id="achList" class="quest-list"></div>
+  </section>
+
+  <section id="seasonScreen" class="screen-page" hidden>
+    <div class="page-head">
+      <div class="ph-title"><span class="ph-kicker">六周赛季</span><h2>赛季</h2></div>
+      <button data-back class="ph-back">‹ 返回主城</button>
+    </div>
+    <div id="seasonInfo" class="tower-info"></div>
+    <div class="season-tools"><button id="seasonClaimAll" class="mini">一键领取可领奖励</button></div>
+    <div id="seasonTasks" class="season-tasks"></div>
+    <div id="seasonWeekly" class="season-tasks"></div>
+    <div id="seasonMilestones" class="season-tiers"></div>
+  </section>
+
+  <section id="questScreen" class="screen-page" hidden>
+    <div class="page-head">
+      <div class="ph-title"><span class="ph-kicker">江湖</span><h2>任务</h2></div>
+      <button id="questBack" class="ph-back">‹ 返回主城</button>
+    </div>
+    <div class="quest-tools">
+      <div id="questTabs" class="pool-tabs"></div>
+      <button id="questStoryBtn" class="mini">剧情回顾</button>
+      <button id="questGuideBtn" class="mini">新手引导</button>
+    </div>
+    <div id="questList" class="quest-list"></div>
+  </section>
+
+  <section id="storyScreen" class="screen-page" hidden>
+    <div class="page-head">
+      <div class="ph-title"><span class="ph-kicker">三国</span><h2>剧情 <span id="storyProgress" class="roster-count"></span></h2></div>
+      <button id="storyBack" class="ph-back">‹ 返回主城</button>
+    </div>
+    <div id="storyList" class="story-list"></div>
+  </section>
+
+  <section id="towerScreen" class="screen-page" hidden>
+    <div class="page-head">
+      <div class="ph-title"><span class="ph-kicker">试炼之地</span><h2>将星塔</h2></div>
+      <button data-back class="ph-back">‹ 返回主城</button>
+    </div>
+    <div id="towerInfo" class="tower-info"></div>
+    <div id="towerBuffs" class="buff-grid"></div>
+    <div id="towerEnemies" class="tower-enemies"></div>
+    <button id="towerSweep" class="ghost">扫荡当前层</button>
+    <button id="towerChallenge" class="start">选择增益后挑战</button>
+  </section>
+
+  <section id="rosterScreen" class="screen-page" hidden>
+    <div class="page-head">
+      <div class="ph-title"><span class="ph-kicker">武将</span><h2>武将背包 <span id="rosterCount" class="roster-count"></span></h2></div>
+      <button data-back class="ph-back">‹ 返回主城</button>
+    </div>
+    <div class="roster-tools">
+      <div id="rosterFilters" class="filters"></div>
+      <div class="roster-actions">
+        <select id="rosterSort" class="roster-sort">
+          <option value="power">按战力</option>
+          <option value="rarity">按稀有度</option>
+          <option value="name">按姓名</option>
+        </select>
+        <button id="rosterFormation" class="mini">编队</button>
+        <button id="rosterBag" class="mini">背包</button>
+        <button id="rosterBatch" class="mini ghost">批量分解</button>
+      </div>
+    </div>
+    <div id="rosterGrid" class="roster-grid"></div>
+  </section>
+
+  <section id="setup" class="screen-page">
+    <div class="panel pool-panel" id="poolPanel">
+      <div class="toolbar">
+        <input id="search" placeholder="搜索武将 / 定位">
+        <button id="randomA" class="ghost">一键上阵</button>
+        <button id="smartA" class="ghost">智能编队</button>
+      </div>
+      <div id="filters" class="filters"></div>
+      <div id="pool" class="pool"></div>
+    </div>
+
+    <div class="panel levels-panel" id="campaignPanel">
+      <div id="campaignHero" class="campaign-hero"></div>
+      <div class="settings-head">
+        <h2 id="campaignTitle">主线 · 第一卷 黄巾之乱</h2>
+        <span id="modeLabel">主线关卡</span>
+      </div>
+      <div id="volumeTabs" class="vol-tabs"></div>
+      <div id="chapterTabs" class="chapter-tabs"></div>
+      <div id="levelList" class="level-list"></div>
+      <div id="levelInfo" class="level-info">选择关卡；敌军阵容固定，通关解锁下一关。</div>
+      <button id="sweepBtn" class="ghost" disabled>通关后可扫荡</button>
+      <button id="toFormation" class="start">进入编队</button>
+    </div>
+
+    <div class="panel growth" id="growthPanel">
+      <div class="growth-tools">
+        <button id="growthBack" class="mini ghost">‹ 返回武将</button>
+        <button id="growthDetail" class="mini">武将详情</button>
+        <button id="growthBag" class="mini">背包</button>
+      </div>
+      <div class="settings-head">
+        <h2>武将养成</h2>
+        <span id="growthSet">套装：未齐</span>
+      </div>
+      <div class="cfg-row">
+        <label>武将</label>
+        <select id="growthUnit"></select>
+      </div>
+      <div class="growth-hero">
+        <img id="growthCard" class="growth-card" alt="">
+        <div id="growthStats" class="growth-stats"></div>
+      </div>
+      <div id="growthAdvance" class="growth-list"></div>
+      <div id="growthSkills" class="growth-list"></div>
+      <div id="growthEquips" class="growth-list"></div>
+      <div id="growthHint" class="growth-hint"></div>
+    </div>
+
+    <div class="panel teams" id="formationPanel">
+      <div id="formationLevel" class="formation-level">未选择关卡 · 请先前往征战</div>
+      <div class="team-head">
+        <h2>我军 <span id="acount">0/5</span></h2>
+        <button id="clearA" class="mini">清空</button>
+      </div>
+      <div id="teamA" class="team"></div>
+      <div class="team-head support-head">
+        <h2>助阵 <span id="scount">0/3</span></h2>
+        <span class="support-note">不参战 · 只用于触发羁绊</span>
+      </div>
+      <div id="teamSupport" class="team support-team"></div>
+      <div id="bondPanel" class="bond-panel"></div>
+      <div id="troopPanel" class="troop-panel"></div>
+      <button id="start" class="start">请先选择关卡</button>
+    </div>
+  </section>
+  </main>
+</div>
+
+<div id="startMenu" class="start-menu">
+  <div id="menuArt" class="menu-art"></div>
+  <div class="menu-veil"></div>
+  <div class="menu-embers"></div>
+  <div class="menu-content">
+    <div class="menu-crest"><span>将</span></div>
+    <div class="menu-kicker">汉末群雄 · 星命共鸣</div>
+    <h1><span>三国</span><b>·</b><span>将星录</span></h1>
+    <div class="menu-sub">200 将 · 700 关 · 单机卡牌 RPG</div>
+    <div class="menu-btns">
+      <button id="continueBtn" class="menu-primary">继续征程</button>
+      <button id="newBtn">新的征程</button>
+      <button id="menuCodex">武将图鉴</button>
+    </div>
+    <div class="menu-foot" id="menuFoot">本地存档 · 自动保存</div>
+  </div>
+</div>
+
+<section id="battle" hidden>
+  <div class="battle-bg"></div>
+  <div class="battle-top">
+    <div class="battle-side enemy-side"><i class="seal" data-ch="敌"></i><span>敌军</span><em>ENEMY</em></div>
+    <div class="speed">
+      <button data-speed="1">1x</button>
+      <button data-speed="2" class="active">2x</button>
+      <button data-speed="4">4x</button>
+      <button id="manual">手动</button>
+      <button id="pause">暂停</button>
+      <button id="skip">跳过</button>
+      <button id="comboBtn" class="combo-btn" hidden>合击</button>
+      <button id="battleSettings">设置</button>
+    </div>
+  </div>
+  <div id="teamHud" class="team-hud">
+    <div class="th-side ally"><span>我军</span><div class="th-bar"><i id="thAllyHp"></i></div><b id="thAllyRage">0</b></div>
+    <div class="th-side enemy"><span>敌军</span><div class="th-bar"><i id="thEnemyHp"></i></div><b id="thEnemyRage">0</b></div>
+  </div>
+  <div id="enemyRow" class="row-cards"></div>
+  <div class="battle-center">
+    <div class="round" id="round">第 1 回合</div>
+    <div class="vs">VS</div>
+    <div class="battle-side player-side"><i class="seal" data-ch="我"></i><span>我军</span><em>ALLY</em></div>
+  </div>
+  <div id="mid">
+    <div id="prompt" class="prompt" hidden>
+      <div id="promptUnit"></div>
+      <div id="promptSkills" class="prompt-skills"></div>
+    </div>
+    <div class="mid-main">
+      <div class="ts-col ally">
+        <div class="ts-title">我军</div>
+        <div id="tsAllyList" class="ts-list"></div>
+      </div>
+      <div id="log"></div>
+      <div class="ts-col enemy">
+        <div class="ts-title">敌军</div>
+        <div id="tsEnemyList" class="ts-list"></div>
+      </div>
+    </div>
+  </div>
+  <div class="row-label ally-label"><i class="seal" data-ch="我"></i><span>我军</span><em>ALLY</em></div>
+  <div id="playerRow" class="row-cards"></div>
+  <div id="overlay" class="overlay" hidden>
+    <div class="overlay-box">
+      <div id="resultTitle">胜利</div>
+      <div id="resultSub"></div>
+      <div id="rewards" class="rewards"></div>
+      <div class="overlay-actions">
+        <button id="next" class="start" hidden>下一关</button>
+        <button id="viewStats" class="ghost">详细统计</button>
+        <button id="encounterBtn" class="ghost" hidden>奇遇降临</button>
+        <button id="again">再战</button>
+        <button id="back" class="ghost">返回编队</button>
+      </div>
+    </div>
+  </div>
+  <div id="battleMenu" class="overlay battle-menu" hidden>
+    <div class="overlay-box bmenu-box">
+      <div class="bmenu-title">战斗暂停</div>
+      <div class="bmenu-row"><label>画质</label>
+        <select id="battleQuality"><option value="smooth">流畅</option><option value="hd" selected>高清</option><option value="ultra">极致</option></select>
+      </div>
+      <div class="bmenu-row"><label>音乐</label><input id="battleMusic" type="range" min="0" max="100" value="60"><b id="battleMusicVal">60</b></div>
+      <div class="bmenu-row"><label>音效</label><input id="battleSfx" type="range" min="0" max="100" value="80"><b id="battleSfxVal">80</b></div>
+      <div class="bmenu-actions">
+        <button id="battleResume" class="start">继续战斗</button>
+        <button id="battleQuit" class="ghost">退出关卡</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="codex" class="overlay-screen" hidden>
+  <div class="codex-bar">
+    <div class="ph-title"><span class="ph-kicker">图鉴</span><h2>武将图鉴 <span id="codexCount"></span></h2></div>
+    <div class="codex-bar-btns"><button id="codexRewards" class="mini">收集奖励</button><button id="closeCodex">返回</button></div>
+  </div>
+  <div id="codexFilters" class="filters"></div>
+  <div id="codexGrid" class="codex-grid"></div>
+</div>
+
+<div id="detail" class="overlay" hidden>
+  <div class="detail-box">
+    <button id="closeDetail" class="detail-close">×</button>
+    <div id="detailTabs" class="detail-tabs">
+      <button data-dtab="art" class="active">卡面</button>
+      <button data-dtab="attr">属性</button>
+      <button data-dtab="skill">技能</button>
+      <button data-dtab="bond">羁绊</button>
+      <button data-dtab="bio">传记</button>
+    </div>
+    <div class="detail-left">
+      <div class="detail-art-tabs"><button data-art="card" class="active">卡面</button><button data-art="portrait">立绘</button></div>
+      <img id="detailCard" class="detail-card" alt="">
+      <div id="detailRadar" class="detail-radar"></div>
+    </div>
+    <div class="detail-info">
+      <div class="detail-head"><h3 id="detailName"></h3><div id="detailSub" class="detail-sub"></div></div>
+      <div id="detailStats" class="stat-grid d-attr"></div>
+      <div id="detailActions" class="detail-actions d-attr"></div>
+      <div id="detailSlots" class="detail-list d-attr"></div>
+      <div id="detailSkills" class="detail-list d-skill"></div>
+      <div id="detailTalents" class="detail-list d-skill"></div>
+      <div id="detailBonds" class="detail-list d-bond"></div>
+      <div id="detailAffinity" class="detail-list d-bond"></div>
+      <div id="detailBio" class="detail-bio d-bio"></div>
+    </div>
+  </div>
+</div>
+
+<div id="itemPicker" class="overlay" hidden>
+  <div class="overlay-box picker-box">
+    <button id="closeItemPicker" class="detail-close">×</button>
+    <div class="bmenu-title" id="itemPickerTitle">选择</div>
+    <div id="itemPickerList" class="picker-list"></div>
+  </div>
+</div>
+
+<div id="battleStats" class="overlay" hidden>
+  <div class="overlay-box stats-box">
+    <button id="closeBattleStats" class="detail-close">×</button>
+    <div class="bmenu-title">战斗统计</div>
+    <div id="battleStatsBody" class="stats-body"></div>
+  </div>
+</div>
+
+<div id="bag" class="overlay" hidden>
+  <div class="overlay-box bag-box">
+    <button id="closeBag" class="detail-close">×</button>
+    <div class="bmenu-title">背包</div>
+    <div id="bagTabs" class="bag-tabs"></div>
+    <input id="bagSearch" class="bag-search" placeholder="搜索物品 / 效果">
+    <div id="bagGrid" class="bag-grid"></div>
+  </div>
+</div>
+
+<div id="settingsModal" class="overlay" hidden>
+  <div class="overlay-box bmenu-box">
+    <button id="closeSettings" class="detail-close">×</button>
+    <div class="bmenu-title">设置</div>
+    <div class="bmenu-row"><label>画质</label><select id="setQuality"><option value="smooth">流畅</option><option value="hd" selected>高清</option><option value="ultra">极致</option></select></div>
+    <div class="bmenu-row"><label>音乐</label><input id="setMusic" type="range" min="0" max="100" value="60"><b id="setMusicVal">60</b></div>
+    <div class="bmenu-row"><label>音效</label><input id="setSfx" type="range" min="0" max="100" value="80"><b id="setSfxVal">80</b></div>
+    <div class="bmenu-row"><label>存档</label><span class="set-note" id="setSaveInfo">本地自动保存</span></div>
+    <div class="bmenu-actions">
+      <button id="exportSave" class="ghost">导出存档</button>
+      <button id="importSave" class="ghost">导入存档</button>
+    </div>
+    <input id="importFile" type="file" accept="application/json,.json" hidden>
+    <div class="bmenu-actions"><button id="refillRes" class="ghost" hidden>测试资源补满（+200 招贤令）</button></div>
+    <div class="bmenu-actions"><button id="clearSave" class="ghost">清空本地存档</button></div>
+    <div class="build-tag">构建 v20261123vq · UI祥纹 xw1</div>
+  </div>
+</div>
+
+<div id="storyModal" class="overlay" hidden>
+  <div class="overlay-box story-box">
+    <button id="closeStory" class="detail-close">×</button>
+    <div class="bmenu-title" id="storyTitle"></div>
+    <div id="storyBody" class="story-body"></div>
+  </div>
+</div>
+
+<div id="batchModal" class="overlay" hidden>
+  <div class="overlay-box batch-box">
+    <button id="closeBatch" class="detail-close">×</button>
+    <div class="bmenu-title">批量分解</div>
+    <div class="batch-note">仅列出普通/精良且没有将星印记的武将；至少保留 5 名武将。</div>
+    <div class="batch-tools">
+      <button id="batchCommon" class="mini">全选普通</button>
+      <button id="batchFine" class="mini">全选精良</button>
+      <span id="batchCount" class="batch-count">已选 0</span>
+    </div>
+    <div id="batchList" class="batch-list"></div>
+    <div class="bmenu-actions">
+      <button id="batchCancel" class="ghost">取消</button>
+      <button id="batchConfirm" class="start">确认分解</button>
+    </div>
+  </div>
+</div>
+
+<div id="expeditionModal" class="overlay" hidden>
+  <div class="overlay-box exp-box">
+    <button id="closeExp" class="detail-close">×</button>
+    <div class="bmenu-title" id="expTitle"></div>
+    <div id="expDesc" class="tower-info"></div>
+    <div id="expHours" class="sweep-counts"></div>
+    <div id="expTeamList" class="exp-cands"></div>
+    <div id="expTeamHint" class="tower-info"></div>
+    <div class="bmenu-actions"><button id="expDispatch" class="start">派遣</button></div>
+  </div>
+</div>
+
+<div id="storyCinema" class="cinema" hidden>
+  <div id="cinemaBg" class="cinema-bg"></div>
+  <div class="cinema-veil"></div>
+  <div class="cinema-top">
+    <div class="cinema-kicker">章节演出</div>
+    <h2 id="cinemaTitle"></h2>
+    <div class="cinema-tools">
+      <button id="cinemaAuto" class="mini ghost">自动</button>
+      <button id="cinemaSkip" class="mini ghost">跳过</button>
+    </div>
+  </div>
+  <div class="cinema-stage">
+    <div id="cinemaPortrait" class="cinema-portrait"></div>
+  </div>
+  <div id="cinemaDialogue" class="cinema-dialogue">
+    <div class="cinema-name"><b id="cinemaName"></b><span id="cinemaStep"></span></div>
+    <div id="cinemaText" class="cinema-text"></div>
+    <div class="cinema-actions"><button id="cinemaNext" class="start">继续</button></div>
+  </div>
+</div>
+
+<div id="encounter" class="overlay" hidden>
+  <div class="overlay-box story-box">
+    <div class="bmenu-title" id="encounterTitle"></div>
+    <div id="encounterText" class="story-body"></div>
+    <div id="encounterChoices" class="encounter-choices"></div>
+    <div class="bmenu-actions"><button id="encounterClose" class="start" hidden>继续赶路</button></div>
+  </div>
+</div>
+
+<div id="chapterRelic" class="overlay" hidden>
+  <div class="overlay-box story-box chapter-box">
+    <button id="closeChapterRelic" class="detail-close">×</button>
+    <div class="bmenu-title" id="chapterTitle"></div>
+    <div id="chapterBody" class="story-body"></div>
+    <div id="chapterRelicLine" class="chapter-relic"></div>
+    <div id="chapterSigils" class="sigil-grid"></div>
+    <div class="bmenu-actions"><button id="chapterLater" class="ghost">稍后再选</button></div>
+  </div>
+</div>
+
+<div id="sweepModal" class="overlay" hidden>
+  <div class="overlay-box sweep-box">
+    <button id="closeSweep" class="detail-close">×</button>
+    <div class="bmenu-title" id="sweepTitle">一键扫荡</div>
+    <div id="sweepInfo" class="sweep-info"></div>
+    <div id="sweepCounts" class="sweep-counts"></div>
+    <div id="sweepGain" class="sweep-gain"></div>
+    <div id="sweepLog" class="sweep-log"></div>
+    <div class="bmenu-actions"><button id="sweepStart" class="start">开始扫荡</button></div>
+  </div>
+</div>
+
+<div id="tutorial" class="overlay" hidden>
+  <div class="overlay-box story-box">
+    <div class="bmenu-title" id="tutorialTitle"></div>
+    <div id="tutorialBody" class="story-body"></div>
+    <div class="tutorial-foot"><span id="tutorialStep"></span></div>
+    <div class="bmenu-actions">
+      <button id="tutorialSkip" class="ghost">跳过</button>
+      <button id="tutorialNext" class="start">下一步</button>
+    </div>
+  </div>
+</div>
+
+<div id="lootBanner" class="loot-banner" hidden></div>
+<div id="bondTip" class="bond-tip" hidden></div>
+<div id="toast" class="toast"></div>
+<div id="summonFx" class="summon-fx" hidden><div class="sf-ring"></div><div class="sf-seal">召</div><div class="sf-rays"></div></div>
+<script src="js/assets_map.js"></script>
+<script src="js/pybridge.js"></script>
+<script src="hero_show_data.js?v=20261123z14"></script>
+<script src="hero_show.js?v=20261123z14"></script>
+<script src="meta.js?v=20261123z33"></script>
+<script src="app.js?v=20261123z53"></script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
