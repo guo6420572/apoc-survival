@@ -65,6 +65,8 @@ button{font-family:inherit}
 .kicker{position:relative;display:flex;align-items:center;gap:8px;font-size:9.5px;
   letter-spacing:.24em;color:var(--red);font-weight:600}
 .kicker:before{content:"";width:5px;height:5px;background:var(--red);display:inline-block}
+.accident{display:inline-block;padding:1px 5px;border:1px solid rgba(165,67,47,.45);border-radius:2px;
+  font-size:8.5px;letter-spacing:.12em;color:var(--red);background:rgba(165,67,47,.06);font-weight:600}
 h1{font-family:var(--serif);font-weight:600;color:var(--ink);margin:10px 0 0;
   font-size:28px;line-height:1.42;letter-spacing:.01em}
 .prose{position:relative;margin-top:20px;font-family:var(--serif);font-size:16.5px;
@@ -1120,7 +1122,7 @@ function renderEvent(){
   save();
   renderHUD();
   let h='<section class="card enter">'+
-    '<div class="kicker">'+item.stage+'</div>'+
+    '<div class="kicker">'+(item.random?'<span class="accident">意外</span>':'')+item.stage+'</div>'+
     '<h1>'+ev.title+'</h1>'+
     '<div class="prose">'+ev.text.map(p=>'<p>'+p+'</p>').join('')+'</div>';
   if(ev.id==='born'){
