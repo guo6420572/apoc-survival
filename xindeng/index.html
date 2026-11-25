@@ -524,7 +524,7 @@ const MAIN=[
   '工资可低。'
  ],
  choices:[
-  {label:'接着干',eff:{career:6,body:-5,grit:4},istj:{t:2,j:2},drift:'你把苦咽下去，把钱拿回来。',res:'你接着干。你说：我工作很认真尽责，哪怕最后一天也要完美收工。'},
+  {label:'接着干',eff:{career:6,body:-5,grit:4},istj:{t:2,j:2},flags:{factory:true},drift:'你把苦咽下去，把钱拿回来。',res:'你接着干。你说：我工作很认真尽责，哪怕最后一天也要完美收工。'},
   {label:'跟朋友吐槽',eff:{ties:4,heart:2},istj:{f:1,e:1},drift:'你把累说出口，第二天还是去了。',res:'你和朋友在厂门口吐槽。说完，第二天还是去了。'},
   {label:'拿到钱就走',eff:{heart:3,career:-2},istj:{i:1,p:1},drift:'钱一到手，你就想往外走。',res:'你拿到钱就走了。钱不多，够你出去玩一趟。'}
  ]},
@@ -728,7 +728,7 @@ const RANDOM=[
 {id:'r_friend_moon',minAge:22,title:'月饼厂姐妹',
  text:['中秋前，你和朋友去月饼厂折盒子。一天十五个钟，睡三个钟，连着几天。','回家的时候，手上全是纸壳划的口子。'],
  choices:[
-  {label:'接着干',eff:{career:6,body:-5,grit:4},istj:{t:2,j:2},drift:'你把苦咽下去，把钱拿回来。',res:'你接着干。你说：哪怕最后一天，也要完美收工。'},
+  {label:'接着干',eff:{career:6,body:-5,grit:4},istj:{t:2,j:2},flags:{factory:true},drift:'你把苦咽下去，把钱拿回来。',res:'你接着干。你说：哪怕最后一天，也要完美收工。'},
   {label:'和朋友吐槽',eff:{ties:4,heart:2},istj:{f:1,e:1},drift:'你把累说出口。',res:'你们在厂门口吐槽，说工资压到十月底。说完，第二天还是去了。'},
   {label:'拿到钱就走',eff:{heart:3,career:-2},istj:{f:1,n:1},drift:'钱一到手，你就想往外走。',res:'钱到手，你买了张车票，出去玩了一圈。'}
  ]},
@@ -822,6 +822,62 @@ const RANDOM=[
   {label:'浇水',eff:{heart:4,body:1},istj:{f:1,s:1},drift:'你把它们照顾了一遍。',res:'你接了水，一盆一盆浇过去。叶子上的灰被冲掉，绿得发亮。'},
   {label:'剪一枝插瓶',eff:{heart:3,ties:2},istj:{f:1,e:1},drift:'你把一点香气带进屋里。',res:'你剪了一枝，插在玻璃瓶里。屋里香了几天。'},
   {label:'由它去',eff:{heart:-1},istj:{i:1,t:1},drift:'你看了它们一眼。',res:'你回屋了。'}
+ ]},
+{id:'r_sichuan',minAge:24,title:'四川同事',
+ text:['厂里来了个四川同事。他讲话快，爱笑，会做麻辣。','他说：跟我回四川嘛，我们那边天天吃火锅。'],
+ choices:[
+  {label:'跟他去川渝',eff:{heart:5,fate:8},istj:{n:2,f:1},flags:{sichuan:true},drift:'你把自己交给了另一座城。',res:'你辞了工，跟他走了。你说：我要找机会去川渝大吃一顿。后来你天天都在吃。'},
+  {label:'先留个微信',eff:{fate:3,ties:2},istj:{e:1,f:1},drift:'你把门开了一条缝。',res:'你们偶尔聊天。他说川渝的火锅。你说：有机会。'},
+  {label:'不去',eff:{heart:2,grit:3},istj:{i:1,t:1},drift:'你留在原地。',res:'你还是吃湛江的薄粉。川渝，继续说成愿望。'}
+ ]},
+{id:'r_pork',minAge:27,title:'猪肉佬',
+ text:['家里给你安排相亲。对方在菜市场卖猪肉，人老实，有铺面。','亲戚说：差不多就得了。'],
+ choices:[
+  {label:'答应家里',eff:{ties:4,heart:-3,career:2},istj:{s:2,j:2},flags:{pork:true},drift:'你把自己交了出去。',res:'你点了头。你说：至少他从不跟我借钱。'},
+  {label:'见一面就走',eff:{heart:1,grit:2},istj:{t:1,j:1},drift:'你把门关上。',res:'你去见了，喝了杯茶，说还有事。'},
+  {label:'不去',eff:{grit:4,ties:-4},istj:{i:1,t:1},drift:'你把话说死了。',res:'亲戚说你挑。你没解释。'}
+ ]},
+{id:'r_landlord',minAge:25,title:'房东',
+ text:['你租房的那个房东，四十来岁，本地人，有几栋楼。','他说：你一个人租什么，搬来跟我住，不收你房租。'],
+ choices:[
+  {label:'搬过去',eff:{heart:-2,career:4,ties:3},istj:{s:2,t:1},flags:{landlord:true},drift:'你换了一种活法。',res:'你搬了过去。后来你开始替他收租。'},
+  {label:'继续自己租',eff:{grit:4,heart:2},istj:{i:2,j:2},drift:'你把钥匙攥在自己手里。',res:'你续了租。城中村潮湿，你把除湿机开着。'},
+  {label:'换房子',eff:{career:-2,heart:2},istj:{n:1,s:1},drift:'你不想把日子过成交易。',res:'你搬走了。新房子采光好一点。'}
+ ]},
+{id:'r_lottery',minAge:23,title:'彩票',
+ text:['路过彩票店，你买了一张。','开奖那天，你把号码对了两遍。'],
+ choices:[
+  {label:'中了',eff:{career:10,fate:10},istj:{n:2,f:2},flags:{lottery:true},drift:'运气砸到了你头上。',res:'中了一笔不大不小的钱。你先还了债。'},
+  {label:'没中',eff:{heart:-1,grit:2},istj:{s:1,t:1},drift:'你把票扔了。',res:'没中。你说：下次不买了。'},
+  {label:'再买一张',eff:{career:3,fate:4},istj:{n:1,f:1},flags:{lottery:true},drift:'你又押了一次。',res:'第二张中得更多。你看着手机，手有点抖。'}
+ ]},
+{id:'r_dessert',minAge:26,title:'糖水摊',
+ text:['你做的木薯糖水和姜撞奶，朋友都说可以卖。','夜市有个小摊位要转。'],
+ choices:[
+  {label:'接下来摆摊',eff:{career:6,body:-4,heart:3},istj:{t:2,j:2},flags:{dessert:true},drift:'你把厨房搬到了街上。',res:'你接了摊位。华农9号蛋黄木薯，水不能太多，放黄片糖。你说了无数遍。'},
+  {label:'想想',eff:{heart:1},istj:{s:1},drift:'你还没想好。',res:'你想了几天，摊位被别人接了。'},
+  {label:'不折腾',eff:{career:1,heart:-1},istj:{i:1,j:1},drift:'你继续有一搭没一搭。',res:'你还在家煮糖水给自己吃。'}
+ ]},
+{id:'r_cats',minAge:24,title:'猫',
+ text:['你在楼下捡到一只猫。它跟着你上楼。','你想起朋友说你连自己都照顾不好。'],
+ choices:[
+  {label:'养',eff:{heart:5,career:-2},istj:{f:2,s:1},flags:{cats:true},drift:'你多了一个要照顾的。',res:'你把它留下。半夜它踩你的脸，你没生气。'},
+  {label:'送人',eff:{ties:3,heart:-1},istj:{t:1,j:1},drift:'你把它送走了。',res:'你给它找了个好人家。回家以后，屋里很安静。'},
+  {label:'只喂不养',eff:{heart:3},istj:{s:1,f:1},drift:'你只把饭放在楼下。',res:'你每天放一碗猫粮。它吃完就走。'}
+ ]},
+{id:'r_scam',minAge:27,title:'合伙',
+ text:['朋友说要跟你合伙开个店，你出钱，她出力。','她说：生意难做，但总要试一次。'],
+ choices:[
+  {label:'一起干',eff:{career:5,ties:3,heart:2},istj:{f:2,e:1},flags:{scam:true},drift:'你把钱和信任一起交了出去。',res:'你把积蓄转了过去。她说：放心。'},
+  {label:'只借一点',eff:{ties:2,career:-2},istj:{t:1,j:1},drift:'你留了一手。',res:'你借了她一点。后来店没开成。'},
+  {label:'不合伙',eff:{grit:4,ties:-3},istj:{t:2,j:1},drift:'你把钱攥紧了。',res:'你说不合伙。朋友脸色不好看。'}
+ ]},
+{id:'r_stream',minAge:28,title:'直播',
+ text:['你刷到有人直播卖无花果，一晚上卖出一车。','你想：我也懂无花果。'],
+ choices:[
+  {label:'开播',eff:{career:7,body:-4},istj:{e:1,n:1},flags:{stream:true},drift:'你把自己放到了镜头前。',res:'你开了播。不开美颜，也不喊家人们。'},
+  {label:'先看看',eff:{heart:1},istj:{s:1},drift:'你先看看。',res:'你看了几天，没开播。'},
+  {label:'不露脸',eff:{career:2,heart:1},istj:{i:2,t:1},drift:'你不想被人看见。',res:'你帮别人打包，一天下来，腰酸。'}
  ]}
 ];
 
@@ -901,9 +957,89 @@ lightout:{title:'灯灭',sub:'结局 · 身体先于生活垮掉',
   '病房的窗外没有海。妈妈坐在床边，一直给你掖被角，像你小时候那样。你想说“我没事”，没力气。',
   '这一世你什么都扛住了，唯独没扛住自己。'
  ]}
+,sichuan:{title:'四川媳妇',sub:'意外结局 · 四个孩子和一棵无花果',
+ prose:[
+  '你跟着那个四川同事走了。后来你嫁给了他。',
+  '你们生了四个孩子。日子吵吵嚷嚷，火锅的辣味从早到晚。',
+  '你不知道为什么，总想在阳台种一棵无花果。',
+  '他问：四川又不产这个。你说：我就是想种。',
+  '后来那棵树真的活了。你站在树下，想起很多年前有人说过：等有一天，有人送她一棵树。'
+ ],
+ quote:'“我也不知道为什么，就是想种一棵无花果。”'},
+pork:{title:'猪肉佬',sub:'意外结局 · 家里安排的婚姻',
+ prose:[
+  '家里安排你嫁给菜市场卖猪肉的。人老实，有铺面，不缺斤少两。',
+  '你没有多喜欢，也没有多讨厌。你说：那就这样吧。',
+  '婚后你每天早起帮他看摊。刀起刀落，日子过得下去。',
+  '偶尔切到一块好肉，你会想起年轻时想去的川渝。',
+  '也就想一下。'
+ ]},
+porkdebt:{title:'猪肉佬 · 债',sub:'意外结局 · 信用破产以后',
+ prose:[
+  '哥哥一次又一次来借钱。你套信用卡，拆东墙补西墙。',
+  '后来信用破产，催收的电话打到家里。',
+  '家里替你做了主：嫁给菜市场卖猪肉的。人老实，有铺面。',
+  '你点了头。你说：至少他从不跟我借钱。',
+  '婚后你每天早起帮他看摊。刀起刀落，债一点一点还。'
+ ]},
+landlord:{title:'包租',sub:'意外结局 · 搬进房东的楼',
+ prose:[
+  '你搬进了房东的楼。后来你成了那栋楼的女主人。',
+  '不用再交房租。你开始收租、换水管、修空调。',
+  '亲戚不再说你挑。他们说你命好。',
+  '你偶尔站在阳台上，看见楼下有人拖着行李箱找房。',
+  '你想起自己当年，也是那样来的。'
+ ]},
+lottery:{title:'横财',sub:'意外结局 · 中了一笔',
+ prose:[
+  '你中了彩票。不大不小的一笔，够你把债还清。',
+  '你辞了兼职，出去玩了一圈。广西、广州、徐州、川渝。',
+  '回来以后，你不知道下一步做什么。',
+  '钱还在，日子却空了。你坐在海堤上，第一次觉得：不用愁钱，也很没意思。'
+ ]},
+dessert:{title:'糖水摊',sub:'意外结局 · 木薯糖水卖到半夜',
+ prose:[
+  '你在夜市支了个摊，卖木薯糖水和姜撞奶。',
+  '华农9号蛋黄木薯，水不能太多，放黄片糖。你说了无数遍。',
+  '生意好起来。你每天忙到半夜，围裙上全是糖渍。',
+  '你说：生意难做啊。说完又去煮下一锅。',
+  '你没再去旅游。收摊以后，你坐在塑料凳上，吃自己留的那碗。'
+ ]},
+cats:{title:'猫狗双全',sub:'意外结局 · 一屋子毛',
+ prose:[
+  '你没有结婚。你养了一只猫，后来又捡了一只狗。',
+  '再后来，楼道里的人都把不要的猫往你门口放。',
+  '你骂骂咧咧，还是都收了。',
+  '家里全是毛。你每天扫地，扫不完。',
+  '朋友说你疯了。你抱着一只断腿的猫，说：它比我惨。'
+ ]},
+scam:{title:'合伙',sub:'意外结局 · 生意难做',
+ prose:[
+  '你和朋友合伙开了店。你出钱，她出力。',
+  '开头几个月还行。后来账对不上，人也见不着了。',
+  '钱没了，朋友也没了。你去她家楼下等过两次。',
+  '最后一次，你把手机里的合照删了。',
+  '你说：生意难做啊。原来这句话，是这个意思。'
+ ]},
+stream:{title:'直播',sub:'意外结局 · 一晚上卖出一车',
+ prose:[
+  '你开了直播，卖无花果。不开美颜，也不喊家人们。',
+  '你就坐在阳台上，一边剥果子一边说话。',
+  '有一晚突然火了。订单堆到门口。',
+  '你雇了两个人打包，自己播到凌晨。',
+  '后来你很少出门。阳台上那棵树，成了你直播间的背景。'
+ ]},
+boss:{title:'线长',sub:'意外结局 · 月饼厂的线长',
+ prose:[
+  '你在月饼厂干了下来。从折盒子的，干到线长。',
+  '你嗓门变大了。谁偷懒，你一眼就看见。',
+  '工资不高，但每个月都有。你手底下管着二十来个人。',
+  '中秋最忙的时候，你在车间里走来走去，像个机器人。',
+  '你偶尔想起十七岁在青岛，觉得那是上辈子的事。'
+ ]}
 };
 
-const GALLERY_ORDER=['self','almost','weather','far','emptyroom','idle','third','island','debt','lightout'];
+const GALLERY_ORDER=['self','almost','weather','far','emptyroom','idle','third','island','debt','lightout','sichuan','pork','porkdebt','landlord','lottery','dessert','cats','scam','stream','boss'];
 
 const CHART_NOTES={
  self:'命里那点木，太弱。后来有人送了你一棵树。',
@@ -915,7 +1051,17 @@ const CHART_NOTES={
  third:'藤缠着树，谁也长不高。',
  island:'水冷，自己结冰。',
  debt:'土压着，越压越实。',
- lightout:'日子还在，人先熄了。'
+ lightout:'日子还在，人先熄了。',
+ sichuan:'木找到了别的土。你种了一棵无花果。',
+ pork:'命里没有写死的事，日子却写成了这样。',
+ porkdebt:'土压着，越压越实。你还在还。',
+ landlord:'你住进了别人的楼，后来楼是你的。',
+ lottery:'火烧得旺，木却没长。',
+ dessert:'甜是甜的，就是收摊太晚。',
+ cats:'毛多了，人少了。',
+ scam:'生意难做啊。',
+ stream:'镜头亮着，人更远了。',
+ boss:'你把日子排成一条线，自己在线上走。',
 };
 
 /* ===================== 事件索引 ===================== */
@@ -1077,7 +1223,7 @@ function renderTitle(){
     '<div class="hero-actions">'+
       '<button class="primary" id="startBtn">开始这一世</button>'+
       (saved?'<button class="ghost" id="contBtn">继续上一世</button>':'')+
-      '<button class="linklike" id="galBtn">结局图鉴 '+got.length+'/10</button>'+
+      '<button class="linklike" id="galBtn">结局图鉴 '+got.length+'/'+GALLERY_ORDER.length+'</button>'+
     '</div>'+
     '<p class="fine">仅供两人保存，请勿公开转发。</p>'+
   '</div>';
@@ -1226,6 +1372,15 @@ function judge(){
     s.heart>=75&&s.career>=30&&s.ties>=50&&s.body>0&&state.kind>=6&&
     t.type==='ISTJ'&&selfPath&&f.figTree&&!f.crossedLine;
   if(f.crossedLine)return 'third';
+  if(f.pork)return f.broDebt?'porkdebt':'pork';
+  if(f.sichuan)return 'sichuan';
+  if(f.lottery)return 'lottery';
+  if(f.scam)return 'scam';
+  if(f.stream)return 'stream';
+  if(f.dessert)return 'dessert';
+  if(f.landlord)return 'landlord';
+  if(f.cats)return 'cats';
+  if(f.factory&&s.career>=45)return 'boss';
   if(s.ties<40&&s.career>=30)return 'island';
   if(f.broDebt&&s.career<25)return 'debt';
   if(selfBase)return 'self';
@@ -1247,7 +1402,17 @@ function typeNote(type,id){
     third:'你成了 '+type+'。你在别人的故事里，走丢了一段。',
     island:'你成了 '+type+'。你什么都靠自己，后来也只剩自己。',
     debt:'你成了 '+type+'。你把“一家人”三个字，看得太重。',
-    lightout:'你成了 '+type+'。你把自己耗尽了。'
+    lightout:'你成了 '+type+'。你把自己耗尽了。',
+    sichuan:'你成了四川媳妇。四个孩子，一棵无花果。',
+    pork:'你成了猪肉摊的老板娘。',
+    porkdebt:'你成了猪肉摊的老板娘，先还债。',
+    landlord:'你成了收租的人。',
+    lottery:'你成了中了彩票的人。',
+    dessert:'你成了夜市摊主。',
+    cats:'你成了养一屋子猫狗的人。',
+    scam:'你成了被朋友坑过的人。',
+    stream:'你成了直播间里的那个人。',
+    boss:'你成了月饼厂的线长。'
   };
   return map[id]||('你成了 '+type+'。');
 }
@@ -1324,7 +1489,7 @@ function openGallery(){
       '<div class="g-t"><b>'+(ok?e.title:'？？？')+'</b><span>'+(ok?e.sub:'尚未走到')+'</span></div>'+
     '</div>';
   }).join('');
-  showModal('<div class="modal-head"><h2>结局图鉴</h2><p>'+got.length+' / 10</p></div><div class="gallery">'+rows+'</div>');
+  showModal('<div class="modal-head"><h2>结局图鉴</h2><p>'+got.length+' / '+GALLERY_ORDER.length+'</p></div><div class="gallery">'+rows+'</div>');
 }
 
 function openMenu(){
