@@ -474,11 +474,11 @@ const MAIN=[
 
 {id:'e17',age:25,year:2021,stage:'第三章 · 出走',title:'钱一到手',
  text:[
-  '兼职的钱一到手，你就想出去。潮汕、南昌、云南、威海。',
+  '兼职的钱一到手，你就想出去。广西、广州、徐州。',
   '你喜欢自己来。独处就满血。你喜欢逛菜市场和超市。'
  ],
  choices:[
-  {label:'去旅行',eff:{heart:5,body:2,career:-2},istj:{n:2,f:1},kind:true,drift:'你把自己放到了路上。',res:'你一个人去了。你在海边吃无花果，在潮汕吃牛肉，在南昌被辣哭。你说：一个人出去旅游，也很不赖。'},
+  {label:'去旅行',eff:{heart:5,body:2,career:-2},istj:{n:2,f:1},kind:true,drift:'你把自己放到了路上。',res:'你一个人去了。你在广西住青旅，在广州吃肠粉，在徐州吃小吃。你说：一个人出去旅游，也很不赖。'},
   {label:'吃一顿好的',eff:{heart:4,body:1},istj:{f:1,s:1},kind:true,drift:'你把钱花在了嘴里，也花在了当下。',res:'你去吃了一顿好的。白切鸡、薄粉、鱼仔汤。吃完在街上走了很久。'},
   {label:'存起来',eff:{career:5,heart:-2},istj:{t:2,j:2},drift:'你把钱存起来，把想去的远方往后放。',res:'你把钱存起来。晚上刷到别人旅行的视频，看了一会儿。'}
  ]},
@@ -498,12 +498,12 @@ const MAIN=[
  text:[
   '你找了一个会排盘的师傅，把自己的生辰报过去。他说：“金多，火有点，木弱。”你说：我缺木。',
   '你还有一个名字，和五行有关，从来没用过。你把“柔”拆开：矛加木。表面锋利，内心柔软；一根筋，不知道变通。',
-  '你这两年疯狂迷恋无花果，去年差点为了它跑威海去。你说：我想要果，但我又懒得种。',
+  '你这几年疯狂迷恋无花果。你说：我想要果，但我又懒得种。',
   '你想起算命先生说的那句：等有一天，有人送她一棵树。你一直没等到那个人。'
  ],
  choices:[
   {label:'把“缺木”记在本子上',eff:{career:3,grit:2},istj:{t:2,j:2,s:1},drift:'你把那几句话当成一道题，想自己解。',res:'你把“木弱”写在笔记本最上面。你不知道怎么补，只知道自己不想一直缺下去。'},
-  {label:'去花市买一盒无花果',eff:{heart:5,body:2},istj:{f:1,s:1},kind:true,drift:'你开始给自己买一点甜的东西。',res:'你在花市买了一盒无花果。你把果子吃完，把核吐在纸巾上，没种。'},
+  {label:'在网上买一盒青皮无花果',eff:{heart:5,body:2},istj:{f:1,s:1},kind:true,drift:'你开始给自己买一点甜的东西。',res:'你在网上买了一盒青皮无花果。你把果子吃完，把核吐在纸巾上，没种。'},
   {label:'问师傅：我还能改吗',eff:{heart:2,fate:2},istj:{n:1,f:1},drift:'你记住了那句：路，要你自己走。',res:'师傅笑了一下，说：“命是底子，路是脚。你缺木，就自己长。”'}
  ]},
 
@@ -572,12 +572,12 @@ const MAIN=[
 
 {id:'e26',age:30,year:2026,stage:'第五章 · 归来',title:'钱',
  text:[
-  '你接了一个兼职，站了十五个钟。拿到钱，你想去哪儿。云南、威海、潮汕，还是留在湛江。',
+  '你接了一个兼职，站了十五个钟。拿到钱，你想去哪儿。广西、广州、徐州，还是留在湛江。',
   '总有自己的生活要过。'
  ],
  choices:[
-  {label:'去云南',eff:{heart:4,body:2,career:-2},istj:{n:2,f:1},flags:{leftTown:true},drift:'你想去看看别的地方。',res:'你买了去云南的票。你想起自己一直想去云南住。这一次，你不想只在春天想。'},
-  {label:'去威海',eff:{heart:3,body:2},istj:{n:1,f:1},drift:'你想去看看无花果熟没熟。',res:'你去了威海。海边的无花果摊很多。你吃了一路。'},
+  {label:'去广西',eff:{heart:4,body:2,career:-2},istj:{n:2,f:1},flags:{leftTown:true},drift:'你想去看看别的地方。',res:'你买了去广西的票。你在青旅住了几天，吃了很多粉。'},
+  {label:'去广州',eff:{heart:3,body:2},istj:{n:1,f:1},drift:'你想回去吃一口熟悉的。',res:'你去了广州。你在上下九吃肠粉，逛了很久。'},
   {label:'留在湛江',eff:{heart:2,ties:3},istj:{s:2,f:1},kind:true,drift:'你留在了熟悉的地方。',res:'你留在湛江。钱不多，够你吃几顿好的。'},
   {label:'存起来',eff:{career:5,heart:-2},istj:{t:2,j:2},drift:'你把钱存起来。',res:'你把钱存起来。晚上你算了算，够撑一阵。'}
  ]},
@@ -621,7 +621,7 @@ const MAIN=[
  ],
  choices:[
   {label:'留在湛江，继续有一搭没一搭地过',eff:{heart:5,ties:3},istj:{s:2,j:2},flags:{selfStay:true},kind:true,drift:'你终于把自己的日子，放在了自己手里。',res:'你留在湛江。兼职有一搭没一搭，钱不多，够你吃几顿好的。独处就满血。'},
-  {label:'去云南，重新开始',eff:{heart:5,body:2},istj:{n:2,f:1},flags:{selfYunnan:true,leftTown:true},drift:'你想去看看别的地方。',res:'你买了去云南的票。你一直想去云南住。这一次，你不是去住几天。'},
+  {label:'去广西，重新开始',eff:{heart:5,body:2},istj:{n:2,f:1},flags:{selfGuangxi:true,leftTown:true},drift:'你想去看看别的地方。',res:'你收拾了两个箱子，买了去广西的票。你想去广西住一阵。这一次，你不是去住几天。'},
   {label:'找一份稳定的兼职',eff:{career:6,grit:4},istj:{t:2,j:2},flags:{selfStable:true},drift:'你想有一件能长久做下去的事。',res:'你找了一份稳定的兼职。钱不多，但每个月都有。你喜欢自己来。'},
   {label:'再等等，先把眼前的日子过好',eff:{heart:-2},istj:{i:2,s:1},drift:'你还没有想好。',res:'你说再等等。日子一天一天过去，海还是那个海。'}
  ]}
@@ -651,9 +651,9 @@ const RANDOM=[
   {label:'自己吃完',eff:{heart:2,body:-1},istj:{i:1,s:1},drift:'你一个人，也把日子过甜了一点。',res:'你坐在小桌子前，一个一个吃完。窗外天快亮了。'}
  ]},
 {id:'r_travel',minAge:22,title:'一个人出去',
- text:['你想一个人出去走走。威海的无花果、潮汕的牛肉、南昌的辣、云南的米线。一个人出去旅游，也很不赖。'],
+ text:['你想一个人出去走走。广西的青旅、广州的肠粉、徐州的小吃。一个人出去旅游，也很不赖。'],
  choices:[
-  {label:'去',eff:{heart:5,body:2,career:-2},istj:{n:1,f:1},kind:true,drift:'你把自己放到了路上。',res:'你一个人去了。你在海边吃无花果，在潮汕吃牛肉，在南昌被辣哭。'},
+  {label:'去',eff:{heart:5,body:2,career:-2},istj:{n:1,f:1},kind:true,drift:'你把自己放到了路上。',res:'你一个人去了。你在广西住青旅，在广州吃肠粉，在徐州吃小吃。'},
   {label:'算了',eff:{heart:-1,career:2},istj:{s:1,j:1},drift:'你把钱存起来，把想去的远方往后放。',res:'你说算了，把钱存起来。晚上你刷到别人旅行的视频，看了一会儿。'}
  ]},
 {id:'r_spirit',minAge:22,title:'精神小妹',
@@ -750,9 +750,9 @@ weather:{title:'好天气',sub:'结局 · 平平安安，也很好',
   '你没有失去自己，也没有再往前一步。有些日子，这样就够了。'
  ]},
 
-far:{title:'远走',sub:'结局 · 去了云南',
+far:{title:'远走',sub:'结局 · 去了广西',
  prose:[
-  '你去了云南。火车过隧道的时候，手机没有信号。',
+  '你去了广西。火车过隧道的时候，手机没有信号。',
   '后来你在一个小城住下，做点兼职，吃吃喝喝。有人问你是不是广东人，你说是。',
   '店门口有一棵无花果。你想起算命先生的话。你没有等它开花。你说：不一定开花，无花果，也很甜。',
   '再多的，你没说。'
@@ -809,7 +809,7 @@ const CHART_NOTES={
  together:'命里那点木，太弱。有人送了你一棵树，你养着。',
  almost:'火有了，木还没长出来。',
  weather:'平常的日子，也够把火养住。',
- far:'你去了云南。木长在别处。',
+ far:'你去了广西。木长在别处。',
  emptyroom:'你给自己留了一间空房。',
  idle:'日子没有错。你也没有错。只是有些话，你一直没说。',
  third:'藤缠着树，谁也长不高。',
@@ -1121,7 +1121,7 @@ function advance(){
 /* ===================== 判定 ===================== */
 function judge(){
   const s=state.stats,f=state.flags,t=mbti();
-  const selfPath=f.selfStay||f.selfYunnan||f.selfStable;
+  const selfPath=f.selfStay||f.selfGuangxi||f.selfStable;
   const selfBase=
     s.heart>=75&&s.career>=30&&s.ties>=50&&s.body>0&&state.kind>=6&&
     t.type==='ISTJ'&&selfPath&&f.figTree&&!f.lostSelf&&!f.crossedLine;
