@@ -106,6 +106,10 @@ h1{font-family:var(--serif);font-weight:600;color:var(--ink);margin:10px 0 0;
   border-top:1px solid var(--line);font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
 .delta.up{color:var(--teal)}
 .delta.down{color:var(--red)}
+.fortune{position:relative;margin-top:16px;padding:12px 14px;border:1px solid var(--line);
+  background:rgba(165,67,47,.03)}
+.fortune span{font-size:9px;letter-spacing:.22em;color:var(--red)}
+.fortune p{margin:6px 0 0;font-family:var(--serif);font-size:13px;line-height:1.8;color:var(--ink-soft)}
 .drift{position:relative;margin-top:22px;padding:14px 16px;border-left:2px solid var(--red);
   background:rgba(165,67,47,.035)}
 .drift span{font-size:9px;letter-spacing:.22em;color:var(--red)}
@@ -296,102 +300,99 @@ const MAIN=[
   '你还有一个名字，和五行有关，从来没用过。'
  ]},
 
-{id:'e1',age:6,year:2002,stage:'第一章 · 寄居',title:'多夹了一块鸡',
+{id:'e1',age:6,year:2002,stage:'第一章 · 寄居',title:'亲戚家',
  text:[
-  '你寄住在亲戚家。你小时候父母就分开了，借宿在各个亲戚那里。',
-  '饭桌上有一盘白切鸡，姜葱切得很细。你伸筷子多夹了一块。亲戚看了你一眼：“女孩子家，吃那么多做什么。”桌边的人都停了筷子。'
+  '你寄住在亲戚家。父母分开了，你借宿在各个亲戚那里。',
+  '亲戚的嘴，你很小就学会了听。'
  ],
  choices:[
-  {label:'把鸡放回盘子，低头扒饭',eff:{heart:2,body:-2},istj:{i:2,t:1,j:1},drift:'你学会了在别人家，先看别人的脸色。',res:'你把那块鸡放回去，酱汁在碗边蹭出一道印子。那顿饭你吃得很慢。'},
-  {label:'看着她的眼睛，说“我妈给过伙食费”',eff:{grit:8,ties:-5},istj:{e:2,t:1},drift:'你偶尔也把话说出口，哪怕代价是冷场。',res:'桌上安静了几秒。亲戚笑了一声，说这孩子嘴厉害。那天晚上妈妈来接你，你什么都没说。'},
-  {label:'把鸡夹给表弟，自己喝汤',eff:{heart:6,body:-1},istj:{t:1,j:1,f:1},kind:true,drift:'你心软了一下，把自己的那份让了出去。',res:'表弟吃得满嘴油。亲戚的脸色缓下来，给你添了一勺汤。你捧着碗，心里有点酸，也有点踏实。'}
+  {label:'把话咽下去',eff:{heart:2,body:-1},istj:{i:2,t:1},drift:'你学会了在别人家，先看脸色。',res:'你把话咽下去。那顿饭吃得很慢。'},
+  {label:'顶回去',eff:{grit:6,ties:-4},istj:{e:2,t:1},drift:'你偶尔也把话说出口。',res:'桌上安静了几秒。亲戚笑了一声，说这孩子嘴厉害。'},
+  {label:'帮着干活',eff:{heart:5,ties:3,body:-2},istj:{f:1,s:1},kind:true,drift:'你学会了用干活，换一点安稳。',res:'你帮着洗碗、扫地。亲戚的脸色缓下来，给你盛了一碗汤。'}
  ]},
 
-{id:'e2',age:7,year:2003,stage:'第一章 · 寄居',title:'计算器响到很晚',
+{id:'e2',age:7,year:2003,stage:'第一章 · 寄居',title:'妈妈很累',
  text:[
-  '妈妈在灯下算账，计算器按得很慢，按错了就全部清零重来。你躺在床上装睡，听见她叹了一口气。',
-  '桌上摊着学费单、房租单，还有一张写了一半的借条。'
+  '妈妈下班回来，坐在灯下，半天不说话。桌上摊着账单。',
+  '你躺在床上，听见她叹了一口气。'
  ],
  choices:[
-  {label:'起来给她倒一杯热水',eff:{heart:7,body:1},istj:{f:1,i:1},kind:true,drift:'你开始学着照顾人，哪怕自己也很小。',res:'她愣了一下，接过杯子，说“怎么还没睡”。你说睡不着。她把你搂过去，身上的衣服有洗衣粉和汗的味道。'},
-  {label:'继续装睡，心里发誓要挣很多钱',eff:{grit:6,career:4},istj:{t:2,j:2},drift:'你把一个数字记在心里，决定以后靠自己。',res:'你闭着眼，把那个数字记在心里。很多年后你真的挣到了钱，可那晚的叹气声，你一直没忘。'},
-  {label:'问她“我们是不是很穷”',eff:{heart:4,grit:5},istj:{t:1,f:1},drift:'你第一次知道，大人的沉默里有东西。',res:'她沉默了很久，说“不穷，有你在”。你看见她把脸转过去，肩膀轻轻抖了一下。'}
+  {label:'起来给她倒一杯热水',eff:{heart:7,body:1},istj:{f:1,i:1},kind:true,drift:'你开始学着照顾人。',res:'她愣了一下，接过杯子，说怎么还没睡。你说睡不着。'},
+  {label:'装睡，心里发誓要挣钱',eff:{grit:6,career:4},istj:{t:2,j:2},drift:'你把一个数字记在心里。',res:'你闭着眼，把那个数字记在心里。'},
+  {label:'问她我们是不是很穷',eff:{heart:4,grit:5},istj:{t:1,f:1},drift:'你第一次知道，大人的沉默里有东西。',res:'她沉默了很久，说：不穷，有你在。'}
  ]},
 
-{id:'e3',age:9,year:2005,stage:'第一章 · 寄居',title:'八十块钱',
+{id:'e3',age:9,year:2005,stage:'第一章 · 寄居',title:'交钱',
  text:[
-  '学校要交八十块资料费。亲戚说：“找你妈去。”妈妈在厂里上班，传呼机回不了。',
+  '学校要交钱。你不敢跟妈妈开口。',
   '你站在校门口，书包带子勒着肩膀。'
  ],
  choices:[
-  {label:'自己走四十分钟回家，没跟妈妈开口',eff:{grit:7,body:-4},istj:{i:2,s:1,j:1},drift:'你更习惯自己解决，不开口。',res:'你走了很久，鞋底磨得发热。到家后你把通知单藏在课本里。第二天老师说可以缓交，你松了一口气，又有点想哭。'},
-  {label:'找同学借，答应帮她值日一周',eff:{ties:6,heart:3},istj:{f:1,e:1},drift:'你学会了欠人情要还，还得清清楚楚。',res:'同学借给你钱，你把值日排得整整齐齐。那一周你每天最后一个走，教室的灯是你关的。'},
-  {label:'跟老师说家里困难，不交了',eff:{heart:3,grit:4,ties:2},istj:{i:1,t:1},drift:'你不再觉得求助是丢脸，只是累。',res:'老师看了你一眼，把单子收回去，说“知道了”。你没有觉得丢脸，只觉得累。'}
+  {label:'自己走回家，没开口',eff:{grit:7,body:-4},istj:{i:2,s:1,j:1},drift:'你更习惯自己解决。',res:'你走了很久，鞋底发热。到家把通知单藏在课本里。'},
+  {label:'找同学借，帮她值日',eff:{ties:6,heart:3},istj:{f:1,e:1},drift:'你学会了欠人情要还。',res:'同学借给你钱，你帮她值日一周。教室的灯是你关的。'},
+  {label:'跟老师说缓交',eff:{heart:3,grit:4,ties:2},istj:{i:1,t:1},drift:'你不再觉得求助是丢脸。',res:'老师把单子收回去，说知道了。你只觉得累。'}
  ]},
 
-{id:'e4',age:11,year:2007,stage:'第一章 · 寄居',title:'过年的那张嘴',
+{id:'e4',age:11,year:2007,stage:'第一章 · 寄居',title:'亲戚的嘴',
  text:[
-  '父母正式分开。过年，你跟着妈妈去亲戚家。饭吃到一半，有人说：“没爸的孩子，以后可怎么办哦。”',
-  '你记得的不是那桌菜，是那些嘴脸。妈妈握着筷子的手停了一下。'
+  '父母正式分开。过年，亲戚的嘴，你从小听到大。',
+  '妈妈握着筷子，停了一下。'
  ],
  choices:[
-  {label:'把碗一放，回房间',eff:{grit:5,ties:-4},istj:{i:2,j:1},drift:'你把门关上，把话留在外面。',res:'门关上的时候，你听见外面有人说“脾气还挺大”。你坐在床边，把眼泪憋回去。'},
-  {label:'笑着说“我有妈妈”',eff:{heart:7,grit:5},istj:{t:2,j:1},kind:true,drift:'你学会了用一句轻的话，挡住一把刀。',res:'桌上静了一下。妈妈低下头，给你夹了一块鱼。回家的路上她没说话，只把你的手攥得很紧。'},
-  {label:'低头把饭吃完，一句话没说',eff:{heart:-2,body:-3,grit:3},istj:{i:2,t:1},drift:'你学会了在难听的话里保持安静。',res:'你把碗里的饭一粒一粒吃完。那顿饭很长。后来你学会了在难听的话里保持安静。'}
+  {label:'把碗一放，回房间',eff:{grit:5,ties:-4},istj:{i:2,j:1},drift:'你把门关上，把话留在外面。',res:'门关上的时候，你听见外面有人说脾气大。'},
+  {label:'笑着说“我有妈妈”',eff:{heart:7,grit:5},istj:{t:2,j:1},kind:true,drift:'你学会了用一句轻的话，挡住一把刀。',res:'桌上静了一下。妈妈低下头，给你夹了一块鱼。'},
+  {label:'低头把饭吃完',eff:{heart:-2,body:-3,grit:3},istj:{i:2,t:1},drift:'你学会了在难听的话里保持安静。',res:'你把碗里的饭一粒一粒吃完。'}
  ]},
 
 {id:'e5',age:12,year:2008,stage:'第一章 · 寄居',title:'木弱',
  text:[
-  '镇上来了个算命先生。妈妈把你的生辰报给他。他排了半天，说：“金多，做事细；火少，话不多；木弱，很多事得靠自己长。”',
-  '他指着最后一柱：“这一柱，我算不出来。”妈妈问是好是坏。他说：“看她自己。”',
-  '你记住了“木弱”。很多年后，你说：我缺木。',
-  '他临走时又说了一句：“等有一天，有人送她一棵树。”你问什么意思。他笑笑，说：“到时候你就知道了。”'
+  '镇上来了个算命先生。妈妈把你的生辰报给他。他排了半天，说：金多，做事细；火少，话不多；木弱，很多事得靠自己长。',
+  '他指着最后一柱：这一柱，我算不出来。妈妈问是好是坏。他说：看她自己。',
+  '你记住了木弱。很多年后，你说：我缺木。',
+  '他临走时又说：等有一天，有人送她一棵树。你问什么意思。他笑笑，说：到时候你就知道了。'
  ],
  choices:[
-  {label:'问“那我以后会好吗”',eff:{heart:3,fate:2},istj:{n:2,f:1},drift:'你开始相信，命里有些东西是预先写好的。',res:'他看了你一眼，说：“命里没有写死的事。你记住这句话就行。”你点点头，没太懂。'},
-  {label:'把生辰记在本子上，想以后自己算',eff:{career:3,grit:2},istj:{t:2,j:2},drift:'你把那张纸当成一道题，想以后自己算。',res:'你回家把生辰写在作业本最后一页。后来你查过很多次，每次都在“木弱”那一行停住。'},
-  {label:'跑出去看海',eff:{heart:2,body:3},istj:{e:2,s:1},drift:'你不想被一张纸说完，跑出去吹了会儿风。',res:'你跑到海堤上，风很大。你对着海喊了一声，没人听见。'}
+  {label:'问以后会好吗',eff:{heart:3,fate:2},istj:{n:2,f:1},drift:'你开始相信，命里有些东西是预先写好的。',res:'他说：命里没有写死的事。你点点头，没太懂。'},
+  {label:'把生辰记下来',eff:{career:3,grit:2},istj:{t:2,j:2},drift:'你把那几句话当成一道题。',res:'你回家把生辰写在作业本最后一页。'},
+  {label:'跑出去看海',eff:{heart:2,body:3},istj:{e:2,s:1},drift:'你不想被一张纸说完。',res:'你跑到海堤上，风很大。你对着海喊了一声。'}
  ]},
 
-{id:'e6',age:13,year:2009,stage:'第一章 · 寄居',title:'第七次搬家',auto:'把纸箱抱起来',
+{id:'e6',age:13,year:2009,stage:'第一章 · 寄居',title:'又搬家',auto:'把纸箱抱起来',
  autoDrift:'你更习惯把家背在身上。',
  text:[
-  '妈妈拖着一个编织袋，你抱着一个纸箱。纸箱里是课本、一个掉漆的铁盒，和一只缺了耳朵的布兔子。',
-  '你们从湛江的一头搬到另一头。新家的窗户对着别人家的墙。妈妈把床单铺好，说：“以后会好的。”'
+  '你又搬家了。妈妈拖着编织袋，你抱着纸箱。',
+  '新家的窗户对着别人家的墙。妈妈把床单铺好，说以后会好的。'
  ]},
 
-{id:'e7',age:14,year:2010,stage:'第二章 · 长大',title:'沙坑',
+{id:'e7',age:14,year:2010,stage:'第二章 · 长大',title:'河',
  text:[
-  '课间，男生笑你“没爸的孩子”。你把他推倒在沙坑里，沙子进了他的领口。',
-  '你想起小时候摔过一次，差点掉进河里。你也没哭。老师叫家长，妈妈从厂里请假赶来，鞋上还有没擦干净的灰。'
+  '你小时候摔过一次，差点掉进河里。你没哭。回家也没说。'
  ],
  choices:[
-  {label:'跟妈妈道歉，也跟同学道歉',eff:{heart:7,ties:5},istj:{t:1,j:1,f:1},kind:true,drift:'你学会了低头，也学会了不让人难堪。',res:'你说“对不起”的时候，声音很小。妈妈摸了摸你的头。回家的路上她给你买了一根冰棍。'},
-  {label:'不道歉，觉得他活该',eff:{grit:7,ties:-5},istj:{t:2,j:1},drift:'你宁愿硬着，也不肯认错。',res:'你站着，一句话不说。妈妈替你道了歉，拉着你走出办公室。她的手很凉，一路都没松开。'},
-  {label:'妈妈道歉的时候，你突然哭了',eff:{heart:6,body:-2},istj:{f:2},drift:'你第一次知道，有些委屈最后是妈妈替你受的。',res:'你哭得停不下来。妈妈一边给你擦眼泪，一边跟老师赔笑。'}
+  {label:'告诉妈妈',eff:{heart:6,ties:4},istj:{f:2},kind:true,drift:'你把害怕说出口。',res:'你告诉妈妈。她没骂你，只把你抱得很紧。'},
+  {label:'不说',eff:{grit:6,body:-2},istj:{i:2,t:1},drift:'你把这件事收进自己里面。',res:'你谁也没说。后来你离河远了一点。'},
+  {label:'以后离河远一点',eff:{grit:3},istj:{t:1,j:1},drift:'你给自己定了一条规矩。',res:'你以后离河远一点。没人知道为什么。'}
  ]},
 
-{id:'e8',age:15,year:2011,stage:'第二章 · 长大',title:'摩羯那一页',
+{id:'e8',age:15,year:2011,stage:'第二章 · 长大',title:'摩羯',
  text:[
-  '班里的女生在聊星座。有人说：“摩羯座的人，天生会忍。”',
-  '你回家翻出一本旧杂志，找到摩羯那一页：土象星座，土星守。慢热，认死理，怕欠人情。',
-  '你不信。你只是觉得，这些词像有人偷偷看过你。你秩序性很强。'
+  '你后来知道自己是摩羯。慢热，认死理，怕欠人情。',
+  '你秩序性很强。'
  ],
  choices:[
-  {label:'把那一页撕下来，夹进课本',eff:{heart:2},istj:{i:2,s:1},drift:'你开始用一个星座，解释自己。',res:'你把那一页夹在语文课本里。后来你发现，自己确实喜欢把东西排整齐。'},
-  {label:'跟同学说“星座都是骗人的”',eff:{grit:3},istj:{t:2,e:1},drift:'你不喜欢被人一眼看穿。',res:'同学笑你嘴硬。你也笑。回家后你偷偷把那一页看完了。'},
-  {label:'对着杂志上的摩羯，发了会儿呆',eff:{heart:2,fate:2},istj:{i:2,n:1},drift:'你心里有个地方，被说中了。',res:'你看着“慢热，认死理，怕欠人情”那几行字，想起自己在亲戚家吃饭的样子。'}
+  {label:'认下这些词',eff:{heart:2},istj:{i:2,s:1},drift:'你开始用一个星座，解释自己。',res:'你把那些词记下来。慢热，认死理，怕欠人情。'},
+  {label:'说星座都是骗人的',eff:{grit:3},istj:{t:2,e:1},drift:'你不喜欢被人一眼看穿。',res:'你跟同学说星座都是骗人的。回家又偷偷看了一遍。'},
+  {label:'对着那些词发呆',eff:{heart:2,fate:2},istj:{i:2,n:1},drift:'你心里有个地方，被说中了。',res:'你看着那些词，发了会儿呆。'}
  ]},
 
 {id:'e9',age:16,year:2012,stage:'第二章 · 长大',title:'姐姐',
  text:[
-  '弟弟出生后，家里的钱更紧。亲戚说：“你是姐姐，要让着弟弟。”',
-  '新书包给了弟弟。你的书包洗了洗，继续背。'
+  '你是姐姐。家里有什么，先紧着弟弟。'
  ],
  choices:[
-  {label:'把新书包让给弟弟，自己用旧的',eff:{heart:5,body:-2},istj:{f:1},kind:true,drift:'你学会了让。让久了，就忘了自己想要什么。',res:'弟弟背着新书包在镜子前转圈。你站在门口看了一会儿，回房间把自己的旧书包刷干净。'},
-  {label:'说“我也要读书”',eff:{grit:7,ties:-4},istj:{t:2,j:1},drift:'你第一次为自己争。',res:'亲戚说你自私。妈妈没说话，第二天多接了一份零工。你听见她半夜咳嗽，把被子蒙住了头。'},
-  {label:'把家里的每一笔开销记在本子上',eff:{career:5,grit:5},istj:{t:1,j:1,s:1},drift:'你把家里的每一笔开销记下来，像在给自己找一条路。',res:'你买了一个一块钱的本子，把菜钱、学费、弟弟的奶粉钱一笔一笔记下来。'}
+  {label:'让',eff:{heart:5,body:-2},istj:{f:1},kind:true,drift:'你学会了让。',res:'你把自己的那份让出去。弟弟在镜子前转圈。'},
+  {label:'说“我也要”',eff:{grit:7,ties:-4},istj:{t:2,j:1},drift:'你第一次为自己争。',res:'亲戚说你自私。妈妈没说话，第二天多接了一份零工。'},
+  {label:'把家里的开销记下来',eff:{career:5,grit:5},istj:{t:1,j:1,s:1},drift:'你把家里的每一笔开销记下来。',res:'你买了一个一块钱的本子，把菜钱、学费、弟弟的奶粉钱记下来。'}
  ]},
 
 {id:'e10',age:18,year:2014,stage:'第二章 · 长大',title:'不读了',
@@ -418,7 +419,7 @@ const MAIN=[
 
 {id:'e12',age:19,year:2015,stage:'第三章 · 出走',title:'奶茶店',
  text:[
-  '你去了青岛。在一家奶茶店做店员。摇杯子，封口，擦台。海风很咸，住处的墙很薄。',
+  '你去了青岛。在一家奶茶店做店员。摇杯子，封口，擦台。海风很咸。',
   '店里有个大叔问你多高。你说一米六几。他说他一米七四。你说，那我也一米七四。'
  ],
  choices:[
@@ -440,7 +441,7 @@ const MAIN=[
 
 {id:'e14',age:22,year:2018,stage:'第三章 · 出走',title:'像个机器人',
  text:[
-  '你在奶茶店站了两年。同事说你像个机器人：封口永远对齐，台面永远干净，交班前还要把单子对一遍。',
+  '你在奶茶店站了很久。同事说你像个机器人：封口永远对齐，台面永远干净，交班前还要把单子对一遍。',
   '你没有生气。你喜欢观察人类，不喜欢接触。你也问自己：我是不是有点刻板了？'
  ],
  choices:[
@@ -451,7 +452,7 @@ const MAIN=[
 
 {id:'e15',age:23,year:2019,stage:'第三章 · 出走',title:'回湛江',
  text:[
-  '你回湛江。没有正经工作，有一搭没一搭做兼职。',
+  '你回湛江。有一搭没一搭做兼职。',
   '你和弟弟、弟弟的女朋友住在一个屋檐下。'
  ],
  choices:[
@@ -462,7 +463,7 @@ const MAIN=[
 
 {id:'e16',age:24,year:2020,stage:'第三章 · 出走',title:'合适',
  text:[
-  '亲戚给你安排相亲。对方条件不错。见面第三次，对方问：你什么学历，一个月挣多少，以后能不能顾家。',
+  '亲戚给你安排相亲。见面第三次，对方问：你什么学历，一个月挣多少，以后能不能顾家。',
   '你说：学渣，兼职，顾不了。你不生。你觉得你无法负责；恋爱和婚姻都只是一个阶段；结婚证约束不了什么。'
  ],
  choices:[
@@ -473,7 +474,7 @@ const MAIN=[
 
 {id:'e17',age:25,year:2021,stage:'第三章 · 出走',title:'钱一到手',
  text:[
-  '你没存下什么钱。兼职的钱一到手，你就想出去。北海、潮汕、南昌、云南。',
+  '兼职的钱一到手，你就想出去。潮汕、南昌、云南、威海。',
   '你喜欢自己来。独处就满血。你喜欢逛菜市场和超市。'
  ],
  choices:[
@@ -513,8 +514,8 @@ const MAIN=[
   '窗外有人放烟花。你想起一个十二年没见的人。'
  ],
  choices:[
-  {label:'留下来陪妈妈',eff:{ties:5,heart:5,career:-3},istj:{f:2,s:1},kind:true,drift:'你把“陪”当成了自己的责任。',res:'你陪妈妈看完了春晚。她靠在沙发上睡着了，你给她盖上毯子。'},
-  {label:'一个人回住处',eff:{body:3,heart:-2},istj:{i:2,j:2},drift:'你更习惯一个人过年。',res:'你煮了一碗速冻饺子，看了半部电影。零点的时候，手机响了一声。你没有看。'},
+  {label:'留下来陪妈妈',eff:{ties:5,heart:5,career:-3},istj:{f:2,s:1},kind:true,drift:'你把“陪”当成了自己的责任。',res:'你陪妈妈看完了电视。她靠在沙发上睡着了，你给她盖上毯子。'},
+  {label:'一个人回住处',eff:{body:3,heart:-2},istj:{i:2,j:2},drift:'你更习惯一个人过年。',res:'你煮了一碗面，看了半部电影。零点的时候，手机响了一声。你没有看。'},
   {label:'给那个十二年没见的人发一张海边的照片',eff:{fate:6,heart:-2},istj:{f:1,n:1},drift:'你允许自己，往他那边走了一步。',res:'你发了一张湛江的海。他回：“真好看。”你看着那三个字，把手机扣在桌上。'}
  ]},
 
@@ -558,7 +559,7 @@ const MAIN=[
  choices:[
   {label:'回去看他',eff:{ties:5,heart:5,career:-3},istj:{f:1,s:1},kind:true,drift:'你把时间留给了更老的人。',res:'你回去看他。他给你夹了一块白切鸡，说：多吃点。你吃了，没说话。'},
   {label:'打电话',eff:{heart:3,ties:2},istj:{f:1},drift:'你在电话里，听见他的喘气。',res:'他在电话里说：好，好。你听见他喘气，没敢多问。挂了电话，你坐了一会儿。'},
-  {label:'带他去吃',eff:{ties:4,heart:4,body:-2},istj:{f:1,s:1},kind:true,drift:'你想让他再出门吃一顿。',res:'你带他去了老店。他走得很慢。白切鸡上来，他先给你夹了一块。'}
+  {label:'带他去吃',eff:{ties:4,heart:4,body:-2},istj:{f:1,s:1},kind:true,drift:'你想让他再出门吃一顿。',res:'你带他出去吃了一顿。白切鸡上来，他先给你夹了一块。'}
  ]},
 
 {id:'e25',age:30,year:2026,stage:'第五章 · 归来',title:'十二年',auto:'把手机扣在桌上',autoEff:{fate:20},
@@ -598,9 +599,9 @@ const MAIN=[
   '你怕。你的边界感，对他一直不够。总有自己的生活要过。'
  ],
  choices:[
-  {label:'做朋友，划线：“我们大大方方，但要清清白白。”',eff:{heart:6,ties:4},istj:{t:2,j:2,f:1},flags:{boundary:true},kind:true,drift:'你给自己划了一条线，也给自己留了一条路。',res:'你打完那句话，把手机放下。你睡得很好。'},
+  {label:'做朋友，划线：“我们大大方方，但要清清白白。”',req:{stat:'heart',val:55},eff:{heart:6,ties:4},istj:{t:2,j:2,f:1},flags:{boundary:true},kind:true,drift:'你给自己划了一条线，也给自己留了一条路。',res:'你打完那句话，把手机放下。你睡得很好。'},
   {label:'等他把事情办完',eff:{fate:6,heart:-4},istj:{f:2},flags:{lostSelf:true},drift:'你把“等”放在了自己前面。',res:'你说等。他没有给你期限。你开始每天看手机。'},
-  {label:'见他，不问名分',eff:{fate:10,heart:-6},istj:{f:2,n:1},flags:{crossedLine:true,lostSelf:true},drift:'你没有守住那条线。',res:'你见了他。你们没有名分。你开始躲着熟人走路。'}
+  {label:'见他，不问名分',eff:{fate:10,heart:-6},istj:{f:2,n:1},flags:{crossedLine:true,lostSelf:true},drift:'那条线，后来模糊了。',res:'你见了他。你们没有名分。你不太敢见熟人。'}
  ]},
 
 {id:'e29',age:30,year:2026,stage:'第五章 · 归来',title:'一张纸',
@@ -670,7 +671,7 @@ const RANDOM=[
 {id:'r_mahjong',minAge:24,title:'三缺一',
  text:['朋友搬家，搬完拉着你去吃饭。你说：不吃，我要去打麻将。三缺一在等你。','麻将这种未知，你觉得有意思，不算失控。'],
  choices:[
-  {label:'去打麻将',eff:{heart:4,ties:4},istj:{f:1,e:1},kind:true,drift:'你在牌桌上，允许自己不算计。',res:'你打到半夜，输了八十块，笑得比赢了还开心。'},
+  {label:'去打麻将',eff:{heart:4,ties:4},istj:{f:1,e:1},kind:true,drift:'你在牌桌上，允许自己不算计。',res:'你打到半夜，输了一点钱，笑得比赢了还开心。'},
   {label:'留下吃饭',eff:{ties:2,heart:1},istj:{f:1},drift:'你留下来，心里还惦记着那桌牌。',res:'你陪朋友吃了饭。他们聊装修、聊孩子，你插不上话。回家的路上，你给自己买了一副麻将。'}
  ]},
 {id:'r_tangshui',minAge:24,title:'木薯糖水',
@@ -702,7 +703,7 @@ const RANDOM=[
  choices:[
   {label:'断',eff:{grit:5,heart:4},istj:{t:1,j:1},kind:true,drift:'你把那条线剪断了。',res:'你把他删了。后来表妹问起，你说：不合适。'},
   {label:'告诉他老婆',eff:{heart:6,ties:-3,body:-2},istj:{f:1,t:1},kind:true,drift:'你把事情放到了光里。',res:'你把聊天记录发给了他老婆。她只回了一个“谢谢”。你把手机关了。'},
-  {label:'装不知道',eff:{heart:-6,body:-2},istj:{i:1,t:1},flags:{crossedLine:true},drift:'你装作不知道，也把自己骗过去。',res:'你装作不知道。他再来找你，你也没拒绝。你开始讨厌自己。'}
+  {label:'装不知道',eff:{heart:-6,body:-2},istj:{i:1,t:1},flags:{crossedLine:true},drift:'你装作不知道。',res:'你装作不知道。他再来找你，你也没拒绝。你不太敢照镜子。'}
  ]}
 
 ,{id:'r_yam',minAge:25,title:'山药花生',
@@ -738,7 +739,7 @@ together:{title:'一加一大于二',sub:'好结局 · 有人来，也没有失�
 almost:{title:'差一步',sub:'遗憾结局 · 差一点就是自己的日子',
  prose:[
   '你差一点就过上了自己的日子。',
-  '差的那一点，可能是钱，可能是一句话，也可能是你又一次把“等”放在了“自己”前面。',
+  '差的那一点，可能是钱，也可能是一句没说出口的话。',
   '你还在海边。风还是那个风。你知道路在哪里，只是还没有迈出去。'
  ]},
 
@@ -790,7 +791,7 @@ debt:{title:'债',sub:'结局 · 被一家人拖住',
  prose:[
   '哥哥又来借钱。你套了信用卡，把钱转给他。他说下个月还。下个月没有，下下个月也没有。',
   '你的卡债越滚越大。你不敢算，也不敢停。',
-  '后来你才明白，有些“一家人”，是拿来拖住你的。'
+  '后来你才明白，有些忙，帮一次是情分。'
  ]},
 
 lightout:{title:'灯灭',sub:'结局 · 身体先于生活垮掉',
@@ -909,6 +910,41 @@ function driftLine(ax,seed){
   const arr=DRIFT[best]||DRIFT.i;
   return arr[seed%arr.length];
 }
+const FORTUNES=[
+ {t:'你赶上了最后一班车。',eff:{career:1,body:1},good:true},
+ {t:'雨停得正是时候。',eff:{body:2},good:true},
+ {t:'一个很久没联系的朋友突然找你，请你吃了顿饭。',eff:{ties:3,heart:2},good:true},
+ {t:'你在旧衣服里翻出一百块。',eff:{career:3},good:true},
+ {t:'台风改道，你的窗户没进水。',eff:{body:2},good:true},
+ {t:'你养的绿植冒了新芽。',eff:{heart:3},good:true},
+ {t:'你在菜市场碰到一个老同学，聊了很久。',eff:{ties:3},good:true},
+ {t:'你梦见了很久以前的人，醒来忘了大半。',eff:{heart:1,fate:2},good:true},
+ {t:'你多睡了一个小时，精神很好。',eff:{body:3},good:true},
+ {t:'你随手发的一条动态，很多人点赞。',eff:{ties:2},good:true},
+ {t:'手机摔了，屏碎了一角。',eff:{career:-2},good:false},
+ {t:'路上堵了一个小时，你迟到了。',eff:{career:-3},good:false},
+ {t:'牙疼了三天。',eff:{body:-3},good:false},
+ {t:'你踩到水坑，鞋湿了一天。',eff:{body:-1},good:false},
+ {t:'房东说下个月涨租。',eff:{career:-3},good:false},
+ {t:'你在超市排队，前面的人吵了起来。',eff:{heart:-1},good:false},
+ {t:'你半夜醒来，很久没睡着。',eff:{body:-2},good:false},
+ {t:'你发出去的消息，对方很久没回。',eff:{heart:-1,fate:-1},good:false},
+ {t:'身份证找不到了，翻了一下午。',eff:{career:-2,body:-1},good:false},
+ {t:'你出门忘带伞，淋了一路。',eff:{body:-2},good:false}
+];
+function rollFortune(){
+  const s=state.stats;
+  let p=0.5+(s.heart-50)/400+(s.fate||0)/600;
+  if(s.body<30)p-=0.1;
+  p=Math.max(0.25,Math.min(0.75,p));
+  const good=Math.random()<p;
+  const pool=FORTUNES.filter(f=>f.good===good);
+  const f=pool[Math.floor(Math.random()*pool.length)];
+  for(const [k,v] of Object.entries(f.eff||{}))state.stats[k]=clamp((state.stats[k]||0)+v);
+  if(state.stats.body<=0)state.dead=true;
+  return f;
+}
+
 function mbti(){
   const a=state.axes;
   const p=(x,y)=>Math.max(1,Math.min(99,Math.round(50+(x-y)*2.2)));
@@ -1001,7 +1037,7 @@ function renderEvent(){
       return '<button class="choice'+(locked?' locked':'')+'" data-i="'+i+'"'+(locked?' disabled':'')+'>'+
         '<span class="num">'+((['一','二','三','四'][i])||(i+1))+'</span>'+
         '<span class="txt">'+c.label+'</span>'+
-        (locked?'<span class="lock">心灯不足</span>':'')+
+        (locked?'<span class="lock">说不出口</span>':'')+
       '</button>';
     }).join('')+'</div>';
   }else{
@@ -1040,18 +1076,20 @@ function choose(i){
     if(el)state.elements[el]=(state.elements[el]||0)+v;
   }
   const drift=c.drift||driftLine(ax,state.log.length);
+  const fortune=Math.random()<0.35?rollFortune():null;
   state.log.push({age:item.age,title:ev.title,choice:c.label,drift,flags:c.flags?Object.keys(c.flags):[]});
   if(state.stats.body<=0)state.dead=true;
   save();
-  renderResult(ev,c,before,drift);
+  renderResult(ev,c,before,drift,fortune);
 }
 
-function renderResult(ev,c,before,drift){
+function renderResult(ev,c,before,drift,fortune){
   const s=state.stats;
   const deltas=DELTA_ORDER.filter(k=>s[k]!==before[k]).map(k=>{
     const d=s[k]-before[k];
     return '<span class="delta '+(d>0?'up':'down')+'">'+STAT_NAMES[k]+' '+(d>0?'+':'')+d+'</span>';
   }).join('');
+  const fortuneHtml=fortune?('<div class="fortune"><span>天意</span><p>'+fortune.t+'</p></div>'):'';
   renderHUD();
   $('#stage').innerHTML=
   '<section class="card enter">'+
@@ -1059,6 +1097,7 @@ function renderResult(ev,c,before,drift){
     '<h1>'+ev.title+'</h1>'+
     '<div class="prose">'+c.res.split('\n').map(p=>'<p>'+p+'</p>').join('')+'</div>'+
     (deltas?'<div class="deltas">'+deltas+'</div>':'')+
+    fortuneHtml+
     '<div class="drift"><span>性格的偏移</span><p>'+drift+'</p></div>'+
     '<button class="primary" id="nextBtn">'+(state.dead?'眼前一黑':'继续')+'</button>'+
   '</section>';
@@ -1106,10 +1145,10 @@ function typeNote(type,id){
     weather:'你成了 '+type+'。你把日子过稳了。',
     far:'你成了 '+type+'。你换了一个地方，还是按自己的方式活。',
     emptyroom:'你成了 '+type+'。你给自己留了一间空房。',
-    idle:'你成了 '+type+'。你什么都安排好了，除了自己想要什么。',
-    third:'你成了 '+type+'。你在别人的故事里，丢了自己的边界。',
+    idle:'你成了 '+type+'。你什么都安排好了。',
+    third:'你成了 '+type+'。你在别人的故事里，走丢了一段。',
     island:'你成了 '+type+'。你什么都靠自己，后来也只剩自己。',
-    debt:'你成了 '+type+'。你把“一家人”三个字，扛得太久了。',
+    debt:'你成了 '+type+'。你把“一家人”三个字，看得太重。',
     lightout:'你成了 '+type+'。你把自己耗尽了。'
   };
   return map[id]||('你成了 '+type+'。');
