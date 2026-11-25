@@ -247,9 +247,9 @@ h1{font-family:var(--serif);font-weight:600;color:var(--ink);margin:10px 0 0;
 'use strict';
 
 /* ===================== 基础 ===================== */
-const SAVE_KEY='xr_life_v3';
-const END_KEY='xr_life_v3_endings';
-const RUN_KEY='xr_life_v3_runs';
+const SAVE_KEY='xr_life_v4';
+const END_KEY='xr_life_v4_endings';
+const RUN_KEY='xr_life_v4_runs';
 const $=s=>document.querySelector(s);
 const clamp=(v,a=0,b=100)=>Math.max(a,Math.min(b,v));
 const STAT_NAMES={heart:'心灯',grit:'韧性',career:'生计',ties:'人情',body:'身体',fate:'缘分'};
@@ -518,14 +518,15 @@ const MAIN=[
   {label:'给那个十二年没见的人发一张海边的照片',eff:{fate:6,heart:-2},istj:{f:1,n:1},drift:'你允许自己，往他那边走了一步。',res:'你发了一张湛江的海。他回：“真好看。”你看着那三个字，把手机扣在桌上。'}
  ]},
 
-{id:'e21',age:28,year:2024,stage:'第四章 · 立身',title:'山药花生',
+{id:'e21',age:28,year:2024,stage:'第四章 · 立身',title:'哥哥',
  text:[
-  '妈妈又种了山药花生，说给亲戚分。你想起以前累惨了，亲戚还挑剔。'
+  '家里给哥哥安排相亲。哥哥想出去买房或者租房，但没钱。',
+  '他来找你借钱。你手里没有。他说：你套信用卡，先给我。'
  ],
  choices:[
-  {label:'帮她挖',eff:{ties:5,heart:4,body:-3},istj:{f:1,s:1},kind:true,drift:'你蹲在地里，想起小时候。',res:'你蹲在地里，挖了一下午。妈妈说：给亲戚分。你说：今年少种点。她没说话，第二年还是种了。'},
-  {label:'劝她别种',eff:{heart:2,ties:-2},istj:{t:1,j:1},drift:'你把话说得很直。',res:'你说别种了。她嘴上答应，第二年又种了。你看着那袋山药，没再劝。'},
-  {label:'把亲戚的那份送回去',eff:{heart:3,ties:-4,grit:4},istj:{t:2,j:2},drift:'你不想再让妈妈的热脸贴冷屁股。',res:'你把亲戚的那份送回去，说：今年不送了。亲戚脸色不好看。你转身就走。'}
+  {label:'套信用卡，给他',eff:{heart:2,ties:4,career:-6},istj:{f:2,t:1},flags:{broDebt:true},kind:true,drift:'你把“一家人”三个字，扛在了自己身上。',res:'你套了信用卡，把钱转给他。他说下个月还。下个月没有，下下个月也没有。弟弟如果有钱会还你；哥哥不会；妈妈更是无语。'},
+  {label:'说没有',eff:{heart:4,ties:-5,grit:4},istj:{t:2,j:2},drift:'你第一次把“不”说出口。',res:'你说没有。他脸色不好看，说：你变了。你没接话。'},
+  {label:'把身上的现金给他，不套卡',eff:{heart:3,ties:2,career:-3},istj:{f:1,t:1},drift:'你给了一点，但没有把卡递出去。',res:'你把身上的现金给了他。他说不够。你也没再掏。'}
  ]},
 
 {id:'e22',age:28,year:2024,stage:'第四章 · 立身',title:'月饼厂',
@@ -703,7 +704,14 @@ const RANDOM=[
   {label:'告诉他老婆',eff:{heart:6,ties:-3,body:-2},istj:{f:1,t:1},kind:true,drift:'你把事情放到了光里。',res:'你把聊天记录发给了他老婆。她只回了一个“谢谢”。你把手机关了。'},
   {label:'装不知道',eff:{heart:-6,body:-2},istj:{i:1,t:1},flags:{crossedLine:true},drift:'你装作不知道，也把自己骗过去。',res:'你装作不知道。他再来找你，你也没拒绝。你开始讨厌自己。'}
  ]}
-];
+
+,{id:'r_yam',minAge:25,title:'山药花生',
+ text:['妈妈又种了山药花生，说给亲戚分。你想起以前累惨了，亲戚还挑剔。'],
+ choices:[
+  {label:'帮她挖',eff:{ties:5,heart:4,body:-3},istj:{f:1,s:1},kind:true,drift:'你蹲在地里，想起小时候。',res:'你蹲在地里，挖了一下午。妈妈说：给亲戚分。你说：今年少种点。她没说话，第二年还是种了。'},
+  {label:'劝她别种',eff:{heart:2,ties:-2},istj:{t:1,j:1},drift:'你把话说得很直。',res:'你说别种了。她嘴上答应，第二年又种了。你看着那袋山药，没再劝。'},
+  {label:'把亲戚的那份送回去',eff:{heart:3,ties:-4,grit:4},istj:{t:2,j:2},drift:'你不想再让妈妈的热脸贴冷屁股。',res:'你把亲戚的那份送回去，说：今年不送了。亲戚脸色不好看。你转身就走。'}
+ ]}];
 
 /* ===================== 结局 ===================== */
 const ENDINGS={
@@ -778,6 +786,13 @@ island:{title:'孤岛',sub:'结局 · 什么都有了，除了人',
   '你什么都靠自己。后来，你也只剩自己。'
  ]},
 
+debt:{title:'债',sub:'结局 · 被一家人拖住',
+ prose:[
+  '哥哥又来借钱。你套了信用卡，把钱转给他。他说下个月还。下个月没有，下下个月也没有。',
+  '你的卡债越滚越大。你不敢算，也不敢停。',
+  '后来你才明白，有些“一家人”，是拿来拖住你的。'
+ ]},
+
 lightout:{title:'灯灭',sub:'结局 · 身体先于生活垮掉',
  prose:[
   '你是在兼职的店里倒下的。医生说，累的。',
@@ -786,7 +801,7 @@ lightout:{title:'灯灭',sub:'结局 · 身体先于生活垮掉',
  ]}
 };
 
-const GALLERY_ORDER=['self','together','almost','weather','far','emptyroom','idle','third','island','lightout'];
+const GALLERY_ORDER=['self','together','almost','weather','far','emptyroom','idle','third','island','debt','lightout'];
 
 const CHART_NOTES={
  self:'命里那点木，太弱。后来有人送了你一棵树。',
@@ -798,6 +813,7 @@ const CHART_NOTES={
  idle:'日子没有错。你也没有错。只是有些话，你一直没说。',
  third:'藤缠着树，谁也长不高。',
  island:'水冷，自己结冰。',
+ debt:'土压着，越压越实。',
  lightout:'日子还在，人先熄了。'
 };
 
@@ -833,7 +849,7 @@ function newState(origin){
   let run=1;
   try{run=(parseInt(localStorage.getItem(RUN_KEY)||'0',10)||0)+1;localStorage.setItem(RUN_KEY,String(run));}catch(e){run=1;}
   return {
-    v:3,origin:origin.id,run,pos:0,age:0,year:1997,stats,
+    v:4,origin:origin.id,run,pos:0,age:0,year:1997,stats,
     axes:{i:6,s:4,t:6,j:7,e:2,n:2,f:4,p:2},
     elements:{...BIRTH.base},
     flags:{},his:0,kind:0,shortcuts:0,
@@ -844,7 +860,7 @@ function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(state));}catch(
 function loadSave(){
   try{
     const s=JSON.parse(localStorage.getItem(SAVE_KEY));
-    if(s&&s.v===3&&Array.isArray(s.plan)&&!s.ending)return s;
+    if(s&&s.v===4&&Array.isArray(s.plan)&&!s.ending)return s;
   }catch(e){}
   return null;
 }
@@ -925,7 +941,7 @@ function renderTitle(){
     '<div class="hero-actions">'+
       '<button class="primary" id="startBtn">开始这一世</button>'+
       (saved?'<button class="ghost" id="contBtn">继续上一世</button>':'')+
-      '<button class="linklike" id="galBtn">结局图鉴 '+got.length+'/10</button>'+
+      '<button class="linklike" id="galBtn">结局图鉴 '+got.length+'/11</button>'+
     '</div>'+
     '<p class="fine">仅供两人保存，请勿公开转发。</p>'+
   '</div>';
@@ -1072,6 +1088,7 @@ function judge(){
     t.type==='ISTJ'&&selfPath&&f.figTree&&!f.lostSelf&&!f.crossedLine;
   if(f.crossedLine)return 'third';
   if(s.ties<40&&s.career>=30)return 'island';
+  if(f.broDebt&&s.career<25)return 'debt';
   if(selfBase&&f.partner)return 'together';
   if(selfBase)return 'self';
   if(f.leftTown&&!selfPath)return 'far';
@@ -1092,6 +1109,7 @@ function typeNote(type,id){
     idle:'你成了 '+type+'。你什么都安排好了，除了自己想要什么。',
     third:'你成了 '+type+'。你在别人的故事里，丢了自己的边界。',
     island:'你成了 '+type+'。你什么都靠自己，后来也只剩自己。',
+    debt:'你成了 '+type+'。你把“一家人”三个字，扛得太久了。',
     lightout:'你成了 '+type+'。你把自己耗尽了。'
   };
   return map[id]||('你成了 '+type+'。');
@@ -1169,7 +1187,7 @@ function openGallery(){
       '<div class="g-t"><b>'+(ok?e.title:'？？？')+'</b><span>'+(ok?e.sub:'尚未走到')+'</span></div>'+
     '</div>';
   }).join('');
-  showModal('<div class="modal-head"><h2>结局图鉴</h2><p>'+got.length+' / 10</p></div><div class="gallery">'+rows+'</div>');
+  showModal('<div class="modal-head"><h2>结局图鉴</h2><p>'+got.length+' / 11</p></div><div class="gallery">'+rows+'</div>');
 }
 
 function openMenu(){
