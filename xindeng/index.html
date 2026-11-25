@@ -878,6 +878,76 @@ const RANDOM=[
   {label:'开播',eff:{career:7,body:-4},istj:{e:1,n:1},flags:{stream:true},drift:'你把自己放到了镜头前。',res:'你开了播。不开美颜，也不喊家人们。'},
   {label:'先看看',eff:{heart:1},istj:{s:1},drift:'你先看看。',res:'你看了几天，没开播。'},
   {label:'不露脸',eff:{career:2,heart:1},istj:{i:2,t:1},drift:'你不想被人看见。',res:'你帮别人打包，一天下来，腰酸。'}
+ ]},
+{id:'r_gamble',minAge:26,title:'棋牌室',
+ text:['朋友给你介绍了一个人。他开棋牌室，手气一直很好。','他说：小赌怡情，我这种算娱乐。'],
+ choices:[
+  {label:'相处看看',eff:{fate:5,heart:2},istj:{n:1,f:1},flags:{gambler:true},drift:'你往那张桌子边，坐近了一点。',res:'你们在一起了。后来你才知道，他说的娱乐，是拿房子去娱乐。'},
+  {label:'只做朋友',eff:{ties:2},istj:{s:1},drift:'你留了一步。',res:'你们偶尔吃饭。他总说手气。你不接话。'},
+  {label:'不见',eff:{grit:3},istj:{t:1,j:1},drift:'你把门关好。',res:'你回了句不合适，没再去。'}
+ ]},
+{id:'r_drink',minAge:26,title:'顿顿两杯',
+ text:['相亲对象人挺客气，就是顿顿要喝两杯。','他说：不喝酒，算什么男人。'],
+ choices:[
+  {label:'嫁了',eff:{ties:3,heart:-3},istj:{s:2,j:1},flags:{drunk:true},drift:'你把日子交给了酒杯。',res:'你嫁了。婚后你才知道，两杯后面还有两瓶。'},
+  {label:'再处处',eff:{heart:1,grit:2},istj:{s:1,t:1},drift:'你想再看看。',res:'你处了一阵，还是散了。'},
+  {label:'算了',eff:{grit:4,ties:-2},istj:{t:1,j:1},drift:'你不想等一个人戒酒。',res:'你说算了。亲戚说你挑。'}
+ ]},
+{id:'r_mama',minAge:26,title:'听妈妈的',
+ text:['对方什么都听他妈妈的。买房、装修、彩礼，都是他妈定。','他说：我妈把我养这么大，不容易。'],
+ choices:[
+  {label:'嫁了',eff:{ties:4,heart:-4},istj:{f:1,s:1},flags:{mama:true},drift:'你嫁进了一个已经有主的家。',res:'你嫁了。婚后你才发现，这个家说话的人，不是你。'},
+  {label:'先观察',eff:{heart:1,grit:2},istj:{t:1,s:1},drift:'你多留了一个心眼。',res:'你观察了一阵，退了出来。'},
+  {label:'不见',eff:{grit:4,ties:-2},istj:{t:2,j:1},drift:'你不想要一个还没断奶的人。',res:'你说不合适。亲戚摇头。'}
+ ]},
+{id:'r_soft',minAge:27,title:'先养一阵',
+ text:['他辞了工作，说想做自媒体，先让你养一阵。','一阵过了又一阵。'],
+ choices:[
+  {label:'继续养',eff:{career:-4,heart:-2},istj:{f:1,s:1},flags:{soft:true},drift:'你把一个家扛在了自己肩上。',res:'你继续养。他说：等我火了。'},
+  {label:'让他找工作',eff:{grit:4,ties:-2},istj:{t:1,j:1},drift:'你把话说明白了。',res:'他找了份工作，干了半个月。'},
+  {label:'分手',eff:{heart:2,grit:3},istj:{t:2,j:1},drift:'你不再当谁的饭票。',res:'你搬了出去。'}
+ ]},
+{id:'r_cheat',minAge:27,title:'走得近',
+ text:['你发现他和你朋友走得很近。','他说：你想多了。'],
+ choices:[
+  {label:'装不知道，嫁了',eff:{ties:3,heart:-5},istj:{i:1,t:1},flags:{cheat:true},drift:'你把眼睛闭上了。',res:'你嫁了。婚礼上，你朋友坐在第三桌。'},
+  {label:'问清楚',eff:{grit:4,heart:-2},istj:{t:1,j:1},drift:'你把话摊开。',res:'他们都说你想多了。你没再问。'},
+  {label:'走',eff:{heart:4,grit:4},istj:{t:2,j:2},drift:'你把自己捞了出来。',res:'你走了。朋友后来也没了。'}
+ ]},
+{id:'r_control',minAge:27,title:'为你好',
+ text:['他开始查你手机，让你少和那些朋友来往。','他说：我是为你好。'],
+ choices:[
+  {label:'忍',eff:{heart:-4,ties:-4},istj:{s:1,j:1},flags:{control:true},drift:'你把门一扇一扇关上。',res:'你忍了。手机里的联系人，越来越少。'},
+  {label:'反抗',eff:{grit:4,ties:1},istj:{e:1,t:1},drift:'你把手机夺了回来。',res:'你们吵了一架。他摔门走了。'},
+  {label:'走',eff:{heart:3,grit:4},istj:{t:2,j:2},drift:'你不想被看着过日子。',res:'你搬走了。'}
+ ]},
+{id:'r_online',minAge:25,title:'稳赚',
+ text:['你在网上认识一个人。他每天嘘寒问暖，说带你投资。','他说：稳赚，我怎么会骗你。'],
+ choices:[
+  {label:'转账',eff:{career:-8,heart:-4},istj:{n:1,f:1},flags:{pig:true},drift:'你把钱和信任一起转了过去。',res:'你转了。他说再投一笔就能取出来。你又转了一笔。'},
+  {label:'查一下',eff:{grit:3,heart:1},istj:{t:1,j:1},drift:'你先查了。',res:'你搜了一下，关掉了对话框。'},
+  {label:'拉黑',eff:{grit:3,ties:-1},istj:{t:2,j:1},drift:'你不信这种好事。',res:'你拉黑了。他说你没良心。'}
+ ]},
+{id:'r_step',minAge:28,title:'带一个孩子',
+ text:['对方是二婚，带一个孩子。','他说：孩子很乖，会把你当妈。'],
+ choices:[
+  {label:'嫁',eff:{ties:4,heart:-3},istj:{s:1,f:1},flags:{step:true},drift:'你接过了别人家的孩子。',res:'你嫁了。孩子不认你。你说：慢慢来。'},
+  {label:'再想想',eff:{heart:1},istj:{s:1},drift:'你没急着答应。',res:'你想了很久，最后没答应。'},
+  {label:'不见',eff:{grit:3},istj:{t:1,j:1},drift:'你不想一开始就当后妈。',res:'你回了不合适。'}
+ ]},
+{id:'r_cold',minAge:28,title:'一屋两人',
+ text:['婚后他话越来越少。一开始是一天，后来是一年。','你们住在一间屋里，像两个租客。'],
+ choices:[
+  {label:'熬',eff:{heart:-4,body:-2},istj:{i:2,t:1},flags:{cold:true},drift:'你把话都咽了回去。',res:'你熬着。饭各做各的，灯各关各的。'},
+  {label:'摊牌',eff:{grit:4,ties:-2},istj:{t:1,j:1},drift:'你先把话说了出来。',res:'你说了。他沉默了很久，说：随便。'},
+  {label:'分开',eff:{heart:2,grit:3},istj:{t:2,j:1},drift:'你不想再住在沉默里。',res:'你搬走了。屋里安静得不一样。'}
+ ]},
+{id:'r_absent',minAge:28,title:'在外地',
+ text:['他在外地工作，一年回来两次。','他说：等我赚够钱。'],
+ choices:[
+  {label:'等',eff:{heart:-3,fate:2},istj:{s:2,f:1},flags:{absent:true},drift:'你把日子过成了一场等待。',res:'你等了。孩子生病，你一个人抱着去医院。'},
+  {label:'让他回来',eff:{grit:4,ties:-2},istj:{t:1,j:1},drift:'你把话说了。',res:'他回来待了一个月，又走了。'},
+  {label:'不等',eff:{heart:3,grit:3},istj:{t:2,j:1},drift:'你不想一直等。',res:'你不再等了。'}
  ]}
 ];
 
@@ -1036,10 +1106,89 @@ boss:{title:'线长',sub:'意外结局 · 月饼厂的线长',
   '工资不高，但每个月都有。你手底下管着二十来个人。',
   '中秋最忙的时候，你在车间里走来走去，像个机器人。',
   '你偶尔想起十七岁在青岛，觉得那是上辈子的事。'
+ ]},gambler:{title:'赌鬼',sub:'择偶不佳 · 棋牌室之后',
+ prose:[
+  '你嫁给了他。他开的棋牌室，后来变成了赌场。',
+  '先是存款，再是车，再是房子。他每次都说是最后一次。',
+  '催债的人上门，你才知道他拿你的身份证借了网贷。',
+  '你带着行李回了娘家。他说：再给我一次机会。',
+  '你把门关上，第一次觉得，安静真好。'
+ ]},
+drunk:{title:'酒鬼',sub:'择偶不佳 · 顿顿两杯',
+ prose:[
+  '你嫁给了他。他顿顿要喝，喝完话就多。',
+  '夜里你听见钥匙在门上捅了很久。开门，他坐在地上笑。',
+  '你把他扶上床，把地上的碎玻璃扫了。',
+  '第二天他醒来说：下次少喝。下次还是一样。',
+  '你后来学会了，把酒瓶都藏到柜子最上面。'
+ ]},
+mama:{title:'妈宝',sub:'择偶不佳 · 他听妈妈的',
+ prose:[
+  '你嫁给了他。婚房怎么装，他妈定；钱怎么花，他妈定。',
+  '你们吵架，他永远站在他妈那边。他说：我妈不容易。',
+  '你怀孕的时候，他妈给你定了月子食谱。你没有说话。',
+  '有一天你问：那我们呢。他说：我们听妈的。',
+  '你把碗放下，忽然不知道自己嫁的是谁。'
+ ]},
+soft:{title:'软饭',sub:'择偶不佳 · 先养一阵',
+ prose:[
+  '你嫁给了他。他说要做自媒体，先在家待一阵。',
+  '一阵过了三年。你上班，他打游戏，等你做饭。',
+  '他说：你赚得也不多，别那么大声。',
+  '你算了算，这些年你养他花掉的钱，够你去两趟川渝。',
+  '你哪儿也没去。'
+ ]},
+cheat:{title:'出轨',sub:'择偶不佳 · 他和朋友走得近',
+ prose:[
+  '你嫁给了他。婚礼上，你朋友坐在第三桌。',
+  '后来你在他手机里看见她。不止一次。',
+  '你问他，他说：你想多了。',
+  '你把两个人的联系方式都删了。婚没离，日子先冷了。',
+  '你说：我当初就不该装作没看见。'
+ ]},
+control:{title:'控制',sub:'择偶不佳 · 都是为你好',
+ prose:[
+  '你嫁给了他。他查你手机，删你朋友，管你的钱。',
+  '他说：我是为你好。',
+  '你慢慢地不出门了。亲戚问你怎么瘦了，你说在减肥。',
+  '有一次你在菜市场多站了一会儿，他打了七个电话。',
+  '你提着菜往回走，忽然想不起自己以前爱吃什么。'
+ ]},
+pig:{title:'杀猪盘',sub:'择偶不佳 · 网上的那个人',
+ prose:[
+  '你在网上认识一个人。他每天问你吃没吃饭。',
+  '后来他说带你投资，稳赚。你把积蓄转了过去。',
+  '他消失了。账号注销，电话空号。',
+  '你去报警，警察说这种很多。你点头，像听别人的事。',
+  '回家的路上，你买了一个无花果，很甜，也很贵。'
+ ]},
+step:{title:'后妈',sub:'择偶不佳 · 二婚带娃',
+ prose:[
+  '你嫁给了他。他带着一个孩子，说会把你当妈。',
+  '孩子不认你。你做的饭他不吃，你买的东西他扔了。',
+  '他夹在中间，最后总说：他还小，你让让他。',
+  '你让了很多年。孩子长大了，管你叫阿姨。',
+  '你应了一声。'
+ ]},
+cold:{title:'冷婚',sub:'择偶不佳 · 一屋两人',
+ prose:[
+  '你嫁给了他。婚后他话越来越少。',
+  '一开始是一天，后来是一个月，再后来是一年。',
+  '你们住在一间屋里，像两个租客。饭各做各的。',
+  '有一次你生病，他给你倒了杯水，你差点哭出来。',
+  '你才明白，你们已经很久没有说过一句话了。'
+ ]},
+absent:{title:'缺席',sub:'择偶不佳 · 一年回来两次',
+ prose:[
+  '你嫁给了他。他在外地工作，一年回来两次。',
+  '孩子生病，你一个人抱着去医院。他说：我这边走不开。',
+  '后来他回来的次数更少了。钱按时打，人不见。',
+  '亲戚说你命好，男人能赚钱。你笑笑，没说话。',
+  '夜里你一个人睡，把被子裹得很紧。'
  ]}
 };
 
-const GALLERY_ORDER=['self','almost','weather','far','emptyroom','idle','third','island','debt','lightout','sichuan','pork','porkdebt','landlord','lottery','dessert','cats','scam','stream','boss'];
+const GALLERY_ORDER=['self','almost','weather','far','emptyroom','idle','third','island','debt','lightout','sichuan','pork','porkdebt','landlord','lottery','dessert','cats','scam','stream','boss','gambler','drunk','mama','soft','cheat','control','pig','step','cold','absent'];
 
 const CHART_NOTES={
  self:'命里那点木，太弱。后来有人送了你一棵树。',
@@ -1062,6 +1211,16 @@ const CHART_NOTES={
  scam:'生意难做啊。',
  stream:'镜头亮着，人更远了。',
  boss:'你把日子排成一条线，自己在线上走。',
+ gambler:'赌桌上没有赢家，只有还没输完的人。',
+ drunk:'酒醒了，日子还在。',
+ mama:'嫁的不是他，是他妈。',
+ soft:'你养了一个家，家里没人养你。',
+ cheat:'你装作没看见，他就真当你没看见。',
+ control:'电话响了七次，你没接。',
+ pig:'甜言蜜语最贵。',
+ step:'后妈两个字，你应了很多年。',
+ cold:'一间屋，两个人，一年没说话。',
+ absent:'人不在，日子还得过。',
 };
 
 /* ===================== 事件索引 ===================== */
@@ -1381,6 +1540,16 @@ function judge(){
   if(f.landlord)return 'landlord';
   if(f.cats)return 'cats';
   if(f.factory&&s.career>=45)return 'boss';
+  if(f.gambler)return 'gambler';
+  if(f.drunk)return 'drunk';
+  if(f.mama)return 'mama';
+  if(f.soft)return 'soft';
+  if(f.cheat)return 'cheat';
+  if(f.control)return 'control';
+  if(f.pig)return 'pig';
+  if(f.step)return 'step';
+  if(f.cold)return 'cold';
+  if(f.absent)return 'absent';
   if(s.ties<40&&s.career>=30)return 'island';
   if(f.broDebt&&s.career<25)return 'debt';
   if(selfBase)return 'self';
@@ -1412,7 +1581,17 @@ function typeNote(type,id){
     cats:'你成了养一屋子猫狗的人。',
     scam:'你成了被朋友坑过的人。',
     stream:'你成了直播间里的那个人。',
-    boss:'你成了月饼厂的线长。'
+    boss:'你成了月饼厂的线长。',
+    gambler:'你成了替赌鬼还债的人。',
+    drunk:'你成了等门的人。',
+    mama:'你成了婆婆家的外人。',
+    soft:'你成了养家的人。',
+    cheat:'你成了被朋友和丈夫一起瞒着的人。',
+    control:'你成了不敢出门的人。',
+    pig:'你成了杀猪盘里的那头猪。',
+    step:'你成了后妈。',
+    cold:'你成了和丈夫冷战的人。',
+    absent:'你成了一个人带孩子的妻子。'
   };
   return map[id]||('你成了 '+type+'。');
 }
