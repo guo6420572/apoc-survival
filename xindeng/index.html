@@ -256,7 +256,7 @@ const END_KEY='xr_life_v5_endings';
 const RUN_KEY='xr_life_v5_runs';
 const $=s=>document.querySelector(s);
 const clamp=(v,a=0,b=100)=>Math.max(a,Math.min(b,v));
-const STAT_NAMES={heart:'心灯',grit:'韧性',career:'生计',ties:'人情',body:'身体',fate:'缘分'};
+const STAT_NAMES={heart:'心灯',grit:'韧性',career:'生计',ties:'人情',body:'身体',fate:'机缘'};
 const DELTA_ORDER=['heart','grit','career','ties','body','fate'];
 const CN=['零','一','二','三','四','五','六','七','八','九'];
 function cnAge(n){
@@ -412,9 +412,9 @@ const MAIN=[
   '一个陌生人捡到了，回你：这首歌我也听过。'
  ],
  choices:[
-  {label:'回他',eff:{fate:12,ties:2},istj:{f:1,e:1},drift:'你回了一句。你不知道，这个人会留很多年。',res:'你们从歌词聊到天亮。后来加了好友。'},
+  {label:'回他',eff:{fate:12,ties:2},istj:{f:1,e:1},drift:'你回了一句。',res:'你们从歌词聊到天亮。后来加了好友。'},
   {label:'不理',eff:{fate:6,body:3},istj:{i:2,s:1},drift:'你把手机放下。第二天，那个漂流瓶又漂回来了。',res:'你关了手机，去睡觉。第二天打开，那个陌生人又发来一句：昨晚那首歌，我也单曲循环过。'},
-  {label:'聊到天亮',eff:{fate:18,body:-3},istj:{e:2,n:1},drift:'你允许一个陌生人，走进来一点。',res:'你们聊到天亮。他说他在山东。后来加了好友。十二年后，这个人还在。'}
+  {label:'聊到天亮',eff:{fate:18,body:-3},istj:{e:2,n:1},drift:'你允许一个陌生人，走进来一点。',res:'你们聊到天亮，说了很多没跟别人说过的话。后来加了好友。'}
  ]},
 
 {id:'e12',age:19,year:2015,stage:'第三章 · 出走',title:'奶茶店',
@@ -499,7 +499,7 @@ const MAIN=[
   '你找了一个会排盘的师傅，把自己的生辰报过去。他说：“金多，火有点，木弱。”你说：我缺木。',
   '你还有一个名字，和五行有关，从来没用过。你把“柔”拆开：矛加木。表面锋利，内心柔软；一根筋，不知道变通。',
   '你这几年疯狂迷恋无花果。你说：我想要果，但我又懒得种。',
-  '你想起算命先生说的那句：等有一天，有人送她一棵树。你一直没等到那个人。'
+  '你想起算命先生说的那句：等有一天，有人送她一棵树。你后来想：等不到，就自己种。'
  ],
  choices:[
   {label:'把“缺木”记在本子上',eff:{career:3,grit:2},istj:{t:2,j:2,s:1},drift:'你把那几句话当成一道题，想自己解。',res:'你把“木弱”写在笔记本最上面。你不知道怎么补，只知道自己不想一直缺下去。'},
@@ -511,12 +511,12 @@ const MAIN=[
  text:[
   '过年，亲戚问：有对象了吗？你说没有。他们叹气，说女孩子不要太挑。',
   '你和亲戚见面，要先做一下心里建设。妈妈替你说话：“她自己过得好就行。”',
-  '窗外有人放烟花。你想起一个十二年没见的人。'
+  '窗外有人放烟花。你没有开窗，听见了。'
  ],
  choices:[
   {label:'留下来陪妈妈',eff:{ties:5,heart:5,career:-3},istj:{f:2,s:1},kind:true,drift:'你把“陪”当成了自己的责任。',res:'你陪妈妈看完了电视。她靠在沙发上睡着了，你给她盖上毯子。'},
   {label:'一个人回住处',eff:{body:3,heart:-2},istj:{i:2,j:2},drift:'你更习惯一个人过年。',res:'你煮了一碗面，看了半部电影。零点的时候，手机响了一声。你没有看。'},
-  {label:'给那个十二年没见的人发一张海边的照片',eff:{fate:6,heart:-2},istj:{f:1,n:1},drift:'你允许自己，往他那边走了一步。',res:'你发了一张湛江的海。他回：“真好看。”你看着那三个字，把手机扣在桌上。'}
+  {label:'去海堤上看烟花',eff:{heart:3,body:-1},istj:{f:1,n:1},kind:true,drift:'你不想一个人待在屋里。',res:'零点，你走到海堤上。烟花在远处，海面黑黑的。你站了一会儿，觉得这样也行。'}
  ]},
 
 {id:'e21',age:28,year:2024,stage:'第四章 · 立身',title:'哥哥',
@@ -562,12 +562,11 @@ const MAIN=[
   {label:'带他去吃',eff:{ties:4,heart:4,body:-2},istj:{f:1,s:1},kind:true,drift:'你想让他再出门吃一顿。',res:'你带他出去吃了一顿。白切鸡上来，他先给你夹了一块。'}
  ]},
 
-{id:'e25',age:30,year:2026,stage:'第五章 · 归来',title:'十二年',auto:'把手机扣在桌上',autoEff:{fate:20},
- autoDrift:'你开始每天等一个消息。',
+{id:'e25',age:30,year:2026,stage:'第五章 · 归来',title:'三十岁',auto:'一个人坐一会儿',
+ autoDrift:'你开始把日子过成自己的。',
  text:[
-  '2026年9月，一个十二年没说过话的人，发来一句：好久不见。',
-  '你们在2014年的微信漂流瓶里认识。他说，他还记得你发的那句歌词。',
-  '男女的边界，你看得很重。他结了婚。'
+  '2026年，你三十岁。兼职、家里、一个人。',
+  '你回头看，前面这些年，好的坏的，都是你自己走过来的。'
  ]},
 
 {id:'e26',age:30,year:2026,stage:'第五章 · 归来',title:'钱',
@@ -582,37 +581,38 @@ const MAIN=[
   {label:'存起来',eff:{career:5,heart:-2},istj:{t:2,j:2},drift:'你把钱存起来。',res:'你把钱存起来。晚上你算了算，够撑一阵。'}
  ]},
 
-{id:'e27',age:30,year:2026,stage:'第五章 · 归来',title:'一棵树',
+{id:'e27',age:30,year:2026,stage:'第五章 · 归来',title:'无花果',
  text:[
-  '十月，一个男人说：“我给你寄点无花果。”快递说，鲜果不给寄。他改寄了一棵小小的无花果苗。你想起算命先生说的那句：等有一天，有人送她一棵树。',
-  '他说，无花果其实是一种榕树。他家里原来就有一棵。他说：“我种一些，熟了给你吃。”你说：“我想要果，但我又懒得种。”他说：“那我种，你吃。”'
+  '你这几年疯狂迷恋无花果。今年，你在网上买了一棵青皮无花果的苗。',
+  '你想起算命先生说的那句：等有一天，有人送她一棵树。',
+  '你说：我想要果，但我又懒得种。这次，你还是买了。'
  ],
  choices:[
-  {label:'好好养它，等它冒芽',eff:{heart:6,ties:4},istj:{f:2,j:1},flags:{figTree:true},kind:true,drift:'你开始等一棵树发芽。',res:'你在搞无花果的第一天，把苗种在最大的花盆里。你养你的无花果，等它冒芽。他问：“冒芽了吗？”你说：“还没有。”他说：“不急。”后来你说：我好想回去看看无花果。'},
-  {label:'说“我想要果，不想种”',eff:{heart:2,ties:2},istj:{f:1,t:1},flags:{figTree:true},drift:'你把“种”这件事，交给了他。',res:'他笑，说：“那我种，你吃。”他把苗搬回去，说等结了果给你寄。你想起算命先生的话：有人送她一棵树。原来那个人，真的会来。'},
-  {label:'把苗退回去，说“太麻烦了”',eff:{heart:-4,ties:-3},istj:{i:2,t:1},drift:'你把那棵树退回去了。',res:'他把苗拿走了，没说什么。你看着空出来的阳台，站了一会儿。'}
+  {label:'好好养它，等它冒芽',eff:{heart:6,ties:2},istj:{f:2,j:1},flags:{figTree:true},kind:true,drift:'你开始等一棵树发芽。',res:'你在搞无花果的第一天，把苗种在最大的花盆里。你养你的无花果，等它冒芽。后来你说：我好想回去看看无花果。'},
+  {label:'先放着，想起来再种',eff:{heart:3,grit:1},istj:{f:1,s:1},flags:{figTree:true},kind:true,drift:'你把那点甜，先搁在一边。',res:'你把苗放在阳台角上，每天看一眼。过了些日子，你还是把它种进了花盆。'},
+  {label:'退了，太麻烦',eff:{heart:-3},istj:{i:2,t:1},drift:'你把那棵树推开了。',res:'你把苗退了。阳台空着。'}
  ]},
 
-{id:'e28',age:30,year:2026,stage:'第五章 · 归来',title:'一条消息',
+{id:'e28',age:30,year:2026,stage:'第五章 · 归来',title:'催婚',
  text:[
-  '十月下旬，他问：“咱们现在算什么？”他说他的婚姻不好。',
-  '你怕。你的边界感，对他一直不够。总有自己的生活要过。'
+  '亲戚又催婚。你说：我不生。恋爱和婚姻都只是一个阶段，结婚证约束不了什么。',
+  '亲戚说你怪。妈妈替你说话。你一个人。'
  ],
  choices:[
-  {label:'做朋友，划线：“我们大大方方，但要清清白白。”',req:{stat:'heart',val:55},eff:{heart:6,ties:4},istj:{t:2,j:2,f:1},flags:{boundary:true},kind:true,drift:'你给自己划了一条线，也给自己留了一条路。',res:'你打完那句话，把手机放下。你睡得很好。'},
-  {label:'等他把事情办完',eff:{fate:6,heart:-4},istj:{f:2},flags:{lostSelf:true},drift:'你把“等”放在了自己前面。',res:'你说等。他没有给你期限。你开始每天看手机。'},
-  {label:'见他，不问名分',eff:{fate:10,heart:-6},istj:{f:2,n:1},flags:{crossedLine:true,lostSelf:true},drift:'那条线，后来模糊了。',res:'你见了他。你们没有名分。你不太敢见熟人。'}
+  {label:'说清楚',eff:{heart:4,ties:-3},istj:{t:2,j:2},kind:true,drift:'你把话说清楚了。',res:'你说：我不生，恋爱和婚姻都只是一个阶段。亲戚不说话了。'},
+  {label:'笑笑不说',eff:{heart:3,ties:1},istj:{i:1,f:1},drift:'你笑笑，把茶喝完。',res:'你笑笑，把茶喝完。亲戚叹口气，换了个话题。'},
+  {label:'把话说重',eff:{grit:4,ties:-5},istj:{t:1,j:1},drift:'你把话说重了。',res:'你说：我的事，我自己定。桌上安静了。'}
  ]},
 
-{id:'e29',age:30,year:2026,stage:'第五章 · 归来',title:'十一月',
+{id:'e29',age:30,year:2026,stage:'第五章 · 归来',title:'一个人',
  text:[
-  '十一月，他没有再提那件事。他还在办他的事。',
-  '你们还是每天发消息。你把边界放在那里。'
+  '十一月，天气凉了。你一个人。',
+  '你想起这一年：兼职、家里、一个人。'
  ],
  choices:[
-  {label:'就这样，做朋友',eff:{heart:3,ties:3},istj:{t:1,j:1,f:1},flags:{boundary:true},kind:true,drift:'你把关系放回了它能待的位置。',res:'你们还是每天发消息。你把“朋友”两个字放在前面，心里反而松了一点。'},
-  {label:'不再联系',eff:{grit:4,ties:-4},istj:{t:1,j:2},flags:{boundary:true},drift:'你把手机放下了。',res:'你把他删了。手机安静了。你用了几天才习惯。'},
-  {label:'等他把事情办完',eff:{heart:-3,fate:-4},istj:{f:2},flags:{lostSelf:true},drift:'你把“等”放在了自己前面。',res:'你说等。他没有给你期限。你开始每天看手机。'}
+  {label:'去海边',eff:{heart:4,body:-1},istj:{i:1,s:1},kind:true,drift:'你一个人去了海边。',res:'你一个人去了海边。风很冷。你买了一个烤红薯，站在堤上吃完。'},
+  {label:'回家陪妈妈',eff:{ties:4,heart:4},istj:{f:2},kind:true,drift:'你回家陪妈妈。',res:'妈妈煮了面。她说：你最近瘦了。你说：没有。'},
+  {label:'叫朋友吃一顿',eff:{ties:4,heart:3},istj:{f:1,e:1},kind:true,drift:'你叫了几个朋友。',res:'几个朋友吃了顿饭。你笑了很多次。回家的时候，街上很安静。'}
  ]},
 
 {id:'e30',age:30,year:2026,stage:'第五章 · 归来',title:'一个人的海',
@@ -722,7 +722,7 @@ self:{title:'没有失去自己',sub:'真结局 · 第三十一年',
   '你没有变成别人期待的样子。你还是那个慢热、认死理、怕欠人情的自己。',
   '你有一份自己能做的事，一个能回去的家，几个不必多说的朋友。',
   '有人来，你欢迎；没有人来，你也能把日子过好。一加一大于二，没有也行。你一直记得：没有失去自己就好。',
-  '那个男人送的那棵无花果，今年结了。你没有等它开花。你摘了一颗，很甜。你说：不一定开花，无花果，也很甜。你想起很多年前算命先生说的那句：等有一天，有人送她一棵树。原来那个人，早就来了。',
+  '你养的那棵无花果，今年结了。你没有等它开花。你摘了一颗，很甜。你说：不一定开花，无花果，也很甜。你想起很多年前算命先生说的那句：等有一天，有人送她一棵树。原来那棵树，是你自己种下的。',
   '海风很咸。你第一次觉得，一个人也可以是一整个春天。'
  ],
  quote:'“没有失去自己就好。”——你后来对自己说过的话'},
@@ -796,7 +796,7 @@ lightout:{title:'灯灭',sub:'结局 · 身体先于生活垮掉',
 const GALLERY_ORDER=['self','almost','weather','far','emptyroom','idle','third','island','debt','lightout'];
 
 const CHART_NOTES={
- self:'命里那点木，太弱。后来有人送了你一棵树。',
+ self:'命里那点木，太弱。后来你养了一棵无花果。',
  almost:'火有了，木还没长出来。',
  weather:'平常的日子，也够把火养住。',
  far:'你去了广西。木长在别处。',
@@ -948,7 +948,7 @@ function renderHUD(){
   $('#ageLabel').textContent=cnAge(state.age);
   $('#stageLabel').textContent=state.year;
   const s=state.stats;
-  const defs=[['heart','心灯'],['grit','韧性'],['career','生计'],['ties','人情'],['body','身体'],['fate','缘分']];
+  const defs=[['heart','心灯'],['grit','韧性'],['career','生计'],['ties','人情'],['body','身体'],['fate','机缘']];
   $('#stats').innerHTML=defs.map(([k,n])=>{
     const v=Math.round(s[k]||0);
     return '<div class="chip"><em>'+n+'</em><b>'+(k==='fate'&&v===0?'—':v)+'</b><i style="--p:'+v+'%"></i></div>';
@@ -1114,7 +1114,7 @@ function judge(){
   const selfPath=f.selfStay||f.selfGuangxi||f.selfStable;
   const selfBase=
     s.heart>=75&&s.career>=30&&s.ties>=50&&s.body>0&&state.kind>=6&&
-    t.type==='ISTJ'&&selfPath&&f.figTree&&!f.lostSelf&&!f.crossedLine;
+    t.type==='ISTJ'&&selfPath&&f.figTree&&!f.crossedLine;
   if(f.crossedLine)return 'third';
   if(s.ties<40&&s.career>=30)return 'island';
   if(f.broDebt&&s.career<25)return 'debt';
@@ -1129,7 +1129,6 @@ function judge(){
 function typeNote(type,id){
   const map={
     self:'你把 '+type+' 的稳，变成了自己的日子。',
-    together:'你把 '+type+' 的稳，分了一半给另一个人。',
     almost:'你成了 '+type+'。你什么都想清楚了，只差一步。',
     weather:'你成了 '+type+'。你把日子过稳了。',
     far:'你成了 '+type+'。你换了一个地方，还是按自己的方式活。',
@@ -1191,7 +1190,7 @@ function shareText(){
     '《心灯》第'+state.run+'世',
     '结局：'+e.title,
     '人格：'+t.type,
-    '心灯 '+s.heart+' · 韧性 '+s.grit+' · 生计 '+s.career+' · 人情 '+s.ties+' · 身体 '+s.body+' · 缘分 '+s.fate
+    '心灯 '+s.heart+' · 韧性 '+s.grit+' · 生计 '+s.career+' · 人情 '+s.ties+' · 身体 '+s.body+' · 机缘 '+s.fate
   ];
   return lines.join('\n');
 }
