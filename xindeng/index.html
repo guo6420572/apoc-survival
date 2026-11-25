@@ -385,12 +385,13 @@ const MAIN=[
   {label:'对着那些词发呆',eff:{heart:2,fate:2},istj:{i:2,n:1},drift:'你心里有个地方，被说中了。',res:'你看着那些词，发了会儿呆。'}
  ]},
 
-{id:'e9',age:16,year:2012,stage:'第二章 · 长大',title:'姐姐',
+{id:'e9',age:16,year:2012,stage:'第二章 · 长大',title:'红包',
  text:[
-  '你是姐姐。家里有什么，先紧着弟弟。'
+  '家里有哥哥，也有弟弟。过年，亲戚的红包只给弟弟。',
+  '你是姐姐。你很小就学会了，把自己的那份让出去。'
  ],
  choices:[
-  {label:'让',eff:{heart:5,body:-2},istj:{f:1},kind:true,drift:'你学会了让。',res:'你把自己的那份让出去。弟弟在镜子前转圈。'},
+  {label:'让',eff:{heart:5,body:-2},istj:{f:1},kind:true,drift:'你学会了让。',res:'你把自己的那份让出去。弟弟在镜子前转圈。亲戚说：这孩子懂事。'},
   {label:'说“我也要”',eff:{grit:7,ties:-4},istj:{t:2,j:1},drift:'你第一次为自己争。',res:'亲戚说你自私。妈妈没说话，第二天多接了一份零工。'},
   {label:'把家里的开销记下来',eff:{career:5,grit:5},istj:{t:1,j:1,s:1},drift:'你把家里的每一笔开销记下来。',res:'你买了一个一块钱的本子，把菜钱、学费、弟弟的奶粉钱记下来。'}
  ]},
@@ -419,7 +420,7 @@ const MAIN=[
 
 {id:'e12',age:19,year:2015,stage:'第三章 · 出走',title:'奶茶店',
  text:[
-  '你去了青岛。在一家奶茶店做店员。摇杯子，封口，擦台。海风很咸。',
+  '你十七岁去了青岛。在一家奶茶店做店员。摇杯子，封口，擦台。海风很咸。',
   '店里有个大叔问你多高。你说一米六几。他说他一米七四。你说，那我也一米七四。'
  ],
  choices:[
@@ -431,7 +432,7 @@ const MAIN=[
 {id:'e13',age:21,year:2017,stage:'第三章 · 出走',title:'月饼',
  text:[
   '你去了广州。还是奶茶店。',
-  '中秋，老板发工资，发了一些散装没蛋黄的月饼。工资可低了。'
+  '中秋，老板发了散装月饼，没有蛋黄。工资压到十月底，可低了。'
  ],
  choices:[
   {label:'收下月饼',eff:{heart:2,ties:2},istj:{f:1},drift:'你把话咽下去，把月饼收好。',res:'你把月饼收下。工资低，你也没说什么。晚上回去，你把月饼掰开，果然没有蛋黄。'},
@@ -453,7 +454,7 @@ const MAIN=[
 {id:'e15',age:23,year:2019,stage:'第三章 · 出走',title:'回湛江',
  text:[
   '你回湛江。有一搭没一搭做兼职。',
-  '你和弟弟、弟弟的女朋友住在一个屋檐下。'
+  '哥哥和女朋友想自己住。你带着弟弟和他女朋友，搬去了霞山。'
  ],
  choices:[
   {label:'做兼职',eff:{career:5,heart:3,ties:3},istj:{f:1,s:1},kind:true,drift:'你学会了有一搭没一搭地，把日子接上。',res:'你接了一份兼职。工资可低了。你也没指望它发财。'},
@@ -474,11 +475,11 @@ const MAIN=[
 
 {id:'e17',age:25,year:2021,stage:'第三章 · 出走',title:'钱一到手',
  text:[
-  '兼职的钱一到手，你就想出去。广西、广州、徐州。',
+  '兼职的钱一到手，你就想出去。广西、广州、徐州，还想去川渝吃一顿。',
   '你喜欢自己来。独处就满血。你喜欢逛菜市场和超市。'
  ],
  choices:[
-  {label:'去旅行',eff:{heart:5,body:2,career:-2},istj:{n:2,f:1},kind:true,drift:'你把自己放到了路上。',res:'你一个人去了。你在广西住青旅，在广州吃肠粉，在徐州吃小吃。你说：一个人出去旅游，也很不赖。'},
+  {label:'去旅行',eff:{heart:5,body:2,career:-2},istj:{n:2,f:1},kind:true,drift:'你把自己放到了路上。',res:'你一个人去了。你在广西住青旅，带了泳衣却不会游泳；在广州吃肠粉，在徐州吃小吃。你说：一个人出去旅游，也很不赖。'},
   {label:'吃一顿好的',eff:{heart:4,body:1},istj:{f:1,s:1},kind:true,drift:'你把钱花在了嘴里，也花在了当下。',res:'你去吃了一顿好的。白切鸡、薄粉、鱼仔汤。吃完在街上走了很久。'},
   {label:'存起来',eff:{career:5,heart:-2},istj:{t:2,j:2},drift:'你把钱存起来，把想去的远方往后放。',res:'你把钱存起来。晚上刷到别人旅行的视频，看了一会儿。'}
  ]},
@@ -604,10 +605,10 @@ const MAIN=[
   {label:'把话说重',eff:{grit:4,ties:-5},istj:{t:1,j:1},drift:'你把话说重了。',res:'你说：我的事，我自己定。桌上安静了。'}
  ]},
 
-{id:'e29',age:30,year:2026,stage:'第五章 · 归来',title:'一个人',
+{id:'e29',age:30,year:2026,stage:'第五章 · 归来',title:'十一月',
  text:[
-  '十一月，天气凉了。你一个人。',
-  '你想起这一年：兼职、家里、一个人。'
+  '十一月，天气凉了。你和弟弟、他女朋友住在一起，各过各的。',
+  '你想起这一年：兼职、家里、一个人待着。'
  ],
  choices:[
   {label:'去海边',eff:{heart:4,body:-1},istj:{i:1,s:1},kind:true,drift:'你一个人去了海边。',res:'你一个人去了海边。风很冷。你买了一个烤红薯，站在堤上吃完。'},
@@ -713,7 +714,134 @@ const RANDOM=[
   {label:'帮她挖',eff:{ties:5,heart:4,body:-3},istj:{f:1,s:1},kind:true,drift:'你蹲在地里，想起小时候。',res:'你蹲在地里，挖了一下午。妈妈说：给亲戚分。你说：今年少种点。她没说话，第二年还是种了。'},
   {label:'劝她别种',eff:{heart:2,ties:-2},istj:{t:1,j:1},drift:'你把话说得很直。',res:'你说别种了。她嘴上答应，第二年又种了。你看着那袋山药，没再劝。'},
   {label:'把亲戚的那份送回去',eff:{heart:3,ties:-4,grit:4},istj:{t:2,j:2},drift:'你不想再让妈妈的热脸贴冷屁股。',res:'你把亲戚的那份送回去，说：今年不送了。亲戚脸色不好看。你转身就走。'}
- ]}];
+ ]},
+{id:'r_ex_older',minAge:20,title:'比你大',
+ text:['你谈过的男朋友，都比你大。你没谈过比你小的。','弟弟追你，你一秒拒绝。你说：我不喜欢情绪不稳定的。'],
+ choices:[
+  {label:'不喜欢弟弟，就是不喜欢',eff:{heart:3,grit:3},istj:{t:1,j:1},drift:'你把自己的边界，说得很清楚。',res:'你说：弟弟追我，一秒拒绝。朋友笑，说你真绝。你说：不是我绝，是我知道我要什么。'},
+  {label:'试着接受一次',eff:{heart:-2,fate:3},istj:{n:1,f:1},drift:'你给了一个不合适的可能。',res:'你试着相处了一阵。他情绪一上来，你就累。最后你还是说了不合适。'},
+  {label:'不解释，继续一个人',eff:{heart:2,body:2},istj:{i:1,s:1},drift:'你把门关好。',res:'你谁也没答应。日子照旧，吃吃喝喝。'}
+ ]},
+{id:'r_ex_hand',minAge:24,title:'手拉手',
+ text:['你和前男友，都是手拉着手睡觉的。','你说：日子安稳平淡，但情感不寡淡。'],
+ choices:[
+  {label:'记住那种安稳',eff:{heart:5,ties:2},istj:{f:1,s:1},kind:true,drift:'你记得那种安稳。',res:'你记得那种手拉手睡着的安稳。后来你找的，也是这个。'},
+  {label:'不再将就',eff:{grit:4,heart:-1},istj:{t:1,j:1},drift:'你想起那些拉扯，摇了摇头。',res:'你说：下次不将就。'},
+  {label:'一个人也睡得好',eff:{heart:3,body:2},istj:{i:1,s:1},drift:'你一个人，也睡得着。',res:'你一个人睡，把被子裹紧。也很好。'}
+ ]},
+{id:'r_ex_give',minAge:24,title:'情意耗尽',
+ text:['你和前男友分开以后，还为他做过一些事。','有人说你不该。你说：我要等到我的情意消耗殆尽，才问心无愧地放下。'],
+ choices:[
+  {label:'还完这份情',eff:{heart:5,grit:3},istj:{f:2,t:1},kind:true,drift:'你把最后一点情意还完。',res:'你把最后一点情意还完。然后你删了他，睡得着了。'},
+  {label:'早点抽身',eff:{grit:4,heart:-1},istj:{t:2,j:2},drift:'你试着提前抽身。',res:'夜里还是会想，但你没回头。'},
+  {label:'不回头',eff:{heart:3,career:2},istj:{i:1,t:1},drift:'你不再接他的电话。',res:'日子一天天过去。你偶尔想起，像想起一部看过的电影。'}
+ ]},
+{id:'r_ex_meet',minAge:26,title:'火锅店',
+ text:['你和朋友在火锅店吃饭。隔壁桌，坐着那个男的。','你吓一跳，和朋友赶紧把脸挡住，落荒而逃。'],
+ choices:[
+  {label:'跑',eff:{heart:1,body:-1,grit:2},istj:{i:1,f:1},kind:true,drift:'你不想让过去再靠近一步。',res:'你们低着头跑出去，跑到街角才笑出来。朋友说：至于吗。你说：至于。'},
+  {label:'装作没看见，吃完',eff:{grit:4,heart:-1},istj:{t:1,j:1},drift:'你把那顿饭吃完了。',res:'你背对着那桌，把火锅吃完。结账的时候，你的手有点抖。'},
+  {label:'过去打个招呼',eff:{fate:5,heart:-3},istj:{f:2,n:1},drift:'你走过去了。',res:'你走过去，说了句好久不见。他愣了一下。你转身回来，心里那块地方，轻轻响了一声。'}
+ ]},
+{id:'r_friend_moon',minAge:22,title:'月饼厂姐妹',
+ text:['中秋前，你和朋友去月饼厂折盒子。一天十五个钟，睡三个钟，连着几天。','回家的时候，手上全是纸壳划的口子。'],
+ choices:[
+  {label:'接着干',eff:{career:6,body:-5,grit:4},istj:{t:2,j:2},drift:'你把苦咽下去，把钱拿回来。',res:'你接着干。你说：哪怕最后一天，也要完美收工。'},
+  {label:'和朋友吐槽',eff:{ties:4,heart:2},istj:{f:1,e:1},drift:'你把累说出口。',res:'你们在厂门口吐槽，说工资压到十月底。说完，第二天还是去了。'},
+  {label:'拿到钱就走',eff:{heart:3,career:-2},istj:{f:1,n:1},drift:'钱一到手，你就想往外走。',res:'钱到手，你买了张车票，出去玩了一圈。'}
+ ]},
+{id:'r_friend_social',minAge:22,title:'都是装的',
+ text:['朋友说：你和谁都能侃侃而谈，别人都愿意和你说话。','只有你知道，你好累。都是装的。'],
+ choices:[
+  {label:'继续装',eff:{ties:3,heart:-2},istj:{e:1,j:1},drift:'你继续笑着接话。',res:'回家的路上，你在车里一句话都不想说。'},
+  {label:'早点回家',eff:{heart:4,body:2},istj:{i:2,s:1},drift:'你把自己还给自己。',res:'你找了个借口先走。回到家，你把鞋一脱，坐了很久。'},
+  {label:'跟一个朋友说实话',eff:{ties:4,heart:5},istj:{f:2,e:1},kind:true,drift:'你把累说出口。',res:'你跟一个信得过的朋友说：其实我很累。她点点头，说：我知道。'}
+ ]},
+{id:'r_friend_drift',minAge:25,title:'散场',
+ text:['曾经无话不谈的朋友，有了别的倾诉对象。','你平静地接受：大家都会散场。'],
+ choices:[
+  {label:'接受',eff:{heart:3,grit:2},istj:{i:1,t:1},drift:'你接受了。',res:'你没有问为什么。你把聊天框往下压了压。'},
+  {label:'问一句',eff:{ties:-2,heart:-1},istj:{t:1,j:1},drift:'你问了一句。',res:'你问她最近怎么了。她说没什么。你就没再问。'},
+  {label:'约出来吃一顿',eff:{ties:5,heart:4},istj:{e:1,f:1},kind:true,drift:'你不想就这么散场。',res:'你约她吃了顿饭。你们聊了很久，像以前一样。'}
+ ]},
+{id:'r_food_brain',minAge:23,title:'脑花',
+ text:['你刷到一家川渝火锅，突然很想吃脑花。','你想起徐州那顿烧烤，重孜然，吃得挺爽。'],
+ choices:[
+  {label:'约朋友去吃',eff:{heart:4,ties:3},istj:{e:1,f:1},kind:true,drift:'你不想等一个好天气。',res:'你约了朋友，点了一桌。辣得冒汗，你说：这才对。'},
+  {label:'自己在家煮',eff:{heart:3,body:1},istj:{i:1,s:1},drift:'你在家给自己煮了一锅。',res:'你在家煮了火锅，放了很多辣椒。一个人吃，也很香。'},
+  {label:'忍住',eff:{career:2,heart:-2},istj:{t:2,j:1},drift:'你把店收藏了。',res:'第二天你又点开看了一遍。'}
+ ]},
+{id:'r_food_ginger',minAge:23,title:'姜撞奶',
+ text:['你爱吃姜撞奶。朋友吃过你做的，说很香。','牛奶要热，姜汁要现磨。你做得比外面好。'],
+ choices:[
+  {label:'做给朋友吃',eff:{ties:5,heart:3},istj:{f:1,e:1},kind:true,drift:'你把自己会的东西，分出去一点。',res:'你做了两碗，端上桌。朋友说：你以后可以开店。你笑：生意难做啊。'},
+  {label:'只做给自己',eff:{heart:4,body:1},istj:{i:1,s:1},drift:'你给自己做了一碗。',res:'你坐在窗边，慢慢吃完。'},
+  {label:'点外卖',eff:{heart:1},istj:{s:1},drift:'你退了一步。',res:'外卖送到，姜味淡。你吃了一口，放下。'}
+ ]},
+{id:'r_trip_hostel',minAge:22,title:'青旅',
+ text:['你一个人去广西，住青旅。男女分开，正好。','你带了泳衣，其实不会游泳。下午没事，就去泡水。'],
+ choices:[
+  {label:'去泡水',eff:{heart:4,body:2},istj:{f:1,s:1},kind:true,drift:'你在水里，什么都不想。',res:'你在水里泡了一下午。不会游，就扶着边。你觉得很好。'},
+  {label:'在街上走走',eff:{heart:3,body:1},istj:{n:1,f:1},drift:'你把自己放到陌生的街上。',res:'你在小城走了很久。吃了很多粉。'},
+  {label:'提前回去',eff:{heart:-1,career:1},istj:{s:1,j:1},drift:'你改签了车票。',res:'青旅的床，你睡得不太惯。'}
+ ]},
+{id:'r_trip_post',minAge:25,title:'离开才发',
+ text:['你旅游从不提前说。去了哪里，也不发。','你习惯离开那座城市之后，才把动态发出来，甚至不发。防备心很重。'],
+ choices:[
+  {label:'发一张',eff:{heart:2,ties:2},istj:{f:1,e:1},drift:'你允许别人看见一点点。',res:'你发了一张海。没有定位。有人问你在哪，你没回。'},
+  {label:'不发',eff:{heart:3,grit:2},istj:{i:2,t:1},drift:'你把风景留给自己。',res:'你一张都没发。照片留在手机里，自己看。'},
+  {label:'发给一个朋友',eff:{ties:3,heart:2},istj:{f:1,e:1},drift:'你把风景分给一个人。',res:'你把照片单独发给一个朋友。她说：真好看。'}
+ ]},
+{id:'r_habit_plain',minAge:22,title:'素素的',
+ text:['你不护肤，不打扮，不运动。每天素素的。','别人说你像个高中生。你说：像个苍老的学生。'],
+ choices:[
+  {label:'就这样',eff:{heart:3,grit:2},istj:{i:1,s:1},drift:'你就这样出门。',res:'舒服，省事。你没觉得哪里不好。'},
+  {label:'买一支口红',eff:{heart:4,career:1},istj:{f:1,e:1},drift:'你给自己添了一点颜色。',res:'你买了一支口红，涂了一次。朋友说好看。你笑笑，又擦掉了。'},
+  {label:'去剪头发',eff:{heart:2,body:1},istj:{s:1,j:1},drift:'你换了个样子。',res:'你去剪了头发。理发师问要不要做个造型，你说不用。'}
+ ]},
+{id:'r_habit_hair',minAge:23,title:'短发',
+ text:['你又想剪短发了。','长一点就烦，剪短了又想念。你一直这样。'],
+ choices:[
+  {label:'剪',eff:{heart:5,grit:2},istj:{f:1,j:1},drift:'你想清爽一点。',res:'你剪短了。回家照镜子，觉得清爽。'},
+  {label:'再留一留',eff:{heart:1},istj:{s:1},drift:'你忍住了。',res:'头发扎起来，还是热。'},
+  {label:'换个颜色',eff:{heart:3,career:-1},istj:{e:1,f:1},drift:'你想做一件没做过的事。',res:'你染了个不太明显的颜色。朋友没看出来，你有点得意。'}
+ ]},
+{id:'r_habit_delete',minAge:24,title:'删人',
+ text:['你有删人的习惯。','早年间，挺多人反复加你回来。你以为都是你删的，其实他们也会。'],
+ choices:[
+  {label:'继续删',eff:{grit:4,ties:-3},istj:{t:1,j:2},drift:'你把列表清了一遍。',res:'你又删了几个人。手机安静了。'},
+  {label:'留着',eff:{ties:3,heart:1},istj:{s:1,f:1},drift:'你把列表停了一会儿。',res:'没删。你把手机扣在桌上。'},
+  {label:'把一个人加回来',eff:{fate:4,heart:2},istj:{f:2,n:1},drift:'你把一个人加了回来。',res:'对方很快通过。你看着对话框，没说话。'}
+ ]},
+{id:'r_home_bro',minAge:26,title:'搬出来',
+ text:['哥哥和女朋友想自己住。','你带着弟弟和他女朋友，搬去了霞山。你们各过各的，也互相有个照应。'],
+ choices:[
+  {label:'搬',eff:{heart:3,ties:4,career:-1},istj:{f:1,s:1},kind:true,drift:'你们把家安在了霞山。',res:'弟弟做饭，他女朋友洗碗。你偶尔下厨。'},
+  {label:'自己找地方住',eff:{heart:2,grit:3,career:-3},istj:{i:2,t:1},drift:'你想一个人住。',res:'你找了个小房子。城中村，潮湿，容易发霉。你把除湿机开着。'},
+  {label:'留在原地',eff:{ties:2,heart:-1},istj:{s:1,j:1},drift:'你没搬。',res:'家里挤，也热闹。'}
+ ]},
+{id:'r_home_redpack',minAge:20,title:'红包',
+ text:['过年，亲戚发红包。给弟弟，不给你。','你站在旁边，手插在口袋里。'],
+ choices:[
+  {label:'不要',eff:{grit:4,heart:-1},istj:{i:1,t:1},drift:'你转身走了。',res:'后来妈妈塞给你一个红包，你没收。'},
+  {label:'笑着要',eff:{heart:5,ties:2},istj:{e:1,f:1},drift:'你笑着伸手。',res:'你说：我的呢。亲戚愣了一下，笑着给了。妈妈也笑了。'},
+  {label:'记在心里',eff:{heart:-2,grit:3},istj:{i:2,j:1},drift:'你没说话。',res:'你把这件事记在心里，记了很多年。'}
+ ]},
+{id:'r_work_sleep',minAge:22,title:'十五个钟',
+ text:['兼职上十五个钟，睡三个钟，连着几天。','回家的路上，你在电动车上差点睡着。'],
+ choices:[
+  {label:'扛',eff:{career:6,body:-4,grit:4},istj:{t:2,j:2},drift:'你把苦咽下去。',res:'你扛下来了。工资要压到十月底，你算了好几遍。'},
+  {label:'请假一天',eff:{body:3,career:-2},istj:{s:1,j:1},drift:'你给自己放了一天假。',res:'你睡到中午，起来煮了碗面。'},
+  {label:'跟朋友换班',eff:{ties:3,career:-1},istj:{f:1,e:1},drift:'你开口请人帮忙。',res:'朋友跟你换了班。你说下次请她吃饭。'}
+ ]},
+{id:'r_flowers',minAge:27,title:'花',
+ text:['家里种着月季、玫瑰、蔷薇，还有芙蓉。','好久没浇水了。'],
+ choices:[
+  {label:'浇水',eff:{heart:4,body:1},istj:{f:1,s:1},drift:'你把它们照顾了一遍。',res:'你接了水，一盆一盆浇过去。叶子上的灰被冲掉，绿得发亮。'},
+  {label:'剪一枝插瓶',eff:{heart:3,ties:2},istj:{f:1,e:1},drift:'你把一点香气带进屋里。',res:'你剪了一枝，插在玻璃瓶里。屋里香了几天。'},
+  {label:'由它去',eff:{heart:-1},istj:{i:1,t:1},drift:'你看了它们一眼。',res:'你回屋了。'}
+ ]}
+];
 
 /* ===================== 结局 ===================== */
 const ENDINGS={
