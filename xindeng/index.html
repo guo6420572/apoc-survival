@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0b0a10">
+<meta name="theme-color" content="#f2ede2">
 <meta name="description" content="心灯 · 人生模拟器">
 <title>心灯 · 人生模拟器</title>
 <style>
@@ -161,6 +161,18 @@ h1{font-family:var(--serif);font-weight:600;color:var(--ink);margin:10px 0 0;
 .type{font-family:var(--serif);font-size:34px;letter-spacing:.14em;color:var(--ink);margin-top:8px;font-weight:600}
 .persona p,.chartfinal p{margin:10px 0 0;font-family:var(--serif);font-size:13.5px;line-height:1.95;color:var(--ink-soft)}
 .chartfinal p{margin-top:8px}
+
+/* ---------- 年表 ---------- */
+.yearbook{position:relative;margin-top:26px;padding-top:16px;border-top:1px solid var(--line)}
+.yearbook summary{list-style:none;font-size:9.5px;letter-spacing:.22em;color:var(--muted);cursor:pointer;font-weight:500}
+.yearbook summary::-webkit-details-marker{display:none}
+.yearbook summary:after{content:"展开 ＋";float:right;letter-spacing:.08em;color:var(--red)}
+.yearbook[open] summary:after{content:"收起 －"}
+.yb{max-height:300px;overflow:auto;margin-top:12px;padding-right:4px}
+.yb-row{display:flex;gap:10px;padding:9px 0;border-bottom:1px dotted var(--line);font-size:12.5px;line-height:1.75}
+.yb-age{flex:0 0 42px;color:var(--red);font-family:var(--serif);font-variant-numeric:tabular-nums}
+.yb-txt{flex:1;color:var(--ink-soft)}
+.yb-txt b{display:block;font-weight:500;color:var(--muted);font-size:10px;letter-spacing:.1em;margin-bottom:2px}
 .end-actions{position:relative;margin-top:28px}
 .end-actions .row{display:flex;gap:10px;margin-top:10px}
 .end-actions .row .ghost{flex:1}
@@ -465,7 +477,7 @@ const MAIN=[
 {id:'e16',age:24,year:2020,stage:'第三章 · 出走',title:'合适',
  text:[
   '亲戚给你安排相亲。见面第三次，对方问：你什么学历，一个月挣多少，以后能不能顾家。',
-  '你说：学渣，兼职，顾不了。你不生。你觉得你无法负责；恋爱和婚姻都只是一个阶段；结婚证约束不了什么。'
+  '你说：没念完，兼职，顾不了。你不生。你觉得你无法负责；恋爱和婚姻都只是一个阶段；结婚证约束不了什么。'
  ],
  choices:[
   {label:'说“不合适”，起身走了',eff:{heart:4,grit:4,ties:-4},istj:{t:2,j:2},drift:'你给自己定了一条规矩：不将就。',res:'你买了单，走出茶楼。亲戚说你挑。你没有解释。那天晚上，你一个人去海堤坐了很久。'},
@@ -686,7 +698,7 @@ const RANDOM=[
  text:['有一个人追你。后来你才知道，他老婆在坐月子。表妹还不知情。'],
  choices:[
   {label:'断',eff:{grit:5,heart:4},istj:{t:1,j:1},kind:true,drift:'你把那条线剪断了。',res:'你把他删了。后来表妹问起，你说：不合适。'},
-  {label:'告诉他老婆',eff:{heart:6,ties:-3,body:-2},istj:{f:1,t:1},kind:true,drift:'你把事情放到了光里。',res:'你把聊天记录发给了他老婆。她只回了一个“谢谢”。你把手机关了。'},
+  {label:'告诉他老婆',req:{stat:'heart',val:55},eff:{heart:6,ties:-3,body:-2},istj:{f:1,t:1},kind:true,drift:'你把事情放到了光里。',res:'你把聊天记录发给了他老婆。她只回了一个“谢谢”。你把手机关了。'},
   {label:'装不知道',eff:{heart:-6,body:-2},istj:{i:1,t:1},flags:{crossedLine:true},drift:'你装作不知道。',res:'你装作不知道。他再来找你，你也没拒绝。你不太敢照镜子。'}
  ]}
 
@@ -725,19 +737,19 @@ const RANDOM=[
   {label:'装作没看见，吃完',eff:{grit:4,heart:-1},istj:{t:1,j:1},drift:'你把那顿饭吃完了。',res:'你背对着那桌，把火锅吃完。结账的时候，你的手有点抖。'},
   {label:'过去打个招呼',eff:{fate:5,heart:-3},istj:{f:2,n:1},drift:'你走过去了。',res:'你走过去，说了句好久不见。他愣了一下。你转身回来，心里那块地方，轻轻响了一声。'}
  ]},
-{id:'r_friend_moon',minAge:22,title:'月饼厂姐妹',
- text:['中秋前，你和朋友去月饼厂折盒子。一天十五个钟，睡三个钟，连着几天。','回家的时候，手上全是纸壳划的口子。'],
+{id:'r_friend_moon',minAge:22,title:'散装月饼',
+ text:['中秋前，你和朋友去月饼厂折盒子。','发工资那天，厂里发的是散装月饼，没有蛋黄。'],
  choices:[
-  {label:'接着干',eff:{career:6,body:-5,grit:4},istj:{t:2,j:2},flags:{factory:true},drift:'你把苦咽下去，把钱拿回来。',res:'你接着干。你说：哪怕最后一天，也要完美收工。'},
-  {label:'和朋友吐槽',eff:{ties:4,heart:2},istj:{f:1,e:1},drift:'你把累说出口。',res:'你们在厂门口吐槽，说工资压到十月底。说完，第二天还是去了。'},
-  {label:'拿到钱就走',eff:{heart:3,career:-2},istj:{f:1,n:1},drift:'钱一到手，你就想往外走。',res:'钱到手，你买了张车票，出去玩了一圈。'}
+  {label:'当场骂了',eff:{grit:4,ties:3},istj:{t:1,e:1},drift:'你把不痛快说出了口。',res:'你在群里说了一句，朋友跟着刷屏。后来厂里补了一盒，你也没消气。'},
+  {label:'带回去分给朋友',eff:{ties:5,heart:3},istj:{f:1,e:1},kind:true,drift:'你把不痛快的事，分成了甜的。',res:'你把月饼切成小块，分给楼下的人。有人说：没蛋黄也挺好吃。'},
+  {label:'收下，不说话',eff:{heart:-1,career:2},istj:{i:1,t:1},drift:'你没说什么，把盒子放进柜子。',res:'你把月饼放进柜子。过了中秋，也没有再打开。'}
  ]},
 {id:'r_friend_social',minAge:22,title:'都是装的',
  text:['朋友说：你和谁都能侃侃而谈，别人都愿意和你说话。','只有你知道，你好累。都是装的。'],
  choices:[
   {label:'继续装',eff:{ties:3,heart:-2},istj:{e:1,j:1},drift:'你继续笑着接话。',res:'回家的路上，你在车里一句话都不想说。'},
   {label:'早点回家',eff:{heart:4,body:2},istj:{i:2,s:1},drift:'你把自己还给自己。',res:'你找了个借口先走。回到家，你把鞋一脱，坐了很久。'},
-  {label:'跟一个朋友说实话',eff:{ties:4,heart:5},istj:{f:2,e:1},kind:true,drift:'你把累说出口。',res:'你跟一个信得过的朋友说：其实我很累。她点点头，说：我知道。'}
+  {label:'跟一个朋友说实话',req:{stat:'heart',val:52},eff:{ties:4,heart:5},istj:{f:2,e:1},kind:true,drift:'你把累说出口。',res:'你跟一个信得过的朋友说：其实我很累。她点点头，说：我知道。'}
  ]},
 {id:'r_friend_drift',minAge:25,title:'散场',
  text:['曾经无话不谈的朋友，有了别的倾诉对象。','你平静地接受：大家都会散场。'],
@@ -802,15 +814,15 @@ const RANDOM=[
   {label:'自己租房，刷信用卡也行',eff:{heart:2,grit:3,career:-3},istj:{i:2,t:1},drift:'你不会赖着。',res:'你找了个小房子。城中村，潮湿，容易发霉。你说：就算刷信用卡，我也能自己住。'},
   {label:'留在原地',eff:{ties:2,heart:-1},istj:{s:1,j:1},drift:'你没搬。',res:'家里挤，也热闹。'}
  ]},
-{id:'r_home_redpack',minAge:20,title:'红包',
- text:['过年，亲戚发红包。给弟弟，不给你。','你站在旁边，手插在口袋里。'],
+{id:'r_home_redpack',minAge:20,title:'厚一点的那个',
+ text:['过年，外婆给孩子们发红包。弟弟的红包比你的厚。','外婆说：男孩子要花钱的地方多。'],
  choices:[
   {label:'不要',eff:{grit:4,heart:-1},istj:{i:1,t:1},drift:'你转身走了。',res:'后来妈妈塞给你一个红包，你没收。'},
   {label:'笑着要',eff:{heart:5,ties:2},istj:{e:1,f:1},drift:'你笑着伸手。',res:'你说：我的呢。亲戚愣了一下，笑着给了。妈妈也笑了。'},
   {label:'记在心里',eff:{heart:-2,grit:3},istj:{i:2,j:1},drift:'你没说话。',res:'你把这件事记在心里，记了很多年。'}
  ]},
-{id:'r_work_sleep',minAge:22,title:'十五个钟',
- text:['兼职上十五个钟，睡三个钟，连着几天。','回家的路上，你在电动车上差点睡着。'],
+{id:'r_work_sleep',minAge:22,title:'三个钟',
+ text:['连着几天，你每天只睡三个钟。','回家的路上，你在电动车上差点睡着。'],
  choices:[
   {label:'扛',eff:{career:6,body:-4,grit:4},istj:{t:2,j:2},drift:'你把苦咽下去。',res:'你扛下来了。工资要压到十月底，你算了好几遍。'},
   {label:'请假一天',eff:{body:3,career:-2},istj:{s:1,j:1},drift:'你给自己放了一天假。',res:'你睡到中午，起来煮了碗面。'},
@@ -1018,6 +1030,7 @@ debt:{title:'债',sub:'结局 · 被一家人拖住',
  prose:[
   '哥哥又来借钱。你套了信用卡，把钱转给他。他说下个月还。下个月没有，下下个月也没有。',
   '你的卡债越滚越大。你不敢算，也不敢停。',
+  '你的心灯还亮着。只是亮着，也还不完。',
   '后来你才明白，有些忙，帮一次是情分。'
  ]},
 
@@ -1027,10 +1040,10 @@ lightout:{title:'灯灭',sub:'结局 · 身体先于生活垮掉',
   '病房的窗外没有海。妈妈坐在床边，一直给你掖被角，像你小时候那样。你想说“我没事”，没力气。',
   '这一世你什么都扛住了，唯独没扛住自己。'
  ]}
-,sichuan:{title:'四川媳妇',sub:'意外结局 · 四个孩子和一棵无花果',
+,sichuan:{title:'四川媳妇',sub:'意外结局 · 两个孩子和一棵无花果',
  prose:[
   '你跟着那个四川同事走了。后来你嫁给了他。',
-  '你们生了四个孩子。日子吵吵嚷嚷，火锅的辣味从早到晚。',
+  '你们生了两个孩子。日子吵吵嚷嚷，火锅的辣味从早到晚。',
   '你不知道为什么，总想在阳台种一棵无花果。',
   '他问：四川又不产这个。你说：我就是想种。',
   '后来那棵树真的活了。你站在树下，想起很多年前有人说过：等有一天，有人送她一棵树。'
@@ -1229,19 +1242,20 @@ const EVENTS={};
 
 /* ===================== 排程 ===================== */
 function buildPlan(){
-  const plan=MAIN.map(e=>({id:e.id,age:e.age,year:e.year,gz:e.gz,stage:e.stage}));
+  const plan=MAIN.map(e=>({id:e.id,age:e.age,year:e.year,stage:e.stage}));
   const used=new Set();
-  const bands=[[1,6],[7,11],[12,16],[17,21],[22,25],[26,29]];
-  for(let b=bands.length-1;b>=0;b--){
-    const lo=bands[b][0],hi=bands[b][1];
-    const idx=lo+Math.floor(Math.random()*(hi-lo+1));
+  /* 六个空档，21 到 29 岁各一件事，绝不在 30 岁那一章扎堆 */
+  const slots=[13,15,17,19,21,23];
+  const need=6;
+  const picked=shuffle(slots).slice(0,need);
+  for(const idx of picked.sort((a,b)=>b-a)){
     const host=plan[idx];
-    if(!host)continue;
+    if(!host||host.age<20)continue;
     const eligible=RANDOM.filter(r=>!used.has(r.id)&&host.age>=r.minAge);
     if(!eligible.length)continue;
     const ev=eligible[Math.floor(Math.random()*eligible.length)];
     used.add(ev.id);
-    plan.splice(idx+1,0,{id:ev.id,age:host.age,year:host.year,gz:host.gz,stage:host.stage,random:true});
+    plan.splice(idx+1,0,{id:ev.id,age:host.age,year:host.year,stage:host.stage,random:true});
   }
   return plan;
 }
@@ -1258,7 +1272,7 @@ function newState(origin){
     v:5,origin:origin.id,run,pos:0,age:0,year:1997,stats,
     axes:{i:6,s:4,t:6,j:7,e:2,n:2,f:4,p:2},
     elements:{...BIRTH.base},
-    flags:{},his:0,kind:0,shortcuts:0,
+    flags:{},commit:null,answered:false,his:0,kind:0,shortcuts:0,
     log:[],plan:buildPlan(),started:Date.now(),ending:null,dead:false
   };
 }
@@ -1266,7 +1280,10 @@ function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(state));}catch(
 function loadSave(){
   try{
     const s=JSON.parse(localStorage.getItem(SAVE_KEY));
-    if(s&&s.v===5&&Array.isArray(s.plan)&&!s.ending)return s;
+    if(s&&s.v===5&&Array.isArray(s.plan)&&!s.ending){
+      if(s.answered){s.pos+=1;s.answered=false;}
+      return s;
+    }
   }catch(e){}
   return null;
 }
@@ -1283,6 +1300,8 @@ function unlockEnding(id){
 function currentItem(){return state.plan[state.pos];}
 
 /* ===================== 命理 / 性格 ===================== */
+/* 可调参数：心灯收益、每件事的衰减、真结局门槛 */
+const TUNE={heartGain:0.6,heartDecay:1,selfHeart:70,selfCareer:30,selfTies:50,selfKind:6};
 function axesFromChoice(c){
   if(c.istj)return c.istj;
   const e=c.eff||{};
@@ -1296,7 +1315,7 @@ function axesFromChoice(c){
   if((e.ties||0)<0){add('i',1);}
   if((e.body||0)<0){add('s',1);add('j',1);}
   if((e.fate||0)>0){add('f',1);add('n',1);}
-  if(c.kind){add('f',1);add('e',1);}
+  /* 善意不再自动等同于 F/E：好心不等于心软，也不等于外向 */
   return a;
 }
 const DRIFT={
@@ -1468,9 +1487,16 @@ function choose(i){
   if(c.req&&(state.stats[c.req.stat]||0)<c.req.val)return;
   const before={...state.stats};
   if(c.eff){
-    for(const [k,v] of Object.entries(c.eff))state.stats[k]=clamp((state.stats[k]||0)+v);
+    for(const [k,v] of Object.entries(c.eff)){
+      /* 心灯只吃六成收益，剩下的靠日子自己慢慢养 */
+      const d=(k==='heart'&&v>0)?Math.max(1,Math.round(v*TUNE.heartGain)):v;
+      state.stats[k]=clamp((state.stats[k]||0)+d);
+    }
   }
-  if(c.flags)Object.assign(state.flags,c.flags);
+  if(c.flags){
+    Object.assign(state.flags,c.flags);
+    for(const k of Object.keys(c.flags))if(COMMIT_MAP[k])state.commit={flag:k,age:item.age};
+  }
   if(c.flags&&c.flags.shortcut)state.shortcuts=(state.shortcuts||0)+1;
   if(c.kind)state.kind+=1;
   if(c.his)state.his+=c.his;
@@ -1480,18 +1506,19 @@ function choose(i){
     const el=EL_MAP[k];
     if(el)state.elements[el]=(state.elements[el]||0)+v;
   }
+  const afterChoice={...state.stats};
   const drift=c.drift||driftLine(ax,state.log.length);
   const fortune=Math.random()<0.35?rollFortune():null;
   state.log.push({age:item.age,title:ev.title,choice:c.label,drift,flags:c.flags?Object.keys(c.flags):[]});
   if(state.stats.body<=0)state.dead=true;
+  state.answered=true;
   save();
-  renderResult(ev,c,before,drift,fortune);
+  renderResult(ev,c,before,afterChoice,drift,fortune);
 }
 
-function renderResult(ev,c,before,drift,fortune){
-  const s=state.stats;
-  const deltas=DELTA_ORDER.filter(k=>s[k]!==before[k]).map(k=>{
-    const d=s[k]-before[k];
+function renderResult(ev,c,before,after,drift,fortune){
+  const deltas=DELTA_ORDER.filter(k=>after[k]!==before[k]).map(k=>{
+    const d=after[k]-before[k];
     return '<span class="delta '+(d>0?'up':'down')+'">'+STAT_NAMES[k]+' '+(d>0?'+':'')+d+'</span>';
   }).join('');
   const fortuneHtml=fortune?('<div class="fortune"><span>天意</span><p>'+fortune.t+'</p></div>'):'';
@@ -1502,8 +1529,8 @@ function renderResult(ev,c,before,drift,fortune){
     '<h1>'+ev.title+'</h1>'+
     '<div class="prose">'+c.res.split('\n').map(p=>'<p>'+p+'</p>').join('')+'</div>'+
     (deltas?'<div class="deltas">'+deltas+'</div>':'')+
-    fortuneHtml+
     '<div class="drift"><span>性格的偏移</span><p>'+drift+'</p></div>'+
+    fortuneHtml+
     '<button class="primary" id="nextBtn">'+(state.dead?'眼前一黑':'继续')+'</button>'+
   '</section>';
   $('#nextBtn').onclick=advance;
@@ -1517,6 +1544,14 @@ function advance(){
   if(ev&&(!ev.choices||!ev.choices.length)&&ev.autoEff){
     for(const [k,v] of Object.entries(ev.autoEff))state.stats[k]=clamp((state.stats[k]||0)+v);
   }
+  /* 每过一件事，灯自己暗一格 */
+  state.stats.heart=clamp(state.stats.heart-TUNE.heartDecay);
+  /* 身体亏到三十以下，往后每件事都多赔三格：透支是真的会垮 */
+  if(state.stats.body<30){
+    state.stats.body=clamp(state.stats.body-3);
+    if(state.stats.body<=0){state.dead=true;showEnding();return;}
+  }
+  state.answered=false;
   state.pos+=1;
   if(state.pos>=state.plan.length){showEnding();return;}
   save();
@@ -1524,35 +1559,54 @@ function advance(){
 }
 
 /* ===================== 判定 ===================== */
+/* 哪些 flag 代表“把日子交出去了”（会决定结局），按“最后一次”为准 */
+const COMMIT_MAP={
+  pork:'pork',sichuan:'sichuan',landlord:'landlord',lottery:'lottery',
+  dessert:'dessert',cats:'cats',scam:'scam',stream:'stream',
+  gambler:'gambler',drunk:'drunk',mama:'mama',soft:'soft',
+  cheat:'cheat',control:'control',pig:'pig',step:'step',cold:'cold',absent:'absent'
+};
+/* 结了婚/跟了谁：一旦发生，就不再有“一个人也能成立”的结局 */
+const MARRIED=['pork','sichuan','drunk','mama','soft','cheat','control','step','cold','absent','gambler'];
+/* 假设分支：结局页会标“另一种可能” */
+const HYPOTHETICAL=['gambler','drunk','mama','soft','cheat','control','pig','step','cold','absent'];
+
 function judge(){
   const s=state.stats,f=state.flags,t=mbti();
   const selfPath=f.selfStay||f.selfGuangxi||f.selfStable;
-  const selfBase=
-    s.heart>=75&&s.career>=30&&s.ties>=50&&s.body>0&&state.kind>=6&&
-    t.type==='ISTJ'&&selfPath&&f.figTree&&!f.crossedLine;
+
+  /* 1. 越界：不可逆，最先判 */
   if(f.crossedLine)return 'third';
-  if(f.pork)return f.broDebt?'porkdebt':'pork';
-  if(f.sichuan)return 'sichuan';
-  if(f.lottery)return 'lottery';
-  if(f.scam)return 'scam';
-  if(f.stream)return 'stream';
-  if(f.dessert)return 'dessert';
-  if(f.landlord)return 'landlord';
-  if(f.cats)return 'cats';
-  if(f.factory&&s.career>=45)return 'boss';
-  if(f.gambler)return 'gambler';
-  if(f.drunk)return 'drunk';
-  if(f.mama)return 'mama';
-  if(f.soft)return 'soft';
-  if(f.cheat)return 'cheat';
-  if(f.control)return 'control';
-  if(f.pig)return 'pig';
-  if(f.step)return 'step';
-  if(f.cold)return 'cold';
-  if(f.absent)return 'absent';
-  if(s.ties<40&&s.career>=30)return 'island';
-  if(f.broDebt&&s.career<25)return 'debt';
+
+  /* 2. 守住了自己：只要她把自己立住，就不让任何一个早年分支把她盖掉 */
+  const married=(state.commit&&MARRIED.includes(state.commit.flag))
+    ? state.commit.flag
+    : MARRIED.find(k=>f[k]);
+  const selfBase=
+    s.heart>=TUNE.selfHeart&&s.career>=TUNE.selfCareer&&s.ties>=TUNE.selfTies&&s.body>0&&
+    state.kind>=TUNE.selfKind&&t.type==='ISTJ'&&selfPath&&f.figTree&&!married;
   if(selfBase)return 'self';
+
+  /* 3. 婚姻/跟人走：一旦交了，就是那一段人生；债会把猪肉佬那版写成破产版 */
+  if(married){
+    if(married==='pork'&&f.broDebt)return 'porkdebt';
+    return married;
+  }
+
+  /* 4. 被一家人拖住：本来就没多少生计的人，才会被这笔债拖到底 */
+  if(f.broDebt&&s.career<16)return 'debt';
+
+  /* 5. 其余“把日子交出去”的选择：以最后一次为准；旧存档没记录就按 flag 兜底 */
+  const commitFlag=(state.commit&&COMMIT_MAP[state.commit.flag])
+    ? state.commit.flag
+    : Object.keys(COMMIT_MAP).find(k=>f[k]);
+  if(commitFlag)return COMMIT_MAP[commitFlag];
+
+  /* 6. 留在湛江、在厂里做到线长；她要是走了广西，这条就不算数 */
+  if(f.factory&&s.career>=45&&!f.selfGuangxi)return 'boss';
+
+  /* 7. 剩下的，交给整局的累积 */
+  if(s.ties<40&&s.career>=30)return 'island';
   if(f.leftTown&&!selfPath)return 'far';
   if(!selfPath&&s.heart>=60&&s.career<30)return 'emptyroom';
   if(!selfPath)return 'idle';
@@ -1572,7 +1626,7 @@ function typeNote(type,id){
     island:'你成了 '+type+'。你什么都靠自己，后来也只剩自己。',
     debt:'你成了 '+type+'。你把“一家人”三个字，看得太重。',
     lightout:'你成了 '+type+'。你把自己耗尽了。',
-    sichuan:'你成了四川媳妇。四个孩子，一棵无花果。',
+    sichuan:'你成了四川媳妇。两个孩子，一棵无花果。',
     pork:'你成了猪肉摊的老板娘。',
     porkdebt:'你成了猪肉摊的老板娘，先还债。',
     landlord:'你成了收租的人。',
@@ -1602,26 +1656,30 @@ function showEnding(){
   state.ending=id;
   const isNew=unlockEnding(id);
   try{localStorage.removeItem(SAVE_KEY);}catch(e){}
-  state.age=30;
-  state.year=2026;
+  if(!state.dead){state.age=30;state.year=2026;}
   renderHUD();
   const e=ENDINGS[id];
   const t=mbti();
+  const caveat=HYPOTHETICAL.includes(id)?'另一种可能 · ':'';
   const stats=DELTA_ORDER.map(k=>{
     const v=Math.round(state.stats[k]);
     return '<div class="fstat"><em>'+STAT_NAMES[k]+'</em><b>'+v+'</b><i style="--p:'+v+'%"></i></div>';
   }).join('');
+  const yb=state.log.length?('<details class="yearbook"><summary>这一世 · 年表</summary><div class="yb">'+
+    state.log.map(l=>'<div class="yb-row"><span class="yb-age">'+l.age+'岁</span><span class="yb-txt"><b>'+l.title+'</b>'+l.choice+'</span></div>').join('')+
+    '</div></details>'):'';
   $('#stage').innerHTML=
   '<section class="card ending enter">'+
-    '<div class="kicker">第 '+state.run+' 世 · '+e.sub+'</div>'+
+    '<div class="kicker">第 '+state.run+' 世 · '+caveat+e.sub+'</div>'+
     '<h1 class="end-title">'+e.title+'</h1>'+
     '<div class="prose">'+e.prose.map(p=>'<p>'+p+'</p>').join('')+'</div>'+
     (e.quote?'<div class="quote">'+e.quote+'</div>':'')+
     '<div class="stamp">'+(isNew?'新结局已收录':'已收录')+'</div>'+
+    yb+
     '<div class="final-stats">'+stats+'</div>'+
     '<div class="persona"><h3>人格侧写</h3><div class="type">'+t.type+'</div>'+
       '<p>'+typeNote(t.type,id)+'</p></div>'+
-    '<div class="chartfinal"><h3>余音</h3><p>'+CHART_NOTES[id]+'</p></div>'+
+    '<div class="chartfinal"><h3>余音</h3><p>'+chartNote(id)+'</p></div>'+
     '<div class="end-actions">'+
       '<button class="primary" id="againBtn">再来一世</button>'+
       '<div class="row">'+
@@ -1636,17 +1694,30 @@ function showEnding(){
   goTop();
 }
 
+/* 预言要在这里落地：树收到没收到，每一种人生都该听见那句算命先生的话 */
+function chartNote(id){
+  const base=CHART_NOTES[id]||'';
+  const mentioned=['self','far','sichuan','pig','stream'].includes(id);
+  if(mentioned)return base;
+  return base+(state.flags.figTree
+    ? ' 那棵无花果后来活了。只是这一世，它没能把你留在原地。'
+    : ' 算命先生说，会有人送她一棵树。这一世，树没有来。');
+}
+
 function shareText(){
   const e=ENDINGS[state.ending];
   const s=state.stats;
   const t=mbti();
+  const marks=state.log.filter(l=>l.age>=20).slice(-3)
+    .map(l=>l.age+'岁 · '+l.title+'：'+l.choice);
   const lines=[
     '《心灯》第'+state.run+'世',
     '结局：'+e.title,
     '人格：'+t.type,
     '心灯 '+s.heart+' · 韧性 '+s.grit+' · 生计 '+s.career+' · 人情 '+s.ties+' · 身体 '+s.body+' · 机缘 '+s.fate
   ];
-  return lines.join('\n');
+  if(marks.length)lines.push('——');
+  return lines.concat(marks).join('\n');
 }
 
 /* ===================== 弹窗 ===================== */
