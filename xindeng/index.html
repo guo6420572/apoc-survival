@@ -251,9 +251,9 @@ h1{font-family:var(--serif);font-weight:600;color:var(--ink);margin:10px 0 0;
 'use strict';
 
 /* ===================== 基础 ===================== */
-const SAVE_KEY='xr_life_v4';
-const END_KEY='xr_life_v4_endings';
-const RUN_KEY='xr_life_v4_runs';
+const SAVE_KEY='xr_life_v5';
+const END_KEY='xr_life_v5_endings';
+const RUN_KEY='xr_life_v5_runs';
 const $=s=>document.querySelector(s);
 const clamp=(v,a=0,b=100)=>Math.max(a,Math.min(b,v));
 const STAT_NAMES={heart:'心灯',grit:'韧性',career:'生计',ties:'人情',body:'身体',fate:'缘分'};
@@ -604,14 +604,15 @@ const MAIN=[
   {label:'见他，不问名分',eff:{fate:10,heart:-6},istj:{f:2,n:1},flags:{crossedLine:true,lostSelf:true},drift:'那条线，后来模糊了。',res:'你见了他。你们没有名分。你不太敢见熟人。'}
  ]},
 
-{id:'e29',age:30,year:2026,stage:'第五章 · 归来',title:'一张纸',
+{id:'e29',age:30,year:2026,stage:'第五章 · 归来',title:'十一月',
  text:[
-  '十一月，他说，事情办完了。他带着一张纸来找你。'
+  '十一月，他没有再提那件事。他还在办他的事。',
+  '你们还是每天发消息。你把边界放在那里。'
  ],
  choices:[
-  {label:'见',eff:{heart:4,ties:4},istj:{f:2,t:1},flags:{partner:true},kind:true,drift:'你决定让自己被看见一次。',res:'你见了他。他把那张纸放在桌上。你们在海边走了很久。别人太直给的好意，你接不住；可你会爱人。'},
-  {label:'不见',eff:{heart:2,grit:4},istj:{i:2,j:1},drift:'你把最后一步，留给了自己。',res:'你说不见。他站了一会儿，走了。'},
-  {label:'再等等',eff:{heart:-2,fate:-4},istj:{i:1,s:1},drift:'你还没有想好。',res:'你说再等等。他没有再问。'}
+  {label:'就这样，做朋友',eff:{heart:3,ties:3},istj:{t:1,j:1,f:1},flags:{boundary:true},kind:true,drift:'你把关系放回了它能待的位置。',res:'你们还是每天发消息。你把“朋友”两个字放在前面，心里反而松了一点。'},
+  {label:'不再联系',eff:{grit:4,ties:-4},istj:{t:1,j:2},flags:{boundary:true},drift:'你把手机放下了。',res:'你把他删了。手机安静了。你用了几天才习惯。'},
+  {label:'等他把事情办完',eff:{heart:-3,fate:-4},istj:{f:2},flags:{lostSelf:true},drift:'你把“等”放在了自己前面。',res:'你说等。他没有给你期限。你开始每天看手机。'}
  ]},
 
 {id:'e30',age:30,year:2026,stage:'第五章 · 归来',title:'一个人的海',
@@ -720,21 +721,11 @@ self:{title:'没有失去自己',sub:'真结局 · 第三十一年',
  prose:[
   '你没有变成别人期待的样子。你还是那个慢热、认死理、怕欠人情的自己。',
   '你有一份自己能做的事，一个能回去的家，几个不必多说的朋友。',
-  '有人来，你欢迎；没有人来，你也能把日子过好。你一直记得：没有失去自己就好。',
+  '有人来，你欢迎；没有人来，你也能把日子过好。一加一大于二，没有也行。你一直记得：没有失去自己就好。',
   '那个男人送的那棵无花果，今年结了。你没有等它开花。你摘了一颗，很甜。你说：不一定开花，无花果，也很甜。你想起很多年前算命先生说的那句：等有一天，有人送她一棵树。原来那个人，早就来了。',
   '海风很咸。你第一次觉得，一个人也可以是一整个春天。'
  ],
  quote:'“没有失去自己就好。”——你后来对自己说过的话'},
-
-together:{title:'一加一大于二',sub:'好结局 · 有人来，也没有失去自己',
- prose:[
-  '后来，他把事情办完了。他带着一张纸来找你。',
-  '你们在海边走了很久。他走得很慢，像怕惊动什么。',
-  '那棵无花果，是他送的。今年结了。你摘了一颗，递给他。你说：不一定开花，无花果，也很甜。',
-  '他说过，有一天要站在无花果树下说：这棵树40年了。现在，你信了。',
-  '你没有失去自己。你只是允许另一个人，走进来。'
- ],
- quote:'“一加一大于二，没有也行；有了，就多一点。”'},
 
 almost:{title:'差一步',sub:'遗憾结局 · 差一点就是自己的日子',
  prose:[
@@ -802,11 +793,10 @@ lightout:{title:'灯灭',sub:'结局 · 身体先于生活垮掉',
  ]}
 };
 
-const GALLERY_ORDER=['self','together','almost','weather','far','emptyroom','idle','third','island','debt','lightout'];
+const GALLERY_ORDER=['self','almost','weather','far','emptyroom','idle','third','island','debt','lightout'];
 
 const CHART_NOTES={
  self:'命里那点木，太弱。后来有人送了你一棵树。',
- together:'命里那点木，太弱。有人送了你一棵树，你养着。',
  almost:'火有了，木还没长出来。',
  weather:'平常的日子，也够把火养住。',
  far:'你去了广西。木长在别处。',
@@ -850,7 +840,7 @@ function newState(origin){
   let run=1;
   try{run=(parseInt(localStorage.getItem(RUN_KEY)||'0',10)||0)+1;localStorage.setItem(RUN_KEY,String(run));}catch(e){run=1;}
   return {
-    v:4,origin:origin.id,run,pos:0,age:0,year:1997,stats,
+    v:5,origin:origin.id,run,pos:0,age:0,year:1997,stats,
     axes:{i:6,s:4,t:6,j:7,e:2,n:2,f:4,p:2},
     elements:{...BIRTH.base},
     flags:{},his:0,kind:0,shortcuts:0,
@@ -861,7 +851,7 @@ function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(state));}catch(
 function loadSave(){
   try{
     const s=JSON.parse(localStorage.getItem(SAVE_KEY));
-    if(s&&s.v===4&&Array.isArray(s.plan)&&!s.ending)return s;
+    if(s&&s.v===5&&Array.isArray(s.plan)&&!s.ending)return s;
   }catch(e){}
   return null;
 }
@@ -977,7 +967,7 @@ function renderTitle(){
     '<div class="hero-actions">'+
       '<button class="primary" id="startBtn">开始这一世</button>'+
       (saved?'<button class="ghost" id="contBtn">继续上一世</button>':'')+
-      '<button class="linklike" id="galBtn">结局图鉴 '+got.length+'/11</button>'+
+      '<button class="linklike" id="galBtn">结局图鉴 '+got.length+'/10</button>'+
     '</div>'+
     '<p class="fine">仅供两人保存，请勿公开转发。</p>'+
   '</div>';
@@ -1128,7 +1118,6 @@ function judge(){
   if(f.crossedLine)return 'third';
   if(s.ties<40&&s.career>=30)return 'island';
   if(f.broDebt&&s.career<25)return 'debt';
-  if(selfBase&&f.partner)return 'together';
   if(selfBase)return 'self';
   if(f.leftTown&&!selfPath)return 'far';
   if(!selfPath&&s.heart>=60&&s.career<30)return 'emptyroom';
@@ -1226,7 +1215,7 @@ function openGallery(){
       '<div class="g-t"><b>'+(ok?e.title:'？？？')+'</b><span>'+(ok?e.sub:'尚未走到')+'</span></div>'+
     '</div>';
   }).join('');
-  showModal('<div class="modal-head"><h2>结局图鉴</h2><p>'+got.length+' / 11</p></div><div class="gallery">'+rows+'</div>');
+  showModal('<div class="modal-head"><h2>结局图鉴</h2><p>'+got.length+' / 10</p></div><div class="gallery">'+rows+'</div>');
 }
 
 function openMenu(){
