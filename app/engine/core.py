@@ -247,9 +247,15 @@ def parse_effect(skill):
     return eff
 
 
-def parse_static_buffs(text):
+def parse_static_buffs(text, skip_team=False):
+    """提取静态数值。skip_team=True 时跳过同一句里带“我方”主体的数值，
+    这部分交给 _parse_signature 作为团队光环处理，避免重复计成自身属性。"""
     out = []
     for m in re.finditer(r'(全属性|攻击|暴击率|暴击伤害|兵力上限|受到伤害|治疗效果|策略伤害|效果命中|效果抗性|控制命中|速度|吸血比例|吸血|护盾值|护盾效果|闪避率|闪避|无视防御|命中率)([+＋\-－])(\d+(?:\.\d+)?)%', text):
+        if skip_team:
+            head = re.split(r'[；;。]', text[:m.start()])[-1]
+            if '我方' in head:
+                continue
         stat = m.group(1)
         if stat in ('吸血比例',):
             stat = '吸血'
@@ -277,6 +283,21 @@ MECH = {
 }
 TEAM_MECH = {'督战', '军心', '仁心', '号令', '同袍', '运筹', '悬壶', '庇护', '策略追击'}
 COND_WORDS = ['时', '后', '每', '若', '低于', '高于', '首次', '阵亡', '击杀', '开战', '期间', '回合开始', '回合结束']
+# 团队属性光环词条 -> 字段名（长词在前，避免“攻击力”被“攻击”截断）
+TEAM_AURA_STATS = (
+    ('效果抗性', 'control_resist'), ('效果抵抗', 'control_resist'), ('效果命中', 'effect_hit'),
+    ('策略伤害', 'strategy'), ('暴击率', 'crit'), ('攻击力', 'atk'),
+    ('攻击', 'atk'), ('速度', 'speed'), ('闪避', 'dodge'), ('命中', 'effect_hit'),
+)
+TEAM_AURA_MAP = dict(TEAM_AURA_STATS)
+TEAM_AURA_RE = re.compile(r'(效果抗性|效果抵抗|效果命中|策略伤害|暴击率|攻击力|攻击|速度|闪避|命中)[＋+]\s*(\d+(?:\.\d+)?)%')
+TEAM_AURA_FIELDS = {
+    'atk': 'team_atk', 'speed': 'team_speed', 'crit': 'team_crit',
+    'strategy': 'team_strategy_dmg', 'dodge': 'team_dodge_aura',
+    'effect_hit': 'team_effect_hit_aura', 'control_resist': 'team_control_resist',
+}
+# 明细事件开关：默认关闭，不影响正式战斗；分析工具可置 True 记录控制/负面/DoT 施加事件。
+EMIT_DETAIL_EVENTS = False
 
 
 # ---------------------------------------------------------------- 单位
@@ -456,6 +477,8 @@ class Unit:
         self.team_speed = 0.0
         self.team_crit = 0.0
         self.team_strategy_dmg = 0.0
+        # 带兵种/阵营/性别/远程限制的团队光环：[{stat, value, cond}]
+        self.team_rules = []
         self.team_debuff_vuln = 0.0
         self.dmg_vs_high = None
         self.enemy_effect_hit_down = 0.0
@@ -564,8 +587,10 @@ class Unit:
                     self.unsupported.append(name)
                 continue
             applied = False
-            for stat, val in parse_static_buffs(text):
+            for stat, val in parse_static_buffs(text, skip_team=True):
                 self._add_perm(stat, val)
+                applied = True
+            if '我方' in text and self._parse_signature(text):
                 applied = True
             if not applied and self._parse_special_talent(text):
                 applied = True
@@ -578,7 +603,7 @@ class Unit:
                 continue
             text = sk['desc'] or ''
             if not any(w in text for w in COND_WORDS):
-                for stat, val in parse_static_buffs(text):
+                for stat, val in parse_static_buffs(text, skip_team=True):
                     self._add_perm(stat, val)
             self._parse_signature(text)
 
@@ -968,24 +993,6 @@ class Unit:
         if re.search(r'我方[^，。；]*?首次攻击必定暴击', text):
             self.team_first_attack_crit = True
             hit = True
-        m = re.search(r'我方[^，。；]*?效果抗性[＋+]\s*(\d+)%', text)
-        if m:
-            self.team_control_resist += p(m)
-            hit = True
-        m = re.search(r'我方[^，。；]*?命中与闪避各[＋+]\s*(\d+)%', text)
-        if m:
-            self.team_effect_hit_aura += p(m)
-            self.team_dodge_aura += p(m)
-            hit = True
-        else:
-            m = re.search(r'我方[^，。；]*?命中[＋+]\s*(\d+)%', text)
-            if m:
-                self.team_effect_hit_aura += p(m)
-                hit = True
-        m = re.search(r'我方骑兵闪避[＋+]\s*(\d+)%', text)
-        if m:
-            self.team_dodge_cavalry += p(m)
-            hit = True
         m = re.search(r'我方[^，。；]*?护盾值[＋+]\s*(\d+)%', text)
         if m:
             self.team_shield_aura += p(m)
@@ -1014,28 +1021,9 @@ class Unit:
             self.team_ignores_weak = True
             hit = True
 
-        # ---- 条件文本里的团队属性 / 策略光环
-        if any(w in text for w in COND_WORDS):
-            m = re.search(r'我方[^，。；]*?攻击(?:力)?[＋+]\s*(\d+)%', text)
-            if m and '受到' not in text:
-                self.team_atk += p(m)
-                hit = True
-            m = re.search(r'我方[^，。；]*?速度[＋+]\s*(\d+)%', text)
-            if m:
-                self.team_speed += p(m)
-                hit = True
-            m = re.search(r'我方[^，。；]*?暴击率[＋+]\s*(\d+)%', text)
-            if m:
-                self.team_crit += p(m)
-                hit = True
-            m = re.search(r'我方[^，。；]*?策略伤害[＋+]\s*(\d+)%', text)
-            if m:
-                self.team_strategy_dmg += p(m)
-                hit = True
-            m = re.search(r'我方[^，。；]*?闪避[＋+]\s*(\d+)%', text)
-            if m:
-                self.team_dodge_aura += p(m)
-                hit = True
+        # ---- 团队属性光环（含兵种/阵营/性别/远程限制）
+        if self._parse_team_auras(text):
+            hit = True
 
         m = re.search(r'敌方每有\s*1?\s*个负面效果[^。；]*?减伤[－-]\s*(\d+)%', text)
         if m:
@@ -1122,7 +1110,7 @@ class Unit:
                 self.perm['pen'] += p(m)
                 hit = True
             m = re.search(r'暴击率[＋+]\s*(\d+)%', text)
-            if m:
+            if m and '我方' not in re.split(r'[；;。]', text[:m.start()])[-1]:
                 self.perm['crit'] += p(m)
                 hit = True
 
@@ -1173,11 +1161,6 @@ class Unit:
         if m:
             self.team_armor_break_bonus += p(m)
             hit = True
-        m = re.search(r'我方[^。]*?效果抗性[＋+]\s*(\d+)%', text)
-        if m:
-            self.team_control_resist += p(m)
-            hit = True
-
         # ---- 不可选中
         if re.search(r'开战首回合[^，。；]*?不可被选中|首次出手不可被选中', text):
             self.first_round_untargetable = True
@@ -1473,9 +1456,98 @@ class Unit:
                             v *= 1 + min(cap, per2 * int(lost / step))
         return v
 
+    def _aura_applies(self, cond):
+        if not cond:
+            return True
+        if cond.get('troop') and self.troop != cond['troop']:
+            return False
+        if cond.get('faction') and self.faction != cond['faction']:
+            return False
+        if cond.get('female') and self.name not in FEMALE:
+            return False
+        if cond.get('ranged') and self.troop not in ('弓兵', '方士'):
+            return False
+        return True
+
+    def team_bonus(self, stat):
+        """汇总全队该属性的光环：无限制光环 + 命中本单位的限制光环。"""
+        v = 0.0
+        for a in (getattr(self, 'team_units', None) or []):
+            if not a.alive:
+                continue
+            v += getattr(a, TEAM_AURA_FIELDS[stat], 0.0)
+            for rule in getattr(a, 'team_rules', ()):
+                if rule['stat'] == stat and self._aura_applies(rule.get('cond')):
+                    v += rule['value']
+        return v
+
+    @staticmethod
+    def _aura_cond(seg):
+        """从“我方…”从句里取限制条件：兵种 / 远程 / 女性 / 阵营。"""
+        head = re.split(r'(?:效果抗性|效果抵抗|效果命中|策略伤害|暴击率|攻击力|攻击|速度|闪避|命中)', seg)[0]
+        cond = {}
+        for t in ('骑兵', '步兵', '弓兵'):
+            if t in head:
+                cond['troop'] = t
+                break
+        if '远程' in head:
+            cond['ranged'] = True
+        if '女性' in head:
+            cond['female'] = True
+        for f in ('吴', '魏', '蜀'):
+            if f + '将' in head or f + '国' in head:
+                cond['faction'] = f
+                break
+        if '群雄' in head or '群将' in head:
+            cond['faction'] = '群'
+        return cond
+
+    def _parse_team_auras(self, text):
+        """解析团队属性光环。无条件/常驻光环按全队生效；
+        “我方骑兵/步兵/弓兵/远程/女性/吴将…”按接收者判定。
+        含“受到/每有/敌方”的从句不作为常驻光环。"""
+        hit = False
+        team_ctx = False          # 分句省略主语时，沿用前文的“我方”语境
+        for sent in re.split(r'[；;。]', text):
+            carry = None          # 顿号续接的上一段限制条件
+            for seg in re.split(r'[、，,]', sent):
+                if '我方' in seg:
+                    team_ctx = True
+                    carry = None
+                elif '敌方' in seg or '自身' in seg:
+                    team_ctx = False
+                    carry = None
+                if not team_ctx:
+                    continue
+                if '受到' in seg or '每有' in seg:
+                    carry = None
+                    continue
+                cond = self._aura_cond(seg)
+                if cond:
+                    carry = cond
+                elif carry:
+                    cond = carry
+
+                def apply(stat, val):
+                    if cond:
+                        self.team_rules.append({'stat': stat, 'value': val, 'cond': dict(cond)})
+                    else:
+                        setattr(self, TEAM_AURA_FIELDS[stat],
+                                getattr(self, TEAM_AURA_FIELDS[stat]) + val)
+
+                m = re.search(r'(?:命中与闪避|闪避与命中)各[＋+]\s*(\d+(?:\.\d+)?)%', seg)
+                if m:
+                    for stat in ('effect_hit', 'dodge'):
+                        apply(stat, float(m.group(1)) / 100.0)
+                    hit = True
+                for m in TEAM_AURA_RE.finditer(seg):
+                    apply(TEAM_AURA_MAP[m.group(1)], float(m.group(2)) / 100.0)
+                    hit = True
+        return hit
+
     def speed(self):
         base = 100 + self.stats['机变'] * 0.8
-        aura = sum(a.team_speed for a in (getattr(self, 'team_units', None) or []) if a.alive)
+        aura = self.team_bonus('speed')
         base *= (1 + self.perm['speed'] + self.buff_sum('speed') + aura)
         if self.first_round_speed and getattr(self, 'battle_round', 1) <= 1:
             base *= 1 + self.first_round_speed
@@ -1487,7 +1559,7 @@ class Unit:
 
     def crit(self):
         v = 0.05 + self.stats['天命'] * 0.004 + self.perm['crit'] + self.buff_sum('crit')
-        v += sum(a.team_crit for a in (getattr(self, 'team_units', None) or []) if a.alive)
+        v += self.team_bonus('crit')
         if self.flags.get('背水一战') and self.hp / max(1, self.max_hp) < 0.5:
             v += self.flags['背水一战'][0] / 100.0
         if self.low_hp and self.low_hp[1] == '暴击率' and self.hp / max(1, self.max_hp) < self.low_hp[0] / 100.0:
@@ -1544,14 +1616,13 @@ class Unit:
         return min(0.85, max(0.0, v))
 
     def effect_hit(self):
-        aura = sum(a.team_effect_hit_aura for a in (getattr(self, 'team_units', None) or []) if a.alive)
-        return min(0.85, 0.15 + self.stats['威仪'] * 0.005 + self.perm['effect_hit'] + self.buff_sum('effect_hit') + aura)
+        return min(0.85, 0.15 + self.stats['威仪'] * 0.005 + self.perm['effect_hit'] + self.buff_sum('effect_hit') + self.team_bonus('effect_hit'))
 
     def dodge_chance(self):
         v = self.perm.get('dodge', 0.0) + self.buff_sum('dodge')
-        allies = [a for a in (getattr(self, 'team_units', None) or []) if a.alive]
-        v += sum(a.team_dodge_aura for a in allies)
+        v += self.team_bonus('dodge')
         if self.troop == '骑兵':
+            allies = [a for a in (getattr(self, 'team_units', None) or []) if a.alive]
             v += sum(a.team_dodge_cavalry for a in allies)
         if self.first_round_dodge and getattr(self, 'battle_round', 1) <= 1:
             v += self.first_round_dodge
@@ -1560,13 +1631,12 @@ class Unit:
         return min(0.45, max(0.0, v))
 
     def control_resist_value(self):
-        aura = sum(a.team_control_resist for a in (getattr(self, 'team_units', None) or []) if a.alive)
-        return min(0.85, max(0.0, self.control_resist + self.perm.get('resist', 0.0) + aura))
+        return min(0.85, max(0.0, self.control_resist + self.perm.get('resist', 0.0) + self.team_bonus('control_resist')))
 
     def atk_bonus(self):
         v = self.perm['atk'] + self.buff_sum('atk')
         team = [a for a in (getattr(self, 'team_units', None) or []) if a.alive]
-        v += sum(a.team_atk for a in team)
+        v += self.team_bonus('atk')
         if self.hit_atk_ramp and self.hit_atk_stacks:
             v += min(self.hit_atk_ramp[1], self.hit_atk_ramp[0] * self.hit_atk_stacks)
         if self.per_named_atk:
@@ -2181,6 +2251,9 @@ class Battle:
                     t.dots[kind] = {'stacks': stacks, 'turns': dur, 'src': u,
                                     'crit': u.dot_crit, 'burn': u.burn_dot_bonus,
                                     'lei_dr': 0.05 if u.lei_stack_max else 0.0}
+                    if EMIT_DETAIL_EVENTS:
+                        self.ev('dot_apply', src=u.name, src_side=u.side, dst=t.name,
+                                dst_side=t.side, dot=kind, stacks=stacks)
                     if kind == '灼烧':
                         for a in self.units:
                             if a.alive and a.side == u.side and a.burn_rage:
@@ -2212,6 +2285,9 @@ class Battle:
                             dur += u.random_control_dur
                         dur = max(1, dur)
                         t.status[kind] = max(t.status.get(kind, 0), dur)
+                        if EMIT_DETAIL_EVENTS:
+                            self.ev('control', src=u.name, src_side=u.side, dst=t.name,
+                                    dst_side=t.side, status=kind)
                         if kind == '嘲讽':
                             t.taunt_source = u
                             if u.team_taunt_rage:
@@ -2224,6 +2300,9 @@ class Battle:
         if m:
             for t in [x for x in self.units if x.alive and x.side != u.side]:
                 t.status['破甲'] = max(t.status.get('破甲', 0), 2)
+                if EMIT_DETAIL_EVENTS:
+                    self.ev('debuff', src=u.name, src_side=u.side, dst=t.name,
+                            dst_side=t.side, status='破甲')
         # 大乔 流离：转移控制
         if '转移' in desc and '控制' in desc:
             allies = [x for x in self.units if x.alive and x.side == u.side]
@@ -2476,8 +2555,7 @@ class Battle:
         elif TROOP_COUNTER.get(dst.troop) == src.troop:
             raw *= 0.92
         if '策略' in (sk.get('desc') or ''):
-            strat_aura = sum(a.team_strategy_dmg for a in self.units
-                             if a.alive and a.side == src.side)
+            strat_aura = src.team_bonus('strategy')
             raw *= 1 + src.perm['strategy_dmg'] + src.buff_sum('strategy') + strat_aura
         # 天赋增伤
         if src.flags.get('斩弱') and dst.hp / max(1, dst.max_hp) < 0.5:

@@ -344,8 +344,9 @@ def _apply_progress(u, prog):
 
 
 def create_battle(team_a, team_b, seed=1, level=1, bt=0, aw=0, equip=0,
-                  config_a=None, config_b=None, progress_a=None, buffs_a=None,
-                  buffs_b=None, bonds_a=None, combos_a=None, data_path=None):
+                  config_a=None, config_b=None, progress_a=None, progress_b=None,
+                  buffs_a=None, buffs_b=None, bonds_a=None, bonds_b=None,
+                  combos_a=None, data_path=None):
     """创建一场未结算的战斗，供手动/单步会话使用。"""
     ca = {'level': level, 'bt': bt, 'aw': aw, 'equip': equip}
     if config_a:
@@ -367,6 +368,10 @@ def create_battle(team_a, team_b, seed=1, level=1, bt=0, aw=0, equip=0,
         for u in units:
             if u.side == 0 and u.name in progress_a:
                 _apply_progress(u, progress_a[u.name])
+    if progress_b:
+        for u in units:
+            if u.side == 1 and u.name in progress_b:
+                _apply_progress(u, progress_b[u.name])
     if buffs_a:
         for u in units:
             if u.side == 0:
@@ -380,19 +385,27 @@ def create_battle(team_a, team_b, seed=1, level=1, bt=0, aw=0, equip=0,
             if u.side == 0:
                 _apply_bonds(u, bonds_a)
                 u._finalize()
+    if bonds_b:
+        for u in units:
+            if u.side == 1:
+                _apply_bonds(u, bonds_b)
+                u._finalize()
     bt = core.Battle(units, seed=seed)
     bt.combos_a = list(combos_a or [])
     return bt
 
 
 def run_battle(team_a, team_b, seed=1, level=1, bt=0, aw=0, equip=0,
-               config_a=None, config_b=None, progress_a=None, buffs_a=None,
-               buffs_b=None, bonds_a=None, combos_a=None, data_path=None):
+               config_a=None, config_b=None, progress_a=None, progress_b=None,
+               buffs_a=None, buffs_b=None, bonds_a=None, bonds_b=None,
+               combos_a=None, data_path=None):
     """跑完一场战斗，返回胜方/回合/事件流。双方可分别配置等级/突破/觉醒/装备。"""
     bt_obj = create_battle(team_a, team_b, seed=seed, level=level, bt=bt, aw=aw,
                            equip=equip, config_a=config_a, config_b=config_b,
-                           progress_a=progress_a, buffs_a=buffs_a, buffs_b=buffs_b,
-                           bonds_a=bonds_a, combos_a=combos_a, data_path=data_path)
+                           progress_a=progress_a, progress_b=progress_b,
+                           buffs_a=buffs_a, buffs_b=buffs_b,
+                           bonds_a=bonds_a, bonds_b=bonds_b,
+                           combos_a=combos_a, data_path=data_path)
     state = bt_obj.state_units()
     winner = bt_obj.run()
     return {

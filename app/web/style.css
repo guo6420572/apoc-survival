@@ -2987,3 +2987,131 @@ body.in-battle #questTracker{display:none!important}
   #detail[data-dtab="bond"] .detail-info > :not(.detail-head):not(.d-bond){display:none!important}
   #detail[data-dtab="bio"] .detail-info > :not(.detail-head):not(.d-bio){display:none!important}
 }
+/* ================= 三国 · 将星录 · UI 祥纹层 v4.2 =================
+   2026-11-25 · 独立于 style.css 引入，保证始终覆盖在最后
+   配色：底 深黛青 #0d1715 / 主 哑光古铜 #c3a468 / 辅 青玉 #7fa595 / 点 朱砂 #9e3b2c
+   ================================================================ */
+
+/* 0 全局金色降级：亮金 → 哑光古铜（保留主 CTA / 绝世 / 货币的极少量亮金） */
+:root{
+  --gold:#c3a468;
+  --gold-hi:#d8c79b;
+  --gold-dim:#a68a58;
+  --line:rgba(195,164,104,.24);
+  --line-soft:rgba(195,164,104,.12);
+}
+
+/* 1 顶栏资源条：上沿一条回纹细带 */
+.hud{position:relative!important;z-index:1}
+.hud::before{content:"";position:absolute;left:-9px;right:-9px;top:-3px;height:12px;z-index:0;pointer-events:none;
+  background:url('/ui/祥纹/s_x_divider.png') center/100% 100% no-repeat;opacity:.5}
+.hud > *{position:relative;z-index:1}
+
+/* 2 面板四角：按面板自身尺寸自适应（小面板 44~52，大面板封顶 52） */
+.panel{background-color:rgba(13,19,22,.95)!important;
+  background-image:url('/ui/祥纹/xr_tl.png'),url('/ui/祥纹/xr_tr.png'),url('/ui/祥纹/xr_bl.png'),url('/ui/祥纹/xr_br.png')!important;
+  background-position:left top,right top,left bottom,right bottom!important;
+  background-size:52px 52px!important;
+  background-repeat:no-repeat!important}
+
+/* 3 屏标题：左起回纹短线 + 标题/眉题降色 */
+.ph-title{position:relative!important}
+.ph-title::after{content:"";position:absolute;left:0;bottom:-2px;width:58px;height:12px;
+  background:url('/ui/祥纹/s_x_title_rule.png') left center/contain no-repeat;opacity:.78;pointer-events:none}
+.ph-title h2{color:#d8c79b!important}
+.ph-kicker{color:rgba(127,165,149,.8)!important}
+
+/* 4 卡牌：细回纹框 + 稀有度底带 */
+.codex-card,.roster-card{border:0!important;border-radius:5px!important;background-color:#0b0e14!important;
+  border-image:url('/ui/祥纹/s_x_frame2.png') 34 / 7px / 0 stretch!important;
+  box-shadow:inset 0 0 0 1px rgba(195,164,104,.30),inset 0 0 12px rgba(127,165,149,.08)!important}
+.codex-card.r-绝世,.roster-card.r-绝世{box-shadow:inset 0 -2px 0 0 rgba(158,59,44,.85),inset 0 0 0 1px rgba(195,164,104,.32)!important}
+.codex-card.r-传奇,.roster-card.r-传奇{box-shadow:inset 0 -2px 0 0 rgba(195,164,104,.78),inset 0 0 0 1px rgba(195,164,104,.32)!important}
+.codex-card.r-精良,.roster-card.r-精良{box-shadow:inset 0 -2px 0 0 rgba(127,165,149,.85),inset 0 0 0 1px rgba(195,164,104,.32)!important}
+/* 未解锁：回纹暗纹，替掉死黑 */
+.codex-card.locked,.roster-card.locked{background-color:#080c10!important;
+  background-image:url('/ui/祥纹/s_x_pattern.png')!important;background-size:110px!important;
+  background-position:center!important;background-blend-mode:soft-light!important}
+
+/* 5 选中态 */
+.pool-tabs button.active{background:url('/ui/祥纹/s_x_pill.png') center/100% 100% no-repeat!important;
+  border-color:transparent!important;color:#f4ecd6!important;box-shadow:none!important}
+.chip.active{background:rgba(127,165,149,.16)!important;border-color:rgba(127,165,149,.55)!important;color:#e9f1ea!important}
+
+/* 6 分区标题回纹分隔 */
+.section-head::after{background:url('/ui/祥纹/s_x_divider.png') center/100% 100% no-repeat!important;
+  height:14px!important;opacity:.85!important}
+
+/* 7 主按钮：黛青回纹锦面 */
+.menu-primary,.start{background:url('/ui/祥纹/s_x_button.png') center/100% 100% no-repeat!important;
+  background-color:#16211e!important;color:#f4ecd6!important;border:0!important;
+  text-shadow:0 1px 3px rgba(0,0,0,.75)!important}
+
+/* 8 次按钮：青玉细描边 */
+.gacha-btns #pull1,.ph-back,#shopScreen .ph-back{background:linear-gradient(180deg,rgba(24,36,32,.94),rgba(11,19,17,.96))!important;
+  border:1px solid rgba(127,165,149,.45)!important;color:#dfe7dc!important;
+  text-shadow:0 1px 2px rgba(0,0,0,.6)!important}
+.gacha-btns #pull1:hover,.ph-back:hover{border-color:rgba(127,165,149,.75)!important;color:#f2f6ef!important}
+
+/* 9 购买按钮 / 主城入口：古铜体系 */
+.shop-item button{background:linear-gradient(180deg,#c3a468,#8f7442)!important;
+  border:1px solid rgba(216,199,155,.7)!important;color:#141008!important;
+  box-shadow:0 2px 8px rgba(0,0,0,.4)!important}
+.shop-item button:hover{background:linear-gradient(180deg,#d2b478,#a08454)!important}
+.home-tiles button{border-color:rgba(195,164,104,.28)!important}
+.home-tiles button:hover{border-color:rgba(195,164,104,.6)!important}
+
+
+/* ==== 祥纹层 v4.3 补丁 · 2026-11-25 ==== */
+/* 1 屏标题纹线加强 */
+.ph-title::after{width:88px!important;height:14px!important;opacity:.9!important;bottom:0!important}
+
+/* 2 信息面板（世界首领 / 将星塔）四角包角，保留原渐变底 */
+.tower-info{background-image:url('/ui/祥纹/xr_tl.png'),url('/ui/祥纹/xr_tr.png'),url('/ui/祥纹/xr_bl.png'),url('/ui/祥纹/xr_br.png'),linear-gradient(180deg,rgba(15,20,28,.97),rgba(7,10,15,.98))!important;
+  background-position:left top,right top,left bottom,right bottom,center!important;
+  background-size:40px 40px,40px 40px,40px 40px,40px 40px,100% 100%!important;
+  background-repeat:no-repeat!important}
+
+/* 3 图鉴顶栏按钮：青玉细描边 */
+.codex-bar-btns button{background:linear-gradient(180deg,rgba(24,36,32,.94),rgba(11,19,17,.96))!important;
+  border:1px solid rgba(127,165,149,.45)!important;color:#dfe7dc!important}
+
+/* 4 武将卡稀有度标签：朱砂 / 古铜 / 青玉 */
+.roster-card.r-绝世 .rc-rar{background:rgba(158,59,44,.92)!important;color:#fbece8!important;border-color:rgba(158,59,44,.95)!important}
+.roster-card.r-传奇 .rc-rar{background:rgba(195,164,104,.9)!important;color:#1a1206!important;border-color:rgba(216,199,155,.9)!important}
+.roster-card.r-精良 .rc-rar{background:rgba(127,165,149,.85)!important;color:#0b1512!important;border-color:rgba(127,165,149,.9)!important}
+
+/* 5 去掉卡底硬色带，回到统一细框 */
+.codex-card.r-绝世,.roster-card.r-绝世,
+.codex-card.r-传奇,.roster-card.r-传奇,
+.codex-card.r-精良,.roster-card.r-精良{box-shadow:inset 0 0 0 1px rgba(195,164,104,.32),inset 0 0 12px rgba(127,165,149,.08)!important}
+
+/* 6 图鉴计数行不折行 */
+.codex-bar{white-space:nowrap}
+
+
+/* ==== 祥纹层 v4.4 补丁 · 2026-11-26 ==== */
+/* 1 首页场景标题「洛阳」：亮金压回哑光古铜，去掉黄色辉光 */
+.scene-title h2{color:#d8c79b!important;text-shadow:0 3px 22px rgba(0,0,0,.95),0 0 12px rgba(127,165,149,.16)!important}
+
+/* 2 战斗内卡牌：补细回纹内框；不碰原有 act/hit/dead 的边框与位移 */
+#playerRow .card,#enemyRow .card{position:relative;border-radius:5px!important}
+#playerRow .card::before,#enemyRow .card::before{content:"";position:absolute;inset:3px;z-index:1;pointer-events:none;
+  border:1px solid rgba(195,164,104,.20);border-radius:4px}
+#playerRow .card.act::before{border-color:rgba(195,164,104,.55);box-shadow:inset 0 0 10px rgba(195,164,104,.16)}
+#playerRow .card{border-color:rgba(127,165,149,.30)!important}
+#enemyRow .card{border-color:rgba(158,59,44,.30)!important}
+#playerRow .card .nm,#enemyRow .card .nm{color:#e8dcc2}
+
+/* 3 武将详情弹窗：四角包角 + 哑光古铜描边 */
+#detail .detail-box{
+  background-image:url('/ui/祥纹/xr_tl.png'),url('/ui/祥纹/xr_tr.png'),url('/ui/祥纹/xr_bl.png'),url('/ui/祥纹/xr_br.png'),linear-gradient(160deg,#141922,#080b11)!important;
+  background-position:left top,right top,left bottom,right bottom,center!important;
+  background-size:46px 46px,46px 46px,46px 46px,46px 46px,100% 100%!important;
+  background-repeat:no-repeat!important;
+  border-color:rgba(195,164,104,.45)!important;
+  box-shadow:0 0 60px rgba(127,165,149,.10),0 30px 70px rgba(0,0,0,.75)!important}
+#detail .detail-box::before{border-color:rgba(195,164,104,.12)!important}
+#detail .stat{background:rgba(10,16,15,.72);border-color:rgba(195,164,104,.10)}
+#detail .detail-close{border-color:rgba(195,164,104,.45);color:#c3a468}
+#detail .detail-list{border-top-color:rgba(195,164,104,.16)}
