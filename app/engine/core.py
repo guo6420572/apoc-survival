@@ -2212,12 +2212,19 @@ class Battle:
             boost = 1 + u.shield_boost + sum(
                 a.team_shield_aura for a in self.units if a.alive and a.side == u.side)
             for t in targets:
-                t.shield += u.stat(stat) * coef * power * boost
+                add = u.stat(stat) * coef * power * boost
+                t.shield += add
+                self.ev('shield', src=u.name, src_side=u.side, dst=t.name, dst_side=t.side,
+                        amount=int(round(add)), skill=sk.get('name', ''))
         # 怒气
         if eff['rage']:
             targets = self.targets(u, eff['heal_target'])
             for t in targets:
+                before = t.rage
                 t.rage = max(0.0, min(100.0, t.rage + eff['rage']))
+                if abs(t.rage - before) >= 1:
+                    self.ev('rage_gain', src=u.name, src_side=u.side, dst=t.name, dst_side=t.side,
+                            amount=int(round(t.rage - before)), skill=sk.get('name', ''))
         # 增益/减益
         for item in eff['buffs']:
             stat, val, turns, enemy_side, target_self = item
@@ -2237,6 +2244,8 @@ class Battle:
             turns += u.buff_dur
             for t in targets:
                 t.add_buff(key, val, turns, src=u)
+                self.ev('buff', src=u.name, src_side=u.side, dst=t.name, dst_side=t.side,
+                        stat=stat, amount=int(round(val * 100)), turns=turns, skill=sk.get('name', ''))
                 if key == 'speed' and val < 0 and t.side != u.side:
                     t.slow_count += 1
         # 控制
