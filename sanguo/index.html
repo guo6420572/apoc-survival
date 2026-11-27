@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#07090c">
 <title>三国 · 将星录</title>
-<link rel="stylesheet" href="style.css?v=20261127art10">
+<link rel="stylesheet" href="style.css?v=20261127econ1">
 </head>
 <body>
 <div id="app">
@@ -491,9 +491,8 @@
       <button id="importSave" class="ghost">导入存档</button>
     </div>
     <input id="importFile" type="file" accept="application/json,.json" hidden>
-    <div class="bmenu-actions"><button id="refillRes" class="ghost" hidden>测试资源补满（+200 招贤令）</button></div>
     <div class="bmenu-actions"><button id="clearSave" class="ghost">清空本地存档</button></div>
-    <div class="build-tag">构建 v20261127art10 · 章法 · 宿将印 · 运镜</div>
+    <div class="build-tag">构建 v20261127econ1 · 体力成长 · 七日补给</div>
   </div>
 </div>
 
@@ -588,6 +587,16 @@
   </div>
 </div>
 
+<div id="newbieModal" class="overlay" hidden>
+  <div class="overlay-box sweep-box">
+    <button id="closeNewbie" class="detail-close" onclick="document.getElementById('newbieModal').hidden=true">×</button>
+    <div class="bmenu-title">新兵七日补给</div>
+    <div class="newbie-hint">每日登录领一次，共七天；资源逐日递增，第 7 天给神器碎片。</div>
+    <div id="newbieList" class="newbie-list"></div>
+    <div class="bmenu-actions"><button id="newbieClaim" class="start" onclick="claimNewbieGift()">领取今日补给</button></div>
+  </div>
+</div>
+
 <div id="tutorial" class="overlay" hidden>
   <div class="overlay-box story-box">
     <div class="bmenu-title" id="tutorialTitle"></div>
@@ -611,7 +620,7 @@
 <script src="hero_show_data.js?v=20261123z14"></script>
 <script src="hero_show.js?v=20261127z15"></script>
 <script src="meta.js?v=20261127art10"></script>
-<script src="app.js?v=20261127art10"></script>
+<script src="app.js?v=20261127econ1"></script>
 
 </body>
 </html>

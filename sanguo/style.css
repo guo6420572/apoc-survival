@@ -3164,3 +3164,14 @@ body.in-battle #questTracker{display:none!important}
 #detail .stat{background:rgba(10,16,15,.72);border-color:rgba(195,164,104,.10)}
 #detail .detail-close{border-color:rgba(195,164,104,.45);color:#c3a468}
 #detail .detail-list{border-top-color:rgba(195,164,104,.16)}
+
+/* 七日新兵补给 */
+.newbie-hint{font-size:12.5px;color:#b7a98c;margin:2px 0 10px;line-height:1.5}
+.newbie-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;max-height:48vh;overflow:auto;margin-bottom:10px}
+.newbie-day{border:1px solid rgba(195,164,104,.22);border-radius:7px;padding:8px 9px;background:rgba(12,20,18,.55)}
+.newbie-day b{display:block;font-size:12.5px;color:#d8c49a;margin-bottom:3px}
+.newbie-day span{font-size:11.5px;color:#cbd5cf;line-height:1.45}
+.newbie-day.today{border-color:#c3a468;box-shadow:0 0 12px rgba(195,164,104,.18)}
+.newbie-day.done{opacity:.45}
+.newbie-day.done b{color:#7fa595}
+@media (max-width:420px){.newbie-list{grid-template-columns:1fr}}
