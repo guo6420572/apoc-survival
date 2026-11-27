@@ -5947,6 +5947,18 @@ function handleEvent(ev) {
     case 'dispel':
       log(`${ev.src} 驱散 ${ev.dst}`, 's');
       break;
+    case 'buff':
+      if (dst) floatText(dst, `${ev.stat}${ev.amount >= 0 ? '+' : ''}${R(ev.amount)}%`, ev.amount >= 0 ? 'heal' : 'dmg');
+      log(`${ev.src} 使 ${ev.dst} ${ev.stat}${ev.amount >= 0 ? '+' : ''}${R(ev.amount)}%（${ev.turns}回合）`, 's');
+      break;
+    case 'shield':
+      if (dst) floatText(dst, `护盾 ${R(ev.amount)}`, 's');
+      log(`${ev.src} 为 ${ev.dst} 施加护盾 ${R(ev.amount)}`, 's');
+      break;
+    case 'rage_gain':
+      if (dst) floatText(dst, `怒气+${R(ev.amount)}`, 's');
+      log(`${ev.src} 为 ${ev.dst} 补充怒气 ${R(ev.amount)}`, 's');
+      break;
     case 'dodge':
       if (dst) floatText(dst, '闪避', 's');
       log(`${ev.src} 攻击 ${ev.dst}，被闪避`, 's');
