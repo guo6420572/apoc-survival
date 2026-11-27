@@ -3177,3 +3177,10 @@ body.in-battle #questTracker{display:none!important}
 .newbie-day.done{opacity:.45}
 .newbie-day.done b{color:#7fa595}
 @media (max-width:420px){.newbie-list{grid-template-columns:1fr}}
+
+/* 奇遇：收益预览与结算清单 */
+.enc-choice b{display:block;font-weight:500}
+.enc-choice em{display:block;font-style:normal;font-size:11px;color:#9fb0a8;margin-top:3px;line-height:1.45}
+.enc-gain{margin:8px 0 2px;padding:9px 11px;border:1px solid rgba(195,164,104,.28);border-radius:7px;background:rgba(12,20,18,.6)}
+.enc-gain b{display:block;font-size:12px;color:#d8c49a;margin-bottom:3px}
+.enc-gain span{font-size:12.5px;color:#cbd5cf}

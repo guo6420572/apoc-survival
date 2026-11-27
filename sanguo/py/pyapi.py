@@ -427,6 +427,10 @@ GROUP = {r['姓名']: core.role_group(r['定位']) for r in RECORDS}
 def _rewards(gid):
     first = {'铜钱': 2000 + 30 * gid, '兵书': 4 + gid // 10, '将魂': 1 + gid // 100}
     repeat = {'铜钱': 400 + 8 * gid, '兵书': 1 + gid // 20}
+    if gid >= 120:
+        repeat['将魂'] = max(1, gid // 160)
+    if gid >= 300:
+        repeat['魂石'] = max(1, gid // 320)
     # 章法关（每章第 3、7 关，敌军带专属增益）：首通加三成铜钱并多给一本兵书作补偿
     if gid % 10 in (3, 7):
         first['铜钱'] = int(first['铜钱'] * 1.3)
@@ -439,7 +443,7 @@ def _rewards(gid):
     book_pool = BOOK_SKILLS['传奇'] if book_tier <= 2 else BOOK_SKILLS['绝世']
     book_skill = random.choice(book_pool) if book_pool else '铁壁'
     drops = [{'item': '魂石', 'chance': 0.35, 'amount': 1},
-             {'item': '神器碎片', 'chance': 0.22, 'amount': 1},
+             {'item': '神器碎片', 'chance': 0.10, 'amount': 1},
              {'item': f'技能书·{book_tier}阶·{book_skill}', 'chance': 0.16, 'amount': 1}]
     if gid >= 200:
         drops.append({'item': '图纸', 'chance': 0.18, 'amount': 1})
@@ -447,6 +451,8 @@ def _rewards(gid):
         drops.append({'item': '玄铁', 'chance': 0.12, 'amount': 1})
     if gid >= 500:
         drops.append({'item': '上古钥匙', 'chance': 0.08, 'amount': 1})
+    if gid >= 550:
+        drops.append({'item': '神兵', 'chance': 0.05, 'amount': 1})
     return first, repeat, drops
 
 
