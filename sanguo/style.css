@@ -732,6 +732,8 @@ body.in-battle #app{padding:0;max-width:none}
 .bmenu-row label{width:44px;flex:0 0 auto;color:var(--gold)}
 .bmenu-row select,.bmenu-row input[type=range]{flex:1;min-width:0;accent-color:var(--gold)}
 .bmenu-row b{width:28px;text-align:right;color:var(--gold-hi);font-weight:500;font-size:12px}
+.redeem-input{flex:1;min-width:0;height:30px;padding:0 10px;border-radius:6px;border:1px solid rgba(195,164,104,.32);background:rgba(8,14,12,.72);color:#e8e2d2;font-size:12.5px;outline:none}
+.redeem-input:focus{border-color:#c3a468;box-shadow:0 0 0 2px rgba(195,164,104,.12)}
 .bmenu-actions{display:flex;gap:8px;margin-top:18px}
 .bmenu-actions .start{flex:1;width:auto;margin:0;padding:10px;font-size:13px;letter-spacing:1px}
 .menu-btns button,.start,.gacha-btns button,.ph-back,.detail-actions button,#battleResume{min-height:44px}
