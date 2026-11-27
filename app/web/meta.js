@@ -1,13 +1,13 @@
 /* 剧情 / 任务 / 奇遇 / 新手引导（依赖 app.js 的全局 S、$、esc、flash 等，运行时调用） */
 
 const VOL_STORY = {
-  1: { title: '黄巾之乱', text: '光和七年，太平道的旗帜从巨鹿升起。苍天已死，黄天当立——八个字点燃了半个天下。官军与义军在中原反复拉锯，而你，从一座小城开始收拢流民与残兵。' },
-  2: { title: '群雄讨董', text: '董卓挟天子入长安，焚洛阳，天下诸侯会盟讨董。盟军各怀心思，汜水关与虎牢关的血战之后，真正的乱世才刚刚开始。' },
-  3: { title: '官渡之前', text: '河北袁绍坐拥四世三公，中原曹操挟天子以令诸侯。白马、延津、乌巢，一场决定北方归属的赌局正在铺开。' },
-  4: { title: '赤壁', text: '曹操南下，荆州易主，江东震恐。长江之上，东风与火船将决定三国的雏形，也决定谁能活着回到故乡。' },
-  5: { title: '汉中与合肥', text: '赤壁之后，天下三分之势渐成。汉中的山道、合肥的坚城、逍遥津的八百骑，每一处都在改写疆界。' },
-  6: { title: '夷陵与南中', text: '关羽败走，刘备东征，陆逊一把火烧尽连营。南中群山之间，七擒七纵的故事与藤甲、毒瘴一同流传。' },
-  7: { title: '五丈原', text: '诸葛亮六出祁山，司马懿坚守不出。五丈原的秋风吹落将星，姜维接过大旗，却发现蜀汉的国力已经走到了尽头。' },
+  1: { title: '黄巾之乱', text: '光和七年，疫起冀州。太平道以符水聚众，八州同反，黄巾一夜之间铺满中原。官军与义军往复拉锯，郡县空了，田也空了。你从一座小城起兵，收拢流民与残卒——先要活下来的，不是天下，是手里这些人。' },
+  2: { title: '群雄讨董', text: '董卓挟天子入洛阳，废立由己，焚城迁都。十八路诸侯筑坛会盟，各怀心思。汜水关的血未干，虎牢关的戟又起。乱世真正开始的标志，不是董卓进京，是盟军散伙。' },
+  3: { title: '官渡之前', text: '河北四世三公，中原挟天子以令诸侯。白马、延津、乌巢，三步棋决定北方归属。官渡之前，胜负其实已定，只是没人肯认。' },
+  4: { title: '赤壁', text: '曹操南下，刘琮束手，江东路绝。长江之上，风与火决定三国的雏形，也决定谁还能回到故乡。' },
+  5: { title: '汉中与合肥', text: '赤壁之后，三分之势渐成。汉中的山道、合肥的坚城、逍遥津的八百骑，每一处都在改疆界；每一处也都有人不肯退。' },
+  6: { title: '夷陵与南中', text: '关羽败走，刘备东征，陆逊一把火烧尽七百里连营。南中群山之间，七擒七纵与藤甲毒瘴一同流传。蜀汉的元气，从这一卷开始见底。' },
+  7: { title: '五丈原', text: '诸葛亮六出祁山，司马懿坚守不出。五丈原的秋风吹落将星，姜维接过旗，才发现蜀汉的国力早已走到尽头。汉四百年，在这里收尾。' },
 };
 const BOSS_LINE = {
   张角: '苍天已死，黄天当立！', 董卓: '顺我者昌，逆我者亡。', 吕布: '天下英雄，谁堪我一击？',
@@ -509,12 +509,25 @@ function grantItems(obj) {
 }
 function chapterStory(lv) {
   const v = VOL_STORY[lv.volume] || { title: lv.volume_name || '汉末', text: '汉末风云未定，四方兵戈不息。' };
+  const key = (lv.volume || 1) * 100 + (lv.chapter || 1);
+  const cs = (typeof CHAP_STORY !== 'undefined' && CHAP_STORY) ? CHAP_STORY[key] : null;
+  if (cs && cs.paras && cs.paras.length) {
+    return {
+      title: `${v.title} · ${lv.chapter_name}`,
+      text: cs.paras.join('\n'),
+      lines: cs.lines || [],
+      brief: cs.brief || '',
+      act: cs.act || '',
+    };
+  }
   const boss = lv.boss || (lv.enemies && lv.enemies[0] && lv.enemies[0].name) || '敌军主将';
   const bossLine = BOSS_LINE[boss] || `${boss}：此战，不退。`;
   return {
     title: `${v.title} · ${lv.chapter_name}`,
     text: `${v.text}\n\n如今兵锋指向${lv.chapter_name}。${boss}的旗帜已在城外竖起，斥候回报，敌军已列阵等候。`,
     lines: [[boss, bossLine], ['主公', '传令下去，整军备战。']],
+    brief: '',
+    act: '',
   };
 }
 function chapterLevels() {
@@ -528,9 +541,13 @@ function renderStoryScreen() {
   $('#storyProgress').textContent = `已阅 ${seen.size} / ${chapters.length}`;
   box.innerHTML = chapters.map(lv => {
     const locked = lv.id > (S.progress.unlocked || 1);
+    const cs = (typeof CHAP_STORY !== 'undefined' && CHAP_STORY) ? CHAP_STORY[(lv.volume || 1) * 100 + (lv.chapter || 1)] : null;
+    const act = cs && cs.act ? `${esc(cs.act)} · ` : '';
+    const key = (lv.volume || 1) * 100 + (lv.chapter || 1);
     return `<button class="story-item${locked ? ' locked' : ''}${seen.has(lv.id) ? ' seen' : ''}" data-id="${lv.id}">
-      <b>${esc(lv.volume_name)} · ${esc(lv.chapter_name)}</b>
-      <span>${locked ? '尚未解锁' : seen.has(lv.id) ? '已阅读 · 点击重看' : '点击阅读'}</span></button>`;
+      <img class="si-thumb" src="/story/t${key}.jpg" alt="" loading="lazy" decoding="async">
+      <div class="si-txt"><b>${esc(lv.volume_name)} · ${esc(lv.chapter_name)}</b>
+      <span>${locked ? '尚未解锁' : act + (seen.has(lv.id) ? '已阅读 · 点击重看' : '点击阅读')}</span></div></button>`;
   }).join('');
   box.querySelectorAll('.story-item').forEach(b => b.onclick = () => openStoryCinema(Number(b.dataset.id)));
 }
@@ -552,36 +569,109 @@ function openStory(id) {
 /* ---------------- 剧情演出 ---------------- */
 function buildStoryCinema(lv) {
   const st = chapterStory(lv);
-  const boss = lv.boss || (lv.enemies && lv.enemies[0] && lv.enemies[0].name) || '敌军主将';
+  const lead = (st.lines && st.lines[0] && st.lines[0][0]) || '';
+  const boss = (lead && lead !== '主公') ? lead
+    : ((lv.enemies && lv.enemies[0] && lv.enemies[0].name) || '敌军主将');
   const paras = st.text.split('\n').map(x => x.trim()).filter(Boolean);
   const roster = (S.owned || []).map(n => S.by[n]).filter(Boolean);
   const strategist = roster.find(u => /军师|谋主/.test(u.role || ''))
     || roster.find(u => /术士/.test(u.role || ''));
-  const enemy = (lv.enemies || [])[0] || {};
   const lines = [];
   paras.forEach(p => lines.push({ who: '旁白', text: p, narration: true }));
-  lines.push({
-    who: strategist ? strategist.name : '军师',
-    text: `${boss}已在${lv.chapter_name}列阵，敌军以${enemy.troop || '步骑'}为主。主公，建议先破其前锋。`
+  if (st.brief) lines.push({ who: strategist ? strategist.name : '军师', text: st.brief });
+  (st.lines || []).forEach(pair => {
+    if (pair && pair[0] && pair[1]) lines.push({ who: pair[0], text: pair[1] });
   });
-  lines.push({ who: boss, text: BOSS_LINE[boss] || `${boss}：此战，不退。` });
-  lines.push({ who: '主公', text: '传令三军，随我出征。' });
+  const hasLord = (st.lines || []).some(pair => pair && pair[0] === '主公');
+  if (!hasLord) lines.push({ who: '主公', text: '传令三军，随我出征。' });
   lines.push({
     who: '旁白',
-    text: `【${lv.volume_name} · ${lv.chapter_name}】${lv.desc || '两军对垒，战鼓将起。'} 通关本章第 10 关可开启章节秘宝。`,
+    text: `【${lv.volume_name} · ${lv.chapter_name}】${st.act ? st.act + '——' : ''}${lv.desc || '两军对垒，战鼓将起。'} 通关本章第 10 关可开启章节秘宝。`,
     narration: true, final: true
   });
-  return { title: `${lv.volume_name} · ${lv.chapter_name}`, boss, lines };
+  return { title: `${lv.volume_name} · ${lv.chapter_name}`, boss, lines, act: st.act || '',
+           art: (lv.volume || 1) * 100 + (lv.chapter || 1) };
 }
+/* ---- 章末关首通：自动播本章剧情，看完赐宿将印（永久增幅） ---- */
+function storyChartOf(lv) {
+  if (typeof CHAP_STORY === 'undefined' || !CHAP_STORY) return null;
+  return CHAP_STORY[(lv.volume || 1) * 100 + (lv.chapter || 1)] || null;
+}
+function storyBlessStats(cs, ch) {
+  const base = 0.06 + ch * 0.0004;
+  const stats = {};
+  if (cs.bless[0]) stats[cs.bless[0]] = Math.round(base * 1000) / 1000;
+  if (cs.bless[1]) stats[cs.bless[1]] = Math.round(base * 0.6 * 1000) / 1000;
+  return stats;
+}
+function grantStoryBless(lv) {
+  const cs = storyChartOf(lv);
+  if (!cs || !cs.hero || !cs.bless) return;
+  const ch = Math.ceil(lv.id / 10);
+  const hero = cs.hero;
+  S.unitProgress = S.unitProgress || {};
+  const p = S.unitProgress[hero] = S.unitProgress[hero] || {};
+  p.sigils = p.sigils || [];
+  if (p.sigils.length >= 5) {
+    S.inventory['神器碎片'] = (S.inventory['神器碎片'] || 0) + 8;
+    saveInventory(); renderWallet();
+    flash(`「${hero}」已满五枚印记，宿将印化作神器碎片 ×8`);
+    return;
+  }
+  const stats = storyBlessStats(cs, ch);
+  p.sigils.push({
+    name: `${lv.chapter_name}·${hero}印`, ch, rarity: '传奇', stats,
+    special: null, match: true, unit: hero, story: true,
+    desc: cs.bless[2] || '', at: Date.now(),
+  });
+  saveUnitProgress();
+  showSigilStamp(hero, lv.chapter_name);
+  const owned = (S.owned || []).indexOf(hero) >= 0;
+  flash(owned
+    ? `宿将「${hero}」获永久增幅：${effLabel(stats)}（${cs.bless[2]}）`
+    : `宿将「${hero}」印记已封存，待其归附时生效`);
+}
+function playChapterCinema(id) {
+  const lv = (S.levels || []).find(l => l.id === id);
+  if (!lv) return;
+  const ch = Math.ceil(id / 10);
+  S.story = S.story || {};
+  S.story.cinema = S.story.cinema || [];
+  if (S.story.cinema.indexOf(ch) >= 0) return;
+  openStoryCinema(id, function () {
+    S.story.cinema.push(ch);
+    saveMeta();
+    grantStoryBless(lv);
+    renderStoryScreen();
+  });
+}
+function showSigilStamp(hero, chapterName) {
+  const el = document.createElement('div');
+  el.className = 'sigil-stamp';
+  el.innerHTML = `<div class="ss-box"><b>${esc(chapterName || '')}</b><i>${esc(hero || '')}印</i></div>`;
+  document.body.appendChild(el);
+  setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, 3600);
+}
+const LORD_FACES = ['汉室宗亲', '江东少主', '西凉雄主', '寒门游侠'];
+function lordArtIndex() {
+  let n = 1;
+  try { n = parseInt(localStorage.getItem('sg_lord_face') || '1', 10); } catch (e) { n = 1; }
+  return (n >= 1 && n <= LORD_FACES.length) ? n : 1;
+}
+function lordArtUrl(thumb) { return `/story/lord${thumb ? '_thumb' : ''}${lordArtIndex()}.jpg`; }
 function cinemaPortraitHtml(who) {
-  if (who === '主公') return '<div class="cinema-crest">主</div><div class="cinema-who">主公</div>';
+  if (who === '主公') {
+    const i = lordArtIndex();
+    return `<div class="cinema-face lord" style="background-image:url('/story/lord${i}.jpg');background-position:center 16%"></div>
+      <div class="cinema-who">主公 · ${LORD_FACES[i - 1]}</div>`;
+  }
   if (S.by[who]) {
     return `<div class="cinema-face" style="background-image:url('${pthumb(who)}')"></div>
       <div class="cinema-who">${esc(who)}</div>`;
   }
   return `<div class="cinema-crest">${esc(String(who || '军').slice(0, 1))}</div><div class="cinema-who">${esc(who)}</div>`;
 }
-function openStoryCinema(id) {
+function openStoryCinema(id, onFinish) {
   const lv = (S.levels || []).find(l => l.id === id);
   if (!lv || id > (S.progress.unlocked || 1)) { flash('尚未解锁该章节'); return; }
   const first = !(S.story.seen || []).includes(id);
@@ -592,9 +682,23 @@ function openStoryCinema(id) {
     renderStoryScreen();
   }
   const c = buildStoryCinema(lv);
-  S.cinema = Object.assign({ id, first, index: 0, typing: false, timer: null, auto: false, autoTimer: null }, c);
+  S.cinema = Object.assign({ id, first, index: 0, typing: false, timer: null, auto: false, autoTimer: null, onFinish: onFinish || null }, c);
   $('#cinemaTitle').textContent = c.title;
-  $('#cinemaBg').style.backgroundImage = `url('${pthumb(c.boss)}')`;
+  const cbg = $('#cinemaBg');
+  cbg.style.backgroundImage = `url('${pthumb(c.boss)}')`;
+  cbg.classList.remove('art');
+  if (c.art) {
+    const artUrl = `/story/${c.art}.jpg`;
+    const probe = new Image();
+    probe.onload = () => {
+      if (!S.cinema || S.cinema.id !== id) return;
+      cbg.style.backgroundImage = `url('${artUrl}')`;
+      void cbg.offsetWidth;
+      cbg.classList.add('art');
+    };
+    probe.src = artUrl;
+  }
+  (new Image()).src = lordArtUrl();
   $('#cinemaAuto').classList.remove('active');
   $('#cinemaAuto').textContent = '自动';
   $('#storyCinema').hidden = false;
@@ -606,6 +710,11 @@ function cinemaShow(i) {
   clearTimeout(c.autoTimer);
   if (i >= c.lines.length) { cinemaFinish(); return; }
   c.index = i;
+  const cbg = $('#cinemaBg');
+  if (cbg && cbg.classList.contains('art')) {
+    const shift = [50, 47, 53][i % 3];
+    cbg.style.backgroundPosition = `${shift}% center`;
+  }
   const line = c.lines[i];
   $('#cinemaName').textContent = line.who;
   $('#cinemaStep').textContent = `${i + 1} / ${c.lines.length}`;
@@ -614,7 +723,7 @@ function cinemaShow(i) {
   if (line.narration) {
     port.classList.remove('hide');
     port.innerHTML = `<div class="cinema-narr"><div class="cn-orn">◆</div>
-      <div class="cn-title">${esc(c.title)}</div><div class="cn-sub">章节演出</div></div>`;
+      <div class="cn-title">${esc(c.title)}</div><div class="cn-sub">${esc(c.act || '章节演出')}</div></div>`;
   } else {
     port.classList.remove('hide');
     port.innerHTML = cinemaPortraitHtml(line.who);

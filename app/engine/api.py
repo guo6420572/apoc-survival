@@ -10,14 +10,28 @@
     python -m engine.api compile --out data/game_data.json
 """
 import argparse
+import functools
 import json
 import os
 
 from . import core
 
 
+# 数据表只读：openpyxl 解析 130KB xlsx 约 130~180ms，而战斗核心计算仅数十毫秒。
+# 按 (绝对路径, mtime) 缓存，改表后 mtime 变化即自动重载。
+# 安全性依据：Unit 只通过 rec.get() 读取，skills 已 dict 浅拷贝，talents 列表仅读取 name/desc。
+@functools.lru_cache(maxsize=4)
+def _load_data_cached(path, mtime):
+    return core.load_data(path)
+
+
 def load_game_data(path=None):
-    return core.load_data(path or core.DEFAULT_DATA)
+    p = os.path.abspath(path or core.DEFAULT_DATA)
+    try:
+        mtime = os.path.getmtime(p)
+    except OSError:
+        mtime = 0.0
+    return _load_data_cached(p, mtime)
 
 
 def _apply_buffs(u, buffs):

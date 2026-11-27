@@ -10,7 +10,7 @@ import os
 from PIL import Image
 
 SRC = "/mnt/g/桌面/个人文件/项目/三国将星录/正式版/web/fx/fx_slash.png"
-OUT = "/mnt/g/桌面/个人文件/项目/三国将星录/正式版/验证截图/fx_tint_factions.png"
+OUT = "/tmp/fx_tint_factions.png"
 
 FACTIONS = [("#3A6CA8", "魏"), ("#B23A2E", "蜀"), ("#2E8A6A", "吴"), ("#7A4A9E", "群雄")]
 TW, TH = 300, 240

@@ -508,8 +508,10 @@
   /* ============================ 国漫特效贴图 ============================ */
   /* 13 张厚涂特效素材，按形态取用；尺寸/方向/镜像/时长按武将哈希微调 */
   var SPRITES = {};
-  (function loadSprites() {
-    if (typeof Image === 'undefined') return;
+  /* 贴图 1.96MB：改按需加载，首次进武将详情/进战斗时才拉，不占首屏 */
+  function loadSprites() {
+    if (typeof Image === 'undefined' || loadSprites._done) return;
+    loadSprites._done = true;
     var forms = ['slash', 'spear', 'axe', 'bow', 'ride', 'shield', 'heal', 'fire', 'thunder', 'poison', 'shadow', 'aura', 'beast'];
     for (var i = 0; i < forms.length; i++) {
       var im = new Image();
@@ -517,7 +519,7 @@
       im.src = '/fx/fx_' + forms[i] + '.png?v=w';
       SPRITES[forms[i]] = im;
     }
-  })();
+  }
 
   /* 阵营染色层：200 将共用 13 张形态贴图时，用阵营色给同一形态"换色光"（保留原图明暗） */
   var TINTS = {};
@@ -958,6 +960,7 @@
     control: controlFx,
     death: deathFx,
     setQuality: setQuality,
+    warmup: loadSprites,
     clear: function () { FX.clear(); },
     debugSprite: function (form, opt) {
       opt = opt || {};

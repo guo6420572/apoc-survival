@@ -9,6 +9,7 @@
 """
 import datetime
 import gzip
+import hashlib
 import json
 import os
 import random
@@ -35,6 +36,8 @@ WEB = os.path.join(HERE, 'web')
 IMG_DIR = os.path.join(HERE, 'img')          # tools/make_webp.py 生成的 WebP 派生图
 CACHE_DIR = os.path.join(HERE, 'cache')
 os.makedirs(CACHE_DIR, exist_ok=True)
+SAVE_DIR = os.path.join(HERE, 'saves')
+os.makedirs(SAVE_DIR, exist_ok=True)
 
 RECORDS, SKILLS, TALENTS, BONDS = core.load_data(core.DEFAULT_DATA)
 REC = {r['姓名']: r for r in RECORDS}
@@ -391,6 +394,10 @@ GROUP = {r['姓名']: core.role_group(r['定位']) for r in RECORDS}
 def _rewards(gid):
     first = {'铜钱': 2000 + 30 * gid, '兵书': 4 + gid // 10, '将魂': 1 + gid // 100}
     repeat = {'铜钱': 400 + 8 * gid, '兵书': 1 + gid // 20}
+    # 章法关（每章第 3、7 关，敌军带专属增益）：首通加三成铜钱并多给一本兵书作补偿
+    if gid % 10 in (3, 7):
+        first['铜钱'] = int(first['铜钱'] * 1.3)
+        first['兵书'] = first['兵书'] + 1
     if gid >= 400:
         first['玄铁'] = 1
     if gid % 10 == 0:
@@ -408,6 +415,38 @@ def _rewards(gid):
     if gid >= 500:
         drops.append({'item': '上古钥匙', 'chance': 0.08, 'amount': 1})
     return first, repeat, drops
+
+
+# ---- 关卡敌将选择：全局出场均衡 + 老兵席 ----
+# 200 将里有 20 人（蜀 12 / 吴 8，全部是普通·精良）从未在 700 关中登场，原因两个：
+#   (1) 蜀吴 20 章全落在 gid 302~541，_allowed_rarities 在该区间只放传奇/绝世，低稀有度将进不了候选池；
+#   (2) _fixed_team 按 ORDER（绝世优先）排序后取前 3 倍，低稀有度将永远排在候选尾部。
+# 修法：所有选人改为"全局出场次数少的优先"，并每关给 1 个"老兵席"，
+# 允许白名单之外的**更低稀有度**将登场（跳档仍然禁止），直到其出场达 VET_QUOTA 次后自动停用。
+HITS = {}
+VET_CYCLE = ('TANK', 'HEAL', 'SUPPORT', 'DAMAGE')
+VET_QUOTA = 3
+
+
+def _bump(names):
+    for n in names:
+        HITS[n] = HITS.get(n, 0) + 1
+
+
+def _take(cands, need, rng):
+    """按全局出场次数从少到多取 need 个（同次数用 rng 打散，保持确定性），并计入 HITS。"""
+    if need <= 0 or not cands:
+        return []
+    jitter = {n: rng.random() for n in cands}
+    cands = sorted(cands, key=lambda n: (HITS.get(n, 0), jitter[n]))
+    picked = cands[:need]
+    _bump(picked)
+    return picked
+
+
+def _rrank(rar):
+    """稀有度档位序号：绝世 0 / 传奇 1 / 精良 2 / 普通 3（越大越低档）。"""
+    return ORDER.get(rar, 3)
 
 
 def _allowed_rarities(gid, local):
@@ -430,29 +469,49 @@ def _allowed_rarities(gid, local):
 
 def _pick_team(ch, gid, local, rng):
     faction, boss = ch[3], ch[4]
-    pool = [n for n in BY_FACTION.get(faction, []) if REC[n]['稀有度'] in _allowed_rarities(gid, local)]
-    if len(pool) < 5:
-        pool = list(BY_FACTION.get(faction, []))
-    if len(pool) < 5:
-        pool = [r['姓名'] for r in RECORDS]
+    allowed = _allowed_rarities(gid, local)
+    min_rank = min(_rrank(r) for r in allowed)      # 白名单里最高档的序号，比它更小=跳档，禁止
+    fact_all = list(BY_FACTION.get(faction, []))
+    strict = [n for n in fact_all if REC[n]['稀有度'] in allowed]
+    # 老兵池：本阵营中稀有度比白名单更低（_rrank >= min_rank）、但未进白名单的人
+    low = [n for n in fact_all if n not in strict and _rrank(REC[n]['稀有度']) >= min_rank]
+    if len(strict) < 4:
+        strict = fact_all
+    if len(strict) < 4:
+        strict = [r['姓名'] for r in RECORDS]
     team = []
     if local == 10 and boss in REC:
         team.append(boss)
-    quota = [('TANK', 1), ('HEAL', 1), ('SUPPORT', 1), ('DAMAGE', 2)]
-    for group, need in quota:
+        _bump([boss])
+    vet_group = VET_CYCLE[gid % 4]
+    vet_done = False
+    for group, need in [('TANK', 1), ('HEAL', 1), ('SUPPORT', 1), ('DAMAGE', 2)]:
         if len(team) >= 5:
             break
         have = sum(1 for n in team if GROUP.get(n) == group)
-        cand = [n for n in pool if n not in team and GROUP.get(n) == group]
-        rng.shuffle(cand)
-        team += cand[:max(0, need - have)]
+        want = need - have
+        if want <= 0:
+            continue
+        # 老兵席：每关最多 1 席，角色按关号轮换；该角色池里还有出场不足 VET_QUOTA 次的低档将才启用
+        if not vet_done and group == vet_group:
+            cand_low = [n for n in low if n not in team and GROUP.get(n) == group]
+            if cand_low and min(HITS.get(n, 0) for n in cand_low) < VET_QUOTA:
+                team += _take(cand_low, 1, rng)
+                vet_done = True
+                want -= 1
+        if want <= 0:
+            continue
+        cand = [n for n in strict if n not in team and GROUP.get(n) == group]
+        team += _take(cand, want, rng)
     while len(team) < 5:
-        cand = [n for n in pool if n not in team]
+        cand = [n for n in strict if n not in team]
+        if not cand:
+            cand = [n for n in fact_all if n not in team]
         if not cand:
             cand = [n for n in REC if n not in team]
         if not cand:
             break
-        team.append(rng.choice(cand))
+        team += _take(cand, 1, rng)
     return team[:5]
 
 
@@ -467,24 +526,26 @@ def _fixed_team(ch_idx, local, ch):
         pool = [n for n in pool if REC[n]['稀有度'] in ('传奇', '精良')] or pool
     else:
         pool = [n for n in pool if REC[n]['稀有度'] in ('精良', '普通')] or pool
-    pool.sort(key=lambda n: (ORDER.get(REC[n]['稀有度'], 9), n))
     team = []
     if local == 10 and boss in REC:
         team.append(boss)
+        _bump([boss])
     for group, need in [('TANK', 1), ('HEAL', 1), ('SUPPORT', 1), ('DAMAGE', 2)]:
+        if len(team) >= 5:
+            break
         have = sum(1 for n in team if GROUP.get(n) == group)
+        want = need - have
+        if want <= 0:
+            continue
         cand = [n for n in pool if n not in team and GROUP.get(n) == group]
         if not cand:
             cand = [n for n in BY_FACTION.get(faction, []) if n not in team and GROUP.get(n) == group]
-        cand.sort(key=lambda n: (ORDER.get(REC[n]['稀有度'], 9), n))
-        head = cand[:max(0, need - have) * 3] or cand
-        rng.shuffle(head)
-        team += head[:max(0, need - have)]
+        team += _take(cand, want, rng)
     while len(team) < 5:
         cand = [n for n in pool if n not in team] or [n for n in REC if n not in team]
         if not cand:
             break
-        team.append(rng.choice(cand))
+        team += _take(cand, 1, rng)
     return team[:5]
 
 
@@ -502,6 +563,11 @@ for base in BASE_LEVELS:
     lv = dict(base)
     lv.update({'volume': 1, 'volume_name': VOLUMES[1], 'chapter': 1, 'chapter_name': CHAPTERS[0][2]})
     LEVELS.append(lv)
+
+# 前 10 关是手写关卡，先把它们的敌将计入出场统计，避免同一批人被重复抽到
+HITS.clear()
+for base in BASE_LEVELS:
+    _bump(list(base.get('enemies') or ()))
 
 rng = random.Random(20261119)
 for gid in range(11, 701):
@@ -531,6 +597,122 @@ for lv in LEVELS:
             print('缺将：', n, 'in level', lv['id'])
 
 LEVELS.sort(key=lambda x: x['id'])
+
+# /api/levels 返回的关卡全量 JSON 只构建一次：700 关 + 3500 个敌将子字典，
+# 每次重建约 300ms，且客户端每次进入都会请求。构建后配 ETag，浏览器命中 304。
+_LV_CACHE = {}
+_LV_LOCK = threading.Lock()
+
+
+def levels_payload():
+    with _LV_LOCK:
+        if 'body' not in _LV_CACHE:
+            out = []
+            for lv in LEVELS:
+                item = dict(lv)
+                item['enemies'] = [{
+                    'name': n, 'rarity': REC[n]['稀有度'], 'role': REC[n]['定位'],
+                    'faction': REC[n]['阵营'], 'card': CARD_FILE[n],
+                } for n in lv['enemies']]
+                out.append(item)
+            body = json.dumps(out, ensure_ascii=False).encode('utf-8')
+            _LV_CACHE['body'] = body
+            _LV_CACHE['etag'] = '"lv%d-%s"' % (
+                len(body), hashlib.md5(body).hexdigest()[:16])
+        return _LV_CACHE['body'], _LV_CACHE['etag']
+
+
+# ---- 本机存档（单机买断制的落盘层）----
+# 浏览器 localStorage 不再是唯一真相，saves/<档案>.json 才是。
+# 每次写入先轮转 3 份备份再原子替换（tmp + os.replace），坏档可逐级回退。
+SAVE_LOCK = threading.Lock()
+SAVE_LIMIT = 900 * 1024
+
+
+def save_name(raw):
+    """档案名白名单：字母/数字/中文/下划线/连字符，最长 24，其余一律回落到 main。"""
+    raw = (raw or 'main').strip()
+    if not raw or len(raw) > 24:
+        return 'main'
+    if not all(ch.isalnum() or ch in '-_' for ch in raw):
+        return 'main'
+    return raw
+
+
+def _save_file(pname):
+    return os.path.join(SAVE_DIR, pname + '.json')
+
+
+def save_load(pname):
+    """读存档；主档坏了按 bak1→bak2→bak3 回退。"""
+    fp = _save_file(pname)
+    for cand in (fp, fp + '.bak1', fp + '.bak2', fp + '.bak3'):
+        if not os.path.isfile(cand):
+            continue
+        try:
+            with open(cand, 'rb') as f:
+                doc = json.loads(f.read() or b'null')
+        except Exception:
+            continue
+        if isinstance(doc, dict) and isinstance(doc.get('data'), dict):
+            return doc
+    return None
+
+
+def save_store(pname, patch):
+    """把 patch 合并进存档并落盘；值为 None 表示删除该键。返回 (revision, updated, 键数)。"""
+    with SAVE_LOCK:
+        doc = save_load(pname) or {}
+        data = dict(doc.get('data') or {})
+        for k, v in patch.items():
+            if v is None:
+                data.pop(k, None)
+            else:
+                data[k] = v
+        rev = int(doc.get('revision') or 0) + 1
+        now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        raw = json.dumps({'profile': pname, 'revision': rev, 'updated': now,
+                          'data': data}, ensure_ascii=False).encode('utf-8')
+        if len(raw) > SAVE_LIMIT:
+            return None
+        fp = _save_file(pname)
+        if os.path.isfile(fp):
+            # 轮转：bak2→bak3、bak1→bak2、主档→bak1（顺序不能反，否则会丢最老的一份）
+            for a, b in (('.bak2', '.bak3'), ('.bak1', '.bak2'), ('', '.bak1')):
+                src = fp + a
+                if os.path.exists(src):
+                    try:
+                        os.replace(src, fp + b)
+                    except OSError:
+                        pass
+        tmp = fp + '.tmp'
+        with open(tmp, 'wb') as f:
+            f.write(raw)
+        os.replace(tmp, fp)
+        return rev, now, len(data)
+
+
+def save_list():
+    out = []
+    try:
+        names = sorted(os.listdir(SAVE_DIR))
+    except OSError:
+        return out
+    for fn in names:
+        if not fn.endswith('.json'):
+            continue
+        fp = os.path.join(SAVE_DIR, fn)
+        doc = None
+        try:
+            with open(fp, 'rb') as f:
+                doc = json.loads(f.read() or b'null')
+        except Exception:
+            doc = None
+        doc = doc if isinstance(doc, dict) else {}
+        out.append({'profile': fn[:-5], 'revision': doc.get('revision') or 0,
+                    'updated': doc.get('updated') or '', 'size': os.path.getsize(fp),
+                    'keys': len(doc.get('data') or {})})
+    return out
 
 
 TOWER_BUFFS = [
@@ -1008,14 +1190,19 @@ class Handler(BaseHTTPRequestHandler):
         if path == '/app.js':
             return self._serve_file(os.path.join(WEB, 'app.js'),
                                     'application/javascript; charset=utf-8', static_cache, compress=True)
-        if path in ('/hero_show.js', '/hero_show_data.js', '/meta.js'):
+        if path in ('/hero_show.js', '/hero_show_data.js', '/meta.js', '/save.js', '/story_data.js'):
             return self._serve_file(os.path.join(WEB, os.path.basename(path)),
                                     'application/javascript; charset=utf-8', static_cache, compress=True)
         if path.startswith('/fx/') and path.endswith('.png'):
             fp = os.path.join(WEB, 'fx', os.path.basename(path))
             if not os.path.exists(fp):
                 return self._send('not found', 'text/plain; charset=utf-8', 404)
-            return self._serve_file(fp, 'image/png', CACHE_IMAGE)
+            return self._serve_file(fp, 'image/png', self._static_cache(p.query))
+        if path.startswith('/story/') and path.endswith('.jpg'):
+            fp = os.path.join(WEB, 'story', os.path.basename(path))
+            if not os.path.exists(fp):
+                return self._send('not found', 'text/plain; charset=utf-8', 404)
+            return self._serve_file(fp, 'image/jpeg', CACHE_IMAGE)
         if path == '/style.css':
             return self._serve_file(os.path.join(WEB, 'style.css'),
                                     'text/css; charset=utf-8', static_cache, compress=True)
@@ -1028,15 +1215,17 @@ class Handler(BaseHTTPRequestHandler):
         if path == '/api/worldboss':
             return self._send(json.dumps(worldboss_today(), ensure_ascii=False))
         if path == '/api/levels':
-            out = []
-            for lv in LEVELS:
-                item = dict(lv)
-                item['enemies'] = [{
-                    'name': n, 'rarity': REC[n]['稀有度'], 'role': REC[n]['定位'],
-                    'faction': REC[n]['阵营'], 'card': CARD_FILE[n],
-                } for n in lv['enemies']]
-                out.append(item)
-            return self._send(json.dumps(out, ensure_ascii=False))
+            body, etag = levels_payload()
+            return self._send(body, code=200, compress=True,
+                              cache='no-cache', etag=etag)
+        if path == '/api/save':
+            pname = save_name((urllib.parse.parse_qs(p.query).get('p') or ['main'])[0])
+            doc = save_load(pname)
+            return self._send(json.dumps({'ok': True, 'profile': pname, 'snapshot': doc},
+                                         ensure_ascii=False), cache='no-store')
+        if path == '/api/saves':
+            return self._send(json.dumps({'ok': True, 'list': save_list()},
+                                         ensure_ascii=False), cache='no-store')
         if path == '/asset/frame':
             if not os.path.exists(FRAME):
                 return self._send('not found', 'text/plain; charset=utf-8', 404)
@@ -1067,7 +1256,7 @@ class Handler(BaseHTTPRequestHandler):
             fp = os.path.normpath(os.path.join(ui_root, rel))
             if not fp.startswith(ui_root) or not os.path.isfile(fp):
                 return self._send('not found', 'text/plain; charset=utf-8', 404)
-            return self._serve_file(fp, 'image/png', CACHE_IMAGE)
+            return self._serve_file(fp, 'image/png', self._static_cache(p.query))
         if path == '/api/dungeons':
             return self._send(json.dumps(DUNGEONS, ensure_ascii=False))
         if path == '/api/secret':
@@ -1115,6 +1304,28 @@ class Handler(BaseHTTPRequestHandler):
             body = json.loads(self.rfile.read(n) or b'{}')
         except Exception as e:
             return self._send(json.dumps({'error': str(e)}, ensure_ascii=False), code=400)
+        if p.path == '/api/save':
+            pname = save_name((urllib.parse.parse_qs(p.query).get('p') or ['main'])[0])
+            data = body.get('data') if isinstance(body, dict) else None
+            if not isinstance(data, dict) or not data:
+                return self._send(json.dumps({'error': 'data 不能为空'}, ensure_ascii=False), code=400)
+            patch = {}
+            for k, v in data.items():
+                if not isinstance(k, str) or not k.startswith('sg_'):
+                    continue
+                if v is None:
+                    patch[k] = None
+                elif isinstance(v, str) and len(v) <= 400 * 1024:
+                    patch[k] = v
+            if not patch:
+                return self._send(json.dumps({'error': '没有可写的 sg_ 键'}, ensure_ascii=False), code=400)
+            res = save_store(pname, patch)
+            if res is None:
+                return self._send(json.dumps({'error': '存档超过 900KB 上限'}, ensure_ascii=False), code=413)
+            rev, updated, keys = res
+            return self._send(json.dumps({'ok': True, 'profile': pname, 'revision': rev,
+                                          'updated': updated, 'keys': keys},
+                                         ensure_ascii=False), cache='no-store')
         if p.path == '/api/battle/start':
             if not _rate_ok(self._client_ip() + ':battle', 60):
                 return self._send(json.dumps({'error': '请求过于频繁'}, ensure_ascii=False), code=429)
