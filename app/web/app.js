@@ -1034,6 +1034,12 @@ function teamAdd(name) {
   }
   return false;
 }
+/* 星力：队伍总星力上限随将星塔层数提升（初始10，每10层+1，上限39） */
+const STAR_BASE = 10, STAR_MAX = 39, STAR_PER_FLOOR = 10;
+function starOf(name) { return Math.max(1, Math.min(8, Number((S.by[name] || {}).star) || 1)); }
+function teamStar() { return teamActive().reduce((sum, n) => sum + starOf(n), 0); }
+function starCap() { return Math.min(STAR_MAX, STAR_BASE + Math.floor((S.tower.best || 1) / STAR_PER_FLOOR)); }
+function starRemain() { return starCap() - teamStar(); }
 function saveFormation() {
   localStorage.setItem('sg_formation', JSON.stringify({
     a: S.a, b: S.b, support: S.support || [], levelId: S.levelId, mode: S.mode, config: S.config
@@ -3911,7 +3917,7 @@ function renderRoster() {
         <span class="rc-rar">${u.rarity}</span>
       </div>
       <div class="rc-meta"><b>${esc(u.name)}</b><em>${esc(u.role)}</em>
-        <div class="rc-stats"><span>Lv ${lv}</span><span>战力 ${u.power || '-'}</span></div>
+        <div class="rc-stats"><span>Lv ${lv}</span><span>战力 ${u.power || '-'}</span><span>星力 ${u.star || 1}</span></div>
       </div></div>`;
   }).join('') || '<div class="roster-empty">暂无可查看武将，先去招贤馆招募。</div>';
   box.querySelectorAll('.roster-card').forEach(el => el.onclick = () => openDetail(el.dataset.name));
@@ -4354,6 +4360,7 @@ function growthFromDetail(name) {
 function teamFromDetail(name) {
   if (!S.a.includes(name)) {
     ensureTeamSlots();
+    if (teamStar() + starOf(name) > starCap()) { flash(`星力不足：${teamStar()}/${starCap()}，${name} 需 ${starOf(name)} 点`); return; }
     if (!teamAdd(name)) { flash('我军已满 5 人'); return; }
     saveFormation(); renderTeams();
   }
@@ -4430,7 +4437,7 @@ function openDetail(name) {
   box.className = 'detail-box fac-' + fac;
   box.style.setProperty('--fac', color);
   $('#detailName').textContent = u.name;
-  $('#detailSub').textContent = `${u.faction} · ${u.rarity} · ${u.role} · ${u.troop}` +
+  $('#detailSub').textContent = `${u.faction} · ${u.rarity} · ${u.role} · ${u.troop} · 星力 ${u.star || 1}` +
     (((S.unitProgress[name] || {}).branch && BRANCHES[(S.unitProgress[name] || {}).branch])
       ? ` · ${BRANCHES[S.unitProgress[name].branch].name}` : '');
   const stats = ['武勇', '智谋', '统御', '机变', '威仪', '天命'];
@@ -4505,7 +4512,7 @@ function renderPool() {
     d.className = 'unit' + (used ? ' used' : '') + (inSup ? ' support' : '');
     d.innerHTML = `<div class="uph" style="background-image:url('${pthumb(u.name)}')"></div>
       <div class="umeta"><div class="n">${esc(u.name)}</div>
-      <div class="r">${esc(u.role)} · ${esc(u.faction)}</div></div>
+      <div class="r">${esc(u.role)} · ${esc(u.faction)}</div><div class="ustar">星力 ${u.star || 1}</div></div>
       <div class="rar ${u.rarity}">${u.rarity}</div>${inSup ? '<i class="sup-mark">助</i>' : ''}`;
     d.onclick = () => addUnit(u.name);
     pool.appendChild(d);
@@ -4518,6 +4525,7 @@ function addUnit(name) {
   if ((S.support || []).includes(name)) { flash('该武将在助阵位，点击助阵槽可移出'); return; }
   ensureTeamSlots();
   if (S.a.includes(null) || teamCount() < cap) {
+    if (teamStar() + starOf(name) > starCap()) { flash(`星力不足：${teamStar()}/${starCap()}，${name} 需 ${starOf(name)} 点`); return; }
     if (!teamAdd(name)) { flash(`我军已满 ${cap} 人`); return; }
   } else if (S.support.length < 3) {
     S.support.push(name);
@@ -4585,7 +4593,7 @@ function renderTeams() {
       const rar = _u.rarity || '';
         slot.innerHTML = `<div class="ph" style="background-image:url('${pthumb(S.a[i])}')"></div>
           <div class="cap">${esc(S.a[i])}</div><div class="rar-line ${rar}"></div>
-          <i class="slot-troop">${TROOP_CHAR[_u.troop] || '·'}</i>${S.mode === 'ancient' ? `<i class="team-tag">${i < 4 ? '一' : '二'}</i>` : ''}`;
+          <i class="slot-troop">${TROOP_CHAR[_u.troop] || '·'}</i><i class="slot-star">星${starOf(S.a[i])}</i>${S.mode === 'ancient' ? `<i class="team-tag">${i < 4 ? '一' : '二'}</i>` : ''}`;
         slot.title = '点击移除';
         slot.onclick = () => { S.a[i] = null; saveFormation(); renderTeams(); renderPool(); };
       } else {
@@ -4595,9 +4603,17 @@ function renderTeams() {
     }
   }
   const ac = $('#acount'); if (ac) ac.textContent = `${teamCount()}/${cap}`;
+  const scEl = $('#starcount');
+  if (scEl) {
+    scEl.textContent = `星力 ${teamStar()}/${starCap()}`;
+    scEl.classList.toggle('over', teamStar() > starCap());
+    scEl.title = '将星塔每 10 层 +1，上限 39';
+  }
   const needA = modeNeedA();
   const hasStage = S.mode !== 'none' && S.b.length > 0;
-  const ruleErr = S.mode === 'trial' ? trialRuleError(S.a, S.trialData)
+  const overStar = teamStar() > starCap();
+  const ruleErr = overStar ? `星力超限 ${teamStar()}/${starCap()}`
+    : S.mode === 'trial' ? trialRuleError(S.a, S.trialData)
     : S.mode === 'personal' && S.personalName && !teamActive().slice(0, 3).includes(S.personalName)
       ? `需要 ${S.personalName} 上阵` : '';
   const ok = hasStage && teamCount() >= needA && !ruleErr;
@@ -4649,8 +4665,14 @@ function fillTeam(n) {
   ensureTeamSlots();
   if (teamCount() >= n) return;
   const pool = S.units.filter(u => S.owned.includes(u.name) && !S.a.includes(u.name) &&
-    !(S.support || []).includes(u.name));
-  while (teamCount() < n && pool.length) teamAdd(pool.shift().name);
+    !(S.support || []).includes(u.name)).sort((a, b) => (b.power || 0) - (a.power || 0));
+  while (teamCount() < n) {
+    const reserve = Math.max(0, n - teamCount() - 1);
+    let idx = pool.findIndex(u => starOf(u.name) <= starRemain() - reserve);
+    if (idx < 0) idx = pool.findIndex(u => starOf(u.name) <= starRemain());
+    if (idx < 0) break;
+    teamAdd(pool.splice(idx, 1)[0].name);
+  }
   saveFormation(); renderTeams();
 }
 
@@ -4659,9 +4681,15 @@ function randomFill() {
   const cap = modeTeamCap();
   const pool = S.units.filter(u => S.owned.includes(u.name) && !S.a.includes(u.name) &&
     !(S.support || []).includes(u.name));
-  while (teamCount() < cap && pool.length) {
-    const i = Math.floor(Math.random() * pool.length);
-    teamAdd(pool.splice(i, 1)[0].name);
+  while (teamCount() < cap) {
+    const reserve = Math.max(0, cap - teamCount() - 1);
+    let fit = pool.filter(u => starOf(u.name) <= starRemain() - reserve);
+    if (!fit.length) fit = pool.filter(u => starOf(u.name) <= starRemain());
+    if (!fit.length) break;
+    const i = Math.floor(Math.random() * fit.length);
+    const name = fit[i].name;
+    pool.splice(pool.indexOf(fit[i]), 1);
+    teamAdd(name);
   }
   saveFormation();
   renderTeams(); renderPool();
@@ -4708,8 +4736,12 @@ function smartFormation() {
     });
     return s;
   };
+  const picksStar = () => picks.reduce((sum, n) => sum + starOf(n), 0);
   while (picks.length < cap) {
-    let cands = pool.filter(u => !picks.includes(u.name));
+    const remain = starCap() - picksStar();
+    const reserve = Math.max(0, cap - picks.length - 1);
+    let cands = pool.filter(u => !picks.includes(u.name) && starOf(u.name) <= remain - reserve);
+    if (!cands.length) cands = pool.filter(u => !picks.includes(u.name) && starOf(u.name) <= remain);
     if (S.mode === 'trial' && S.trialData && S.trialData.req) {
       const req = S.trialData.req;
       const key = req.type === 'faction' ? 'faction' : 'troop';
@@ -4726,7 +4758,7 @@ function smartFormation() {
   saveFormation();
   autoSupport();
   renderTeams(); renderPool();
-  flash(`智能编队：${picks.join('、')}${S.support && S.support.length ? ` · 助阵 ${S.support.join('、')}` : ''}`);
+  flash(`智能编队：${picks.join('、')} · 星力 ${picksStar()}/${starCap()}${picks.length < cap ? '（受星力上限限制）' : ''}${S.support && S.support.length ? ` · 助阵 ${S.support.join('、')}` : ''}`);
 }
 
 function flash(msg) {
@@ -5243,6 +5275,7 @@ async function startBattle() {
   const isPersonal = S.mode === 'personal';
   const needA = modeNeedA();
   if (S.mode === 'none' || !S.b.length) { flash('请先在征战选择关卡'); showScreen('campaign'); return false; }
+  if (teamStar() > starCap()) { flash(`星力超限：${teamStar()}/${starCap()}，请下阵高星力武将`); return false; }
   if (teamCount() < needA) { flash(isSecret ? '秘境需要至少 3 名武将' : `请先编满 ${needA} 名武将`); return false; }
   if (isTrial) {
     const err = trialRuleError(S.a, S.trialData);
