@@ -49,17 +49,28 @@ def _apply_buffs(u, buffs):
     u._finalize()
 
 
+# 神器：基础属性 + 专属机制；精炼 0–5 星，每星基础属性 +30%
 ARTIFACT_EFFECTS = {
-    '青龙偃月刀': {'atk': 0.10},
-    '丈八蛇矛': {'crit': 0.08},
-    '方天画戟': {'atk': 0.06, 'crit_dmg': 0.15},
-    '八卦阵图': {'dr': 0.08},
-    '孙子兵法': {'strategy_dmg': 0.12},
-    '传国玉玺': {'hp': 0.15},
-    '诸葛连弩': {'speed': 0.08, 'pen': 0.06},
-    '青釭剑': {'crit': 0.10},
-    '古锭刀': {'lifesteal': 0.08},
-    '鹤氅': {'strategy_dmg': 0.10, 'dr': 0.04},
+    '青龙偃月刀': {'rarity': '绝世', 'stats': {'atk': 0.08}, 'special': 'first_crit',
+                 'desc': '武圣之刃：首击必定暴击，攻击大幅提升'},
+    '丈八蛇矛': {'rarity': '传奇', 'stats': {'crit': 0.06, 'hp': 0.08}, 'special': 'counter',
+               'desc': '燕人蛇矛：受击后反击渐强，兵力与暴击提升'},
+    '方天画戟': {'rarity': '绝世', 'stats': {'atk': 0.05, 'crit_dmg': 0.12}, 'special': 'kill_action',
+               'desc': '飞将之戟：击杀后立刻再次行动'},
+    '八卦阵图': {'rarity': '传奇', 'stats': {'dr': 0.06}, 'special': 'shield',
+               'desc': '八阵图：开战全军获得护盾'},
+    '孙子兵法': {'rarity': '绝世', 'stats': {'strategy_dmg': 0.10}, 'special': 'strat_ramp',
+               'desc': '兵家至圣：策略伤害逐回合提升'},
+    '传国玉玺': {'rarity': '传奇', 'stats': {'hp': 0.12}, 'special': 'rage',
+               'desc': '受命于天：每回合开始回复怒气'},
+    '诸葛连弩': {'rarity': '传奇', 'stats': {'speed': 0.06, 'pen': 0.04}, 'special': 'chase',
+               'desc': '元戎连弩：普攻有概率追加一击'},
+    '青釭剑': {'rarity': '传奇', 'stats': {'crit': 0.08}, 'special': 'pen',
+             'desc': '削铁如泥：攻击附带穿透'},
+    '古锭刀': {'rarity': '精良', 'stats': {'lifesteal': 0.06}, 'special': 'drain',
+             'desc': '古锭刀：造成伤害时吸取兵力'},
+    '鹤氅': {'rarity': '精良', 'stats': {'strategy_dmg': 0.06, 'dr': 0.03}, 'special': 'regen',
+           'desc': '仙风鹤氅：每回合回复兵力'},
 }
 
 
@@ -242,6 +253,8 @@ def apply_bond(u, bond):
         u.first_round_speed += 0.15
     elif eff == 'strat_ramp':
         u.team_strat_ramp = (0.06, 0.30)
+    elif eff == 'drain':
+        u.perm['lifesteal'] += 0.05
 
 
 def _apply_bonds(u, bonds):
@@ -257,7 +270,7 @@ def _apply_progress(u, prog):
         if typ not in u.skills or typ in ('特色', '被动'):
             continue
         try:
-            lv = max(1, min(11, int(lv)))
+            lv = max(1, min(15, int(lv)))
         except Exception:
             continue
         sk = dict(u.skills[typ])
@@ -279,16 +292,17 @@ def _apply_progress(u, prog):
     levels = []
     for slot in slots:
         try:
-            levels.append(max(0, min(5, int(eq.get(slot, 0)))))
+            levels.append(max(0, min(8, int(eq.get(slot, 0)))))
         except Exception:
             levels.append(0)
     total = sum(levels)
     try:
-        bt = max(0, min(5, int(prog.get('bt', 0) or 0)))
-        aw = max(0, min(6, int(prog.get('aw', 0) or 0)))
+        bt = max(0, min(8, int(prog.get('bt', 0) or 0)))
+        aw = max(0, min(10, int(prog.get('aw', 0) or 0)))
+        star = max(0, min(6, int(prog.get('star', 0) or 0)))
     except Exception:
-        bt = aw = 0
-    mult = (1 + 0.02 * total + (0.15 if all(x > 0 for x in levels) else 0)) * (1 + 0.08 * bt) * (1 + 0.05 * aw)
+        bt = aw = star = 0
+    mult = 1 + 0.02 * total + (0.15 if all(x > 0 for x in levels) else 0) + 0.06 * bt + 0.04 * aw + 0.03 * star
     if mult != 1:
         for k in core.SIX:
             u.stats[k] *= mult
@@ -332,8 +346,18 @@ def _apply_progress(u, prog):
         apply_stratagem(u, tb['strat'], tb.get('tier', 1))
     eff = ARTIFACT_EFFECTS.get(prog.get('artifact'))
     if eff:
-        for k, val in eff.items():
-            u.perm[k] += val
+        try:
+            alv = max(0, min(5, int(prog.get('artifactLv', 0) or 0)))
+        except Exception:
+            alv = 0
+        scale = 1 + 0.30 * alv
+        for k, val in (eff.get('stats') or {}).items():
+            u.perm[k] += val * scale
+        apply_bond(u, {'effect': eff.get('special')})
+        if alv >= 3:
+            u.perm['dr'] += 0.03
+        if alv >= 5:
+            u.perm['atk'] += 0.05
     # 章节秘宝（装备位）：固定属性 + 附加机制
     rel = prog.get('relic')
     if isinstance(rel, dict):

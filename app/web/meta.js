@@ -54,7 +54,7 @@ const DAILY_TASKS = [
   { id: 'd_recruit', title: '招贤纳士', desc: '招募 3 次', key: 'recruit', need: 3, reward: { '兵书': 60 } },
   { id: 'd_upgrade', title: '精益求精', desc: '强化 3 次', key: 'upgrade', need: 3, reward: { '将魂': 60 } },
   { id: 'd_tower', title: '登塔试炼', desc: '挑战将星塔 1 次', key: 'tower', need: 1, reward: { '塔币': 300 } },
-  { id: 'd_encounter', title: '江湖奇遇', desc: '触发 1 次奇遇', key: 'encounter', need: 1, reward: { '神器碎片': 5 } },
+  { id: 'd_encounter', title: '江湖奇遇', desc: '触发 1 次奇遇', key: 'encounter', need: 1, reward: { '神器碎片': 2 } },
 ];
 const ENCOUNTERS = [
   { title: '山中隐士', text: '山道尽头，一位白发老者正在煮茶。他抬眼看你，说你的军阵杀气太重。', choices: [
@@ -88,6 +88,34 @@ const ENCOUNTERS = [
     { label: '迎战', text: '你杀散山贼，缴获了他们的存粮。', effect: { '铜钱': 7000 }, risk: { chance: 0.4, text: '山贼人多势众，你突围时损失了一些军资。', effect: { '铜钱': -3000 } } },
     { label: '买路', text: '你丢下买路钱，山贼让开道路。', effect: { '铜钱': -3000 } },
     { label: '绕路', text: '你绕行半日，人马疲惫。', effect: { 'stamina': -10 } } ] },
+  { title: '黄巾符水', text: '道旁跪着一片黄巾信众，老巫祝捧起一碗符水，说饮下便可刀枪不入。队伍里已有人伸手去接。', choices: [
+    { label: '当众揭穿', text: '你摔碎陶碗，符水泼在土里，只浮起一层草灰。信众散去，几名青壮却留了下来。', effect: { '将魂': 30, '兵书': 10 } },
+    { label: '分水解渴', text: '你没有戳破，只把水让给渴极的人。夜里营中无人得病。', effect: { '铜钱': 3000, '将魂': 10 } },
+    { label: '拔刀驱散', text: '刀光一起，人群四散。你得了清静，也失了人心。', effect: { '铜钱': 1500 }, risk: { chance: 0.35, text: '溃散的信众踩踏营帐，损失了一些军资。', effect: { '铜钱': -2500 } } } ] },
+  { title: '温酒未凉', text: '酒肆里，一名红脸长髯的汉子把酒杯推到你面前：酒还温着，某去去便回。', choices: [
+    { label: '为他斟满', text: '他提刀出门，片刻后提着一颗首级回来，酒尚温。', effect: { '招贤令': 1, '将魂': 25 } },
+    { label: '劝他少饮', text: '他大笑三声，把酒留给你，独自策马而去。', effect: { '兵书': 20, '铜钱': 2000 } } ] },
+  { title: '铜雀春深', text: '高台之上传来丝竹，几名歌姬被锁在偏院，说是在等一位不会再来的主人。', choices: [
+    { label: '放她们归乡', text: '她们把随身的金钗塞给你，转身跑进夜色。', effect: { '铜钱': 4000, '金符': 1 } },
+    { label: '打听旧事', text: '一名老乐师告诉你许多许都旧事，也交出一卷残谱。', effect: { 'randomSkillBook': 1 } },
+    { label: '原路退出', text: '你没有惊动任何人。', effect: {} } ] },
+  { title: '木牛流马', text: '山坳里，一名工匠正对着一具木制牛马发愁。榫卯差了一线，怎么都走不起来。', choices: [
+    { label: '资助图纸', text: '工匠修好机关，把备用图样赠你。', effect: { '图纸': 4, '玄铁': 4 } },
+    { label: '拆开研究', text: '你拆解机关，虽未能复原，却得了些精铁。', effect: { '玄铁': 6 }, risk: { chance: 0.3, text: '机关突然弹开，伤了两名随从。', effect: { '将魂': -10 } } },
+    { label: '帮他推一程', text: '木牛终于走动，工匠千恩万谢。', effect: { '铜钱': 2500, '兵书': 10 } } ] },
+  { title: '华容泥泞', text: '泥泞小道上，一队败兵互相搀扶。为首的将领抬头看你，没有求饶，也没有拔刀。', choices: [
+    { label: '放他们过去', text: '他抱拳一礼，从怀里取出一枚旧印。', effect: { '将魂': 40, '金符': 1 } },
+    { label: '追击败军', text: '你收拢了散落的辎重，也背上了追杀败兵的恶名。', effect: { '铜钱': 6000 }, risk: { chance: 0.4, text: '败兵困兽犹斗，你的人也折损不少。', effect: { '将魂': -15 } } } ] },
+  { title: '桃园旧誓', text: '荒废的桃园里，三只酒碗还摆在石桌上，酒早已干涸。', choices: [
+    { label: '重新斟满', text: '你独自饮尽三碗。风吹花落，像有人在应。', effect: { '招贤令': 2, '将魂': 20 } },
+    { label: '折一枝桃枝', text: '你把花枝插在营门前，士卒看了许久。', effect: { '兵书': 15, '铜钱': 2000 } } ] },
+  { title: '左慈幻术', text: '一名跛足道人拦住你，袖中忽然飞出一尾活鱼，落在干裂的地上。', choices: [
+    { label: '请他入营', text: '道人教你一套吐纳之法，便化作青烟不见了。', effect: { 'randomTactic': 1 } },
+    { label: '拔剑破幻', text: '剑锋穿影而过，地上只剩一片湿痕，剑锋却开了刃。', effect: { '玄铁': 5 }, risk: { chance: 0.35, text: '幻境反噬，你头痛欲裂，醒来时已过了一日。', effect: { 'stamina': -15 } } } ] },
+  { title: '许都粮价', text: '粮商把米价压得很低，仓里却堆满新谷。城外流民越来越多。', choices: [
+    { label: '按市价收粮', text: '你低价收了粮，粮商笑得很勉强。', effect: { '铜钱': 3000, '兵书': 10 } },
+    { label: '开仓放粮', text: '流民中有人叩谢，有人默默跟上你的队伍。', effect: { '将魂': 35, '铜钱': -3000 } },
+    { label: '查粮仓账', text: '你翻出囤积的账册，粮商连夜送来赔礼。', effect: { '铜钱': 7000 }, risk: { chance: 0.3, text: '粮商背后有人撑腰，你反被参了一本。', effect: { '铜钱': -2000 } } } ] },
 ];
 /* ===== 章节秘宝 / 将星印记 / 章节悬赏 ===== */
 const STAT_LABEL = {
@@ -488,7 +516,7 @@ function taskBump(key, n = 1) {
 function grantItems(obj) {
   for (const [k, v] of Object.entries(obj || {})) {
     if (k === 'randomSkillBook' || k === 'randomTactic') continue;
-    if (k === 'stamina') { S.stamina.value = Math.min(STAMINA_MAX, Math.max(0, (S.stamina.value || 0) + v)); saveStamina(); renderStamina(); continue; }
+    if (k === 'stamina') { S.stamina.value = Math.min(staminaCap(), Math.max(0, (S.stamina.value || 0) + v)); saveStamina(); renderStamina(); continue; }
     S.inventory[k] = Math.max(0, (S.inventory[k] || 0) + v);
   }
   if (obj && obj.randomSkillBook) {
@@ -884,6 +912,17 @@ function finishTutorial() {
   $('#tutorial').hidden = true;
 }
 let PENDING_ENC = false, CURRENT_ENC = null;
+function encEffectText(e) {
+  const out = [];
+  for (const [k, v] of Object.entries(e || {})) {
+    if (!v) continue;
+    if (k === 'randomSkillBook') out.push('随机技能书 ×1');
+    else if (k === 'randomTactic') out.push('随机战法书 ×1');
+    else if (k === 'stamina') out.push(`体力 ${v > 0 ? '+' : ''}${v}`);
+    else out.push(`${k} ${v > 0 ? '+' : ''}${v}`);
+  }
+  return out.length ? out.join('、') : '无所得';
+}
 function maybeEncounterAfterWin() {
   if (Math.random() >= 0.15) return;
   PENDING_ENC = true;
@@ -897,9 +936,11 @@ function openEncounter() {
   $('#encounterTitle').textContent = `奇遇 · ${CURRENT_ENC.title}`;
   $('#encounterText').textContent = CURRENT_ENC.text;
   $('#encounterChoices').innerHTML = CURRENT_ENC.choices.map((c, i) =>
-    `<button class="enc-choice" data-i="${i}">${esc(c.label)}</button>`).join('');
+    `<button class="enc-choice" data-i="${i}"><b>${esc(c.label)}</b><em>${esc(encEffectText(c.effect))}${c.risk ? ' · 有风险' : ''}</em></button>`).join('');
   $('#encounterChoices').querySelectorAll('.enc-choice').forEach(b2 => b2.onclick = () => chooseEncounter(Number(b2.dataset.i)));
   $('#encounterClose').hidden = true;
+  const gain0 = $('#encounterGain');
+  if (gain0) { gain0.hidden = true; gain0.innerHTML = ''; }
   $('#encounter').hidden = false;
 }
 function chooseEncounter(i) {
@@ -910,6 +951,11 @@ function chooseEncounter(i) {
   grantItems(out.effect);
   taskBump('encounter');
   $('#encounterText').textContent = out.text;
+  const gain = $('#encounterGain');
+  if (gain) {
+    gain.innerHTML = `<b>${out === c.risk ? '遭遇变故' : '此行所得'}</b><span>${esc(encEffectText(out.effect))}</span>`;
+    gain.hidden = false;
+  }
   $('#encounterChoices').innerHTML = '';
   $('#encounterClose').hidden = false;
 }

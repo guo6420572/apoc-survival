@@ -19,11 +19,16 @@ const NEWBIE_REWARDS = [
 ];
 /* 技能书 / 战法书 / 神器 */
 const ARTIFACTS = {
-  '青龙偃月刀': { atk: 0.10 }, '丈八蛇矛': { crit: 0.08 },
-  '方天画戟': { atk: 0.06, crit_dmg: 0.15 }, '八卦阵图': { dr: 0.08 },
-  '孙子兵法': { strategy_dmg: 0.12 }, '传国玉玺': { hp: 0.15 },
-  '诸葛连弩': { speed: 0.08, pen: 0.06 }, '青釭剑': { crit: 0.10 },
-  '古锭刀': { lifesteal: 0.08 }, '鹤氅': { strategy_dmg: 0.10, dr: 0.04 },
+  '青龙偃月刀': { rarity: '绝世', stats: { atk: 0.08 }, special: 'first_crit', desc: '武圣之刃：首击必定暴击，攻击大幅提升' },
+  '丈八蛇矛': { rarity: '传奇', stats: { crit: 0.06, hp: 0.08 }, special: 'counter', desc: '燕人蛇矛：受击后反击渐强，兵力与暴击提升' },
+  '方天画戟': { rarity: '绝世', stats: { atk: 0.05, crit_dmg: 0.12 }, special: 'kill_action', desc: '飞将之戟：击杀后立刻再次行动' },
+  '八卦阵图': { rarity: '传奇', stats: { dr: 0.06 }, special: 'shield', desc: '八阵图：开战全军获得护盾' },
+  '孙子兵法': { rarity: '绝世', stats: { strategy_dmg: 0.10 }, special: 'strat_ramp', desc: '兵家至圣：策略伤害逐回合提升' },
+  '传国玉玺': { rarity: '传奇', stats: { hp: 0.12 }, special: 'rage', desc: '受命于天：每回合开始回复怒气' },
+  '诸葛连弩': { rarity: '传奇', stats: { speed: 0.06, pen: 0.04 }, special: 'chase', desc: '元戎连弩：普攻有概率追加一击' },
+  '青釭剑': { rarity: '传奇', stats: { crit: 0.08 }, special: 'pen', desc: '削铁如泥：攻击附带穿透' },
+  '古锭刀': { rarity: '精良', stats: { lifesteal: 0.06 }, special: 'drain', desc: '古锭刀：造成伤害时吸取兵力' },
+  '鹤氅': { rarity: '精良', stats: { strategy_dmg: 0.06, dr: 0.03 }, special: 'regen', desc: '仙风鹤氅：每回合回复兵力' },
 };
 const STAT_NAMES = { atk: '攻击', crit: '暴击率', crit_dmg: '暴伤', dr: '减伤', hp: '兵力', strategy_dmg: '策略伤害',
   heal: '治疗', speed: '速度', effect_hit: '效果命中', lifesteal: '吸血', dodge: '闪避', pen: '穿透' };
@@ -173,7 +178,8 @@ function itemDesc(type, key) {
   if (type === 'skillBook') return skillBookInfo(key).desc;
   if (type === 'tacticBook') return tacticBookInfo(key).desc;
   if (type === 'relic') return relicDesc(key);
-  return effLabel(ARTIFACTS[key] || {});
+  const a = ARTIFACTS[key] || {};
+  return (effLabel(a.stats || {}) + (a.desc ? ' · ' + a.desc : '')) || '神器';
 }
 const S = {
   units: [], by: {}, a: [], b: [], target: 'a',
@@ -188,7 +194,7 @@ const S = {
   started: false, screen: 'campaign', codexFaction: '全部', codexRarity: '全部', codexSearch: '',
   inventory: { ...START_RES },
   stamina: { value: STAMINA_START, last: Date.now(), claimDate: '', claims: [false, false] },
-  newbie: null, codexGift: [],
+  newbie: null, codexGift: [], artifactLv: {},
   dungeons: [], secretFloors: [], ancient: [], secret: { active: false, floor: 1, buffs: [], needBlessing: false, node: null, shopBought: false, temp: [], relics: [], used: {}, map: null, mapPos: { layer: -1, index: -1 }, nodeLayer: 0, nodeIndex: 0, activeShop: null, pendingNode: null },
   season: { claimed: [], points: 0, tierClaimed: [], weekly: { week: '', counters: {}, claimed: [] }, titles: [], frame: false, no: 0, ancientCleared: false }, dungeonData: null, ancientData: null, secretData: null,
   ancientRun: null, ancientPhase: 1, affinity: {}, personalData: null, personalName: null, eggClicks: {},
@@ -268,7 +274,8 @@ function loadFormation() {
     const f = JSON.parse(localStorage.getItem('sg_formation') || 'null');
     if (!f) return;
     const capA = f.mode === 'ancient' ? 8 : 5;
-    S.a = (Array.isArray(f.a) ? f.a : []).filter(n => S.owned.includes(n)).slice(0, capA);
+    S.a = (Array.isArray(f.a) ? f.a : []).slice(0, capA).map(n => (n && S.owned.includes(n)) ? n : null);
+    while (S.a.length < capA) S.a.push(null);
     S.support = (Array.isArray(f.support) ? f.support : [])
       .filter(n => S.owned.includes(n) && !S.a.includes(n)).slice(0, 3);
     S.b = (Array.isArray(f.b) ? f.b : []).slice(0, 5);
@@ -301,6 +308,27 @@ function loadCodexGift() {
   catch (e) { S.codexGift = []; }
 }
 function saveCodexGift() { localStorage.setItem('sg_codexgift', JSON.stringify(S.codexGift || [])); }
+function loadArtifactLv() {
+  try { S.artifactLv = JSON.parse(localStorage.getItem('sg_artifacts') || '{}') || {}; }
+  catch (e) { S.artifactLv = {}; }
+}
+function saveArtifactLv() { localStorage.setItem('sg_artifacts', JSON.stringify(S.artifactLv || {})); }
+function artifactLevel(name) { return Math.max(0, Math.min(5, Number((S.artifactLv || {})[name] || 0))); }
+function artifactRefineCost(name) {
+  const lv = artifactLevel(name);
+  return { 神兵: 4 + 4 * lv, 神器碎片: 2 + 2 * lv, 铜钱: 8000 + 8000 * lv };
+}
+function refineArtifact(name) {
+  if (!ARTIFACTS[name]) return;
+  const lv = artifactLevel(name);
+  if (lv >= 5) { flash('神器已满星'); return; }
+  const cost = artifactRefineCost(name);
+  for (const k in cost) if ((S.inventory[k] || 0) < cost[k]) { flash(`${k}不足`); return; }
+  for (const k in cost) S.inventory[k] -= cost[k];
+  S.artifactLv[name] = lv + 1;
+  saveArtifactLv(); saveInventory(); renderWallet(); renderBag();
+  flash(`${name} 精炼至 ${lv + 1} 星`);
+}
 function claimCodexGift(name, quiet) {
   if (!name) return false;
   if (!Array.isArray(S.codexGift)) S.codexGift = [];
@@ -787,7 +815,7 @@ function claimAllWorldBossTiers() {
 function challengeWorldBoss() {
   const d = S.worldBossData;
   if (!d) { flash('世界首领数据载入中'); return; }
-  if (S.a.length < 5) { flash('世界首领需要 5 人编队'); return; }
+  if (teamCount() < 5) { flash('世界首领需要 5 人编队'); return; }
   S.mode = 'worldboss';
   S.levelData = null; S.levelId = null;
   S.towerData = null; S.dungeonData = null; S.ancientData = null; S.secretData = null; S.trialData = null;
@@ -832,8 +860,8 @@ function renderWorldBoss() {
   }).join('')}</div>`;
   tiers.querySelectorAll('[data-wbtier]').forEach(b => { b.onclick = () => claimWorldBossTier(Number(b.dataset.wbtier)); });
   const wbAll = $('#wbClaimAll'); if (wbAll) wbAll.onclick = claimAllWorldBossTiers;
-  btn.disabled = S.a.length < 5;
-  btn.textContent = S.a.length < 5 ? '需要 5 人编队' : `讨伐 ${d.boss}（体力 10）`;
+  btn.disabled = teamCount() < 5;
+  btn.textContent = teamCount() < 5 ? '需要 5 人编队' : `讨伐 ${d.boss}（体力 10）`;
   btn.onclick = challengeWorldBoss;
 }
 
@@ -991,6 +1019,21 @@ function loadShopStock() {
   catch (e) { S.shopStock = {}; }
 }
 function saveShopStock() { localStorage.setItem('sg_shop', JSON.stringify(S.shopStock)); }
+function teamActive() { return (S.a || []).filter(Boolean); }
+function teamCount() { return teamActive().length; }
+function ensureTeamSlots() {
+  const cap = modeTeamCap();
+  if (!Array.isArray(S.a)) S.a = [];
+  while (S.a.length < cap) S.a.push(null);
+  if (S.a.length > cap) S.a = S.a.slice(0, cap);
+}
+function teamAdd(name) {
+  ensureTeamSlots();
+  for (let i = 0; i < S.a.length; i++) {
+    if (!S.a[i]) { S.a[i] = name; return true; }
+  }
+  return false;
+}
 function saveFormation() {
   localStorage.setItem('sg_formation', JSON.stringify({
     a: S.a, b: S.b, support: S.support || [], levelId: S.levelId, mode: S.mode, config: S.config
@@ -998,7 +1041,7 @@ function saveFormation() {
 }
 /* ---------------- 羁绊 2.0：上阵 + 助阵共同判定 ---------------- */
 function bondHave(def) {
-  const have = new Set([...(S.a || []), ...(S.support || [])]);
+  const have = new Set([...teamActive(), ...(S.support || [])]);
   return (def.members || []).filter(m => have.has(m)).length;
 }
 function bondIsActive(def) { return bondHave(def) >= def.need; }
@@ -1107,6 +1150,7 @@ function renderSupport() {
 /* ---------------- 每日 / 每周试炼 ---------------- */
 function trialRuleError(team, t) {
   if (!t) return '试炼数据缺失';
+  team = (team || []).filter(Boolean);
   if (team.length !== t.size) return `需要 ${t.size} 人上阵`;
   const req = t.req;
   if (req) {
@@ -1710,7 +1754,7 @@ function equipSetText(set) {
 }
 function rerollEquipAffixes(name, slot) {
   const p = unitProg(name);
-  const lv = Math.max(0, Math.min(5, p.equip[slot] || 0));
+  const lv = Math.max(0, Math.min(8, p.equip[slot] || 0));
   if (!lv) { flash('先升级该装备'); return; }
   const cost = 10;
   if ((S.inventory['玄铁'] || 0) < cost) { flash('玄铁不足（洗练需 10）'); return; }
@@ -1783,7 +1827,7 @@ function renderDetailSlots(name) {
   const p = unitProg(name);
   const row = (label, type, unlocked, lockText) => {
     const val = p[type];
-    const eff = val ? itemDesc(type, val) : '';
+    const eff = val ? itemDesc(type, val) + (type === 'artifact' ? ` · ${artifactLevel(val)}★` : '') : '';
     return `<div class="slot-row"><b>${label}</b>
       <span>${unlocked ? (val ? `${esc(val)}${eff ? `（${eff}）` : ''}` : '未装备') : lockText}</span>
       ${unlocked ? `<button class="mini" onclick="openItemPicker('${esc(name)}','${type}')">${val ? '更换' : '装备'}</button>` : ''}
@@ -1798,8 +1842,8 @@ function renderDetailSlots(name) {
         <span>${esc(effLabel(s.stats))}${s.special ? ' · ' + esc(specialName(s.special)) : ''}${s.desc ? ' · ' + esc(s.desc) : ''}</span></div>`).join('')
     : '<div class="dl">将星印记</div><div class="row">尚无印记。通关每章第 10 关可获得永久增幅。</div>';
   box.innerHTML = `<div class="dl">装备栏</div>
-    ${row('技能栏', 'skillBook', (p.bt || 0) >= 5, `突破至 5 段解锁（当前 ${p.bt || 0}/5）`)}
-    ${row('战法栏', 'tacticBook', (p.aw || 0) >= 6, `觉醒至 6 星解锁（当前 ${p.aw || 0}/6）`)}
+    ${row('技能栏', 'skillBook', (p.bt || 0) >= 5, `突破至 5 段解锁（当前 ${p.bt || 0}/8）`)}
+    ${row('战法栏', 'tacticBook', (p.aw || 0) >= 6, `觉醒至 6 星解锁（当前 ${p.aw || 0}/10）`)}
     ${row('神器栏', 'artifact', true, '')}
     ${row('秘宝栏', 'relic', true, '')}
     ${sigilHtml}`;
@@ -1914,7 +1958,7 @@ function decomposeCore(name) {
     }
   }
   S.owned = S.owned.filter(n => n !== name);
-  S.a = S.a.filter(n => n !== name);
+  S.a = (S.a || []).map(n => n === name ? null : n);
   if (S.support) S.support = S.support.filter(n => n !== name);
   delete S.unitProgress[name];
   const book = `战法书·${tier}阶·${strat}`;
@@ -1993,7 +2037,7 @@ function upgradeTacticBook(key) {
 }
 
 function synthesizeArtifact() {
-  if ((S.inventory['神器碎片'] || 0) < 10) { flash('需要 10 个神器碎片'); return; }
+  if ((S.inventory['神器碎片'] || 0) < 20) { flash('需要 20 个神器碎片'); return; }
   const keys = Object.keys(ARTIFACTS);
   const item = keys[Math.floor(Math.random() * keys.length)];
   S.inventory['神器碎片'] -= 10;
@@ -2036,13 +2080,13 @@ function renderGrowth() {
   skills.forEach(t => {
     if (!u.skills || !u.skills[t]) return;
     const sk = u.skills[t];
-    const lv = Math.max(1, Math.min(11, p.skills[t] || 1));
+    const lv = Math.max(1, Math.min(15, p.skills[t] || 1));
     const row = document.createElement('div'); row.className = 'grow-row';
     if (t === '特色' || t === '被动') {
       row.innerHTML = `<span class="gn">${esc(sk.name)}</span><span class="gl">—</span><span class="gc">${t}不可升级</span>`;
     } else {
       const cost = 10 + 5 * (lv - 1);
-      const max = lv >= 11;
+      const max = lv >= 15;
       let eff = sk.mult || '—';
       const base = parseFloat(String(sk.mult || '').replace('%', ''));
       if (!isNaN(base) && lv > 1) eff = `${Math.round(base * (1 + 0.06 * (lv - 1)))}%`;
@@ -2061,10 +2105,10 @@ function renderGrowth() {
   const slots = ['武器', '甲胄', '坐骑', '兵符'];
   let total = 0, all = true;
   slots.forEach(slot => {
-    const lv = Math.max(0, Math.min(5, p.equip[slot] || 0));
+    const lv = Math.max(0, Math.min(8, p.equip[slot] || 0));
     total += lv; if (!lv) all = false;
     const costT = 1 + lv, costX = 1 + lv;
-    const max = lv >= 5;
+    const max = lv >= 8;
     const row = document.createElement('div'); row.className = 'grow-row';
     row.innerHTML = `<span class="gn">${slot}</span><span class="gl">Lv${lv}</span>
       <span class="gc">${max ? '已满' : `升级 图纸${costT} + 玄铁${costX}`}</span>`;
@@ -2095,27 +2139,37 @@ function renderGrowth() {
   const sel = setRow.querySelector('#growthSetSel');
   if (sel) sel.onchange = () => setEquipSet(u.name, sel.value);
   const adv = $('#growthAdvance');
-  const bt = Math.max(0, Math.min(5, p.bt || 0));
-  const aw = Math.max(0, Math.min(6, p.aw || 0));
+  const bt = Math.max(0, Math.min(8, p.bt || 0));
+  const aw = Math.max(0, Math.min(10, p.aw || 0));
+  const star = Math.max(0, Math.min(6, p.star || 0));
   const costB = 20 + 20 * bt, costMoney = 5000 + 5000 * bt;
   const costSoul = 20 + 20 * aw;
   adv.innerHTML = '<div class="grow-title">突破 / 觉醒</div>';
   const row1 = document.createElement('div'); row1.className = 'grow-row';
-  row1.innerHTML = `<span class="gn">突破</span><span class="gl">${bt}/5</span>
-    <span class="gc">${bt >= 5 ? '已满 · 全属性 +40%' : `+8% · 消耗 魂石${costB} + 铜钱${costMoney}`}</span>`;
+  row1.innerHTML = `<span class="gn">突破</span><span class="gl">${bt}/8</span>
+    <span class="gc">${bt >= 8 ? '已满 · 全属性 +48%' : `+6% · 消耗 魂石${costB} + 铜钱${costMoney}`}</span>`;
   const b1 = document.createElement('button');
-  b1.textContent = bt >= 5 ? '满级' : '突破';
-  b1.disabled = bt >= 5 || (S.inventory['魂石'] || 0) < costB || (S.inventory['铜钱'] || 0) < costMoney;
+  b1.textContent = bt >= 8 ? '满级' : '突破';
+  b1.disabled = bt >= 8 || (S.inventory['魂石'] || 0) < costB || (S.inventory['铜钱'] || 0) < costMoney;
   b1.onclick = () => upgradeBreakthrough(u.name);
   row1.appendChild(b1); adv.appendChild(row1);
   const row2 = document.createElement('div'); row2.className = 'grow-row';
-  row2.innerHTML = `<span class="gn">觉醒</span><span class="gl">${aw}/6</span>
-    <span class="gc">${aw >= 6 ? '已满 · 全属性 +30%' : `+5% · 消耗 将魂${costSoul}`}</span>`;
+  row2.innerHTML = `<span class="gn">觉醒</span><span class="gl">${aw}/10</span>
+    <span class="gc">${aw >= 10 ? '已满 · 全属性 +40%' : `+4% · 消耗 将魂${costSoul}`}</span>`;
   const b2 = document.createElement('button');
-  b2.textContent = aw >= 6 ? '满级' : '觉醒';
-  b2.disabled = aw >= 6 || (S.inventory['将魂'] || 0) < costSoul;
+  b2.textContent = aw >= 10 ? '满级' : '觉醒';
+  b2.disabled = aw >= 10 || (S.inventory['将魂'] || 0) < costSoul;
   b2.onclick = () => upgradeAwaken(u.name);
   row2.appendChild(b2); adv.appendChild(row2);
+  const costStarS = 4 + 4 * star, costStarF = 2 + 2 * star, costStarM = 8000 + 8000 * star;
+  const row3 = document.createElement('div'); row3.className = 'grow-row';
+  row3.innerHTML = `<span class="gn">将星</span><span class="gl">${star}/6</span>
+    <span class="gc">${star >= 6 ? '已满 · 全属性 +18%' : `+3% · 消耗 神兵${costStarS} + 碎片${costStarF} + 铜钱${costStarM}`}</span>`;
+  const b3 = document.createElement('button');
+  b3.textContent = star >= 6 ? '满级' : '升阶';
+  b3.disabled = star >= 6 || (S.inventory['神兵'] || 0) < costStarS || (S.inventory['神器碎片'] || 0) < costStarF || (S.inventory['铜钱'] || 0) < costStarM;
+  b3.onclick = () => upgradeStar(u.name);
+  row3.appendChild(b3); adv.appendChild(row3);
   adv.insertAdjacentHTML('beforeend', '<div class="grow-title">觉醒分支</div>');
   if (aw >= 6) {
     branchChoicesFor(u.name).forEach(id => {
@@ -2137,13 +2191,13 @@ function renderGrowth() {
   } else {
     adv.insertAdjacentHTML('beforeend', '<div class="branch-hint">觉醒满 6 星后解锁觉醒分支（二选一）。</div>');
   }
-  $('#growthSet').textContent = `装备 +${total * 2}%${all ? ' · 四件套+15%' : ''} · ${set.name}${pieces}件 · 突破+${bt * 8}% · 觉醒+${aw * 5}%`;
-  $('#growthHint').textContent = '技能=兵书；装备=图纸+玄铁；洗练词条=玄铁10；突破=魂石+铜钱；觉醒=将魂。技能书/战法书/神器/秘宝在「武将详情 → 装备栏」装备。';
+  $('#growthSet').textContent = `装备 +${total * 2}%${all ? ' · 四件套+15%' : ''} · ${set.name}${pieces}件 · 突破+${bt * 6}% · 觉醒+${aw * 4}% · 将星+${star * 3}%`;
+  $('#growthHint').textContent = '技能=兵书（15级）；装备=图纸+玄铁（8级）；洗练=玄铁10；突破=魂石+铜钱（8段）；觉醒=将魂（10星）；将星=神兵+碎片+铜钱（6阶）。技能书/战法书/神器/秘宝在「武将详情 → 装备栏」装备。';
 }
 function upgradeSkill(name, type) {
   const p = unitProg(name);
   const lv = Math.max(1, Math.min(11, p.skills[type] || 1));
-  if (lv >= 11) return;
+  if (lv >= 15) return;
   const cost = 10 + 5 * (lv - 1);
   if ((S.inventory['兵书'] || 0) < cost) { flash('兵书不足'); return; }
   S.inventory['兵书'] -= cost;
@@ -2153,8 +2207,8 @@ function upgradeSkill(name, type) {
 }
 function upgradeEquip(name, slot) {
   const p = unitProg(name);
-  const lv = Math.max(0, Math.min(5, p.equip[slot] || 0));
-  if (lv >= 5) return;
+  const lv = Math.max(0, Math.min(8, p.equip[slot] || 0));
+  if (lv >= 8) return;
   const ct = 1 + lv, cx = 1 + lv;
   if ((S.inventory['图纸'] || 0) < ct || (S.inventory['玄铁'] || 0) < cx) { flash('图纸或玄铁不足'); return; }
   S.inventory['图纸'] -= ct; S.inventory['玄铁'] -= cx;
@@ -2165,8 +2219,8 @@ function upgradeEquip(name, slot) {
 }
 function upgradeBreakthrough(name) {
   const p = unitProg(name);
-  const lv = Math.max(0, Math.min(5, p.bt || 0));
-  if (lv >= 5) return;
+  const lv = Math.max(0, Math.min(8, p.bt || 0));
+  if (lv >= 8) return;
   const costB = 20 + 20 * lv, costMoney = 5000 + 5000 * lv;
   if ((S.inventory['魂石'] || 0) < costB || (S.inventory['铜钱'] || 0) < costMoney) { flash('魂石或铜钱不足'); return; }
   S.inventory['魂石'] -= costB; S.inventory['铜钱'] -= costMoney;
@@ -2176,14 +2230,25 @@ function upgradeBreakthrough(name) {
 }
 function upgradeAwaken(name) {
   const p = unitProg(name);
-  const lv = Math.max(0, Math.min(6, p.aw || 0));
-  if (lv >= 6) return;
+  const lv = Math.max(0, Math.min(10, p.aw || 0));
+  if (lv >= 10) return;
   const cost = 20 + 20 * lv;
   if ((S.inventory['将魂'] || 0) < cost) { flash('将魂不足'); return; }
   S.inventory['将魂'] -= cost;
   p.aw = lv + 1;
   saveInventory(); saveUnitProgress(); renderWallet(); renderGrowth(); taskBump('upgrade');
   flash(`${name} 觉醒到 ${lv + 1} 星`);
+}
+function upgradeStar(name) {
+  const p = unitProg(name);
+  const lv = Math.max(0, Math.min(6, p.star || 0));
+  if (lv >= 6) return;
+  const costS = 4 + 4 * lv, costF = 2 + 2 * lv, costM = 8000 + 8000 * lv;
+  if ((S.inventory['神兵'] || 0) < costS || (S.inventory['神器碎片'] || 0) < costF || (S.inventory['铜钱'] || 0) < costM) { flash('神兵、碎片或铜钱不足'); return; }
+  S.inventory['神兵'] -= costS; S.inventory['神器碎片'] -= costF; S.inventory['铜钱'] -= costM;
+  p.star = lv + 1;
+  saveInventory(); saveUnitProgress(); renderWallet(); renderGrowth(); taskBump('upgrade');
+  flash(`${name} 将星升到 ${lv + 1} 阶`);
 }
 const RES_ICON = {'铜钱':'钱','兵书':'书','将魂':'魂','魂石':'石','图纸':'图','玄铁':'铁','招贤令':'令','金符':'符','塔币':'塔','秘境币':'境','神兵':'兵','上古钥匙':'钥'};
 function openRes(k) {
@@ -2407,20 +2472,20 @@ function sweepEligible(t) {
   if (t.mode === 'dungeon') {
     if (!t.d) return '副本不存在';
     if (!S.clears['dungeon:' + t.d.id]) return '首次通关后可扫荡';
-    if ((S.a || []).length < 5) return '副本需要 5 人编队';
+    if (teamCount() < 5) return '副本需要 5 人编队';
   }
   if (t.mode === 'ancient') {
     if (!t.d) return '上古阶段不存在';
     if (!S.clears['ancient:' + t.d.id]) return '首次通关后可扫荡';
-    if ((S.a || []).length < 8) return '上古需要 8 人编队';
+    if (teamCount() < 8) return '上古需要 8 人编队';
   }
   if (t.mode === 'tower') {
     if (!t.data) return '塔层数据载入中，请稍候再试';
-    if ((S.a || []).length < 5) return '将星塔需要 5 人编队';
+    if (teamCount() < 5) return '将星塔需要 5 人编队';
   }
   if (t.mode === 'secret') {
     if (!t.floor || t.floor > 10) return '秘境已通关';
-    if ((S.a || []).length < 3) return '秘境需要至少 3 名武将';
+    if (teamCount() < 3) return '秘境需要至少 3 名武将';
   }
   return '';
 }
@@ -2834,6 +2899,7 @@ async function init() {
   migrateEquipAffixes();
   loadOwned();
   loadCodexGift();
+  loadArtifactLv();
   syncCodexGifts();
   loadGacha();
   loadTower();
@@ -3112,8 +3178,8 @@ function renderSecret() {
       战斗后三选一祝福（附带诅咒），遗物与临时武将本局有效。<br>第 10 层通关奖励上古钥匙。`;
     bbox.innerHTML = '';
     eb.innerHTML = fd ? (fd.enemies || []).map(n => enemyChip(n)).join('') : '';
-    btn.disabled = S.a.length < 3;
-    btn.textContent = S.a.length < 3 ? '至少需要 3 名武将' : '开始秘境';
+    btn.disabled = teamCount() < 3;
+    btn.textContent = teamCount() < 3 ? '至少需要 3 名武将' : '开始秘境';
     btn.onclick = startSecret;
     return;
   }
@@ -3319,7 +3385,7 @@ function leaveSecretShop() {
 }
 
 function startSecret() {
-  if (S.a.length < 3) { flash('秘境需要至少 3 名武将'); return; }
+  if (teamCount() < 3) { flash('秘境需要至少 3 名武将'); return; }
   S.secret = {
     active: true, floor: 1, buffs: [], needBlessing: false, node: null, shopBought: false,
     temp: [], relics: [], used: {},
@@ -3817,7 +3883,7 @@ function renderHome() {
       <button class="mini ghost" onclick="openNewbieGift()">查看七日</button>
     </div>` : ''}
     <div class="info-row"><i class="seal" data-ch="将"></i><span class="info-label">当前阵容</span>
-      <b>${S.a.length ? S.a.join('、') : '未编队'}</b><span class="info-label">（${S.a.length}/5）</span></div>`;
+      <b>${teamCount() ? teamActive().join('、') : '未编队'}</b><span class="info-label">（${teamCount()}/5）</span></div>`;
   renderStamina();
 }
 
@@ -4287,8 +4353,9 @@ function growthFromDetail(name) {
 }
 function teamFromDetail(name) {
   if (!S.a.includes(name)) {
-    if (S.a.length >= 5) { flash('我军已满 5 人'); return; }
-    S.a.push(name); saveFormation(); renderTeams();
+    ensureTeamSlots();
+    if (!teamAdd(name)) { flash('我军已满 5 人'); return; }
+    saveFormation(); renderTeams();
   }
   $('#detail').hidden = true;
   if ($('#codex')) $('#codex').hidden = true;
@@ -4449,8 +4516,9 @@ function addUnit(name) {
   const cap = modeTeamCap();
   if (S.a.includes(name)) { flash('该武将已在我军中'); return; }
   if ((S.support || []).includes(name)) { flash('该武将在助阵位，点击助阵槽可移出'); return; }
-  if (S.a.length < cap) {
-    S.a.push(name);
+  ensureTeamSlots();
+  if (S.a.includes(null) || teamCount() < cap) {
+    if (!teamAdd(name)) { flash(`我军已满 ${cap} 人`); return; }
   } else if (S.support.length < 3) {
     S.support.push(name);
     flash(`${name} 加入助阵`);
@@ -4501,6 +4569,7 @@ function renderTroopPanel() {
 }
 
 function renderTeams() {
+  ensureTeamSlots();
   const cap = modeTeamCap();
   // 助阵位不能与主力/敌军重复
   S.support = (S.support || []).filter(n => S.owned.includes(n) && !S.a.includes(n)).slice(0, 3);
@@ -4510,7 +4579,7 @@ function renderTeams() {
     box.innerHTML = '';
     for (let i = 0; i < cap; i++) {
       const slot = document.createElement('div');
-      slot.className = 'slot' + (S.a[i] ? ' filled' : '');
+      slot.className = 'slot' + (S.a[i] ? ' filled' : '') + (S.a[i] ? '' : ' empty-slot');
       if (S.a[i]) {
         const _u = S.by[S.a[i]] || {};
       const rar = _u.rarity || '';
@@ -4518,20 +4587,20 @@ function renderTeams() {
           <div class="cap">${esc(S.a[i])}</div><div class="rar-line ${rar}"></div>
           <i class="slot-troop">${TROOP_CHAR[_u.troop] || '·'}</i>${S.mode === 'ancient' ? `<i class="team-tag">${i < 4 ? '一' : '二'}</i>` : ''}`;
         slot.title = '点击移除';
-        slot.onclick = () => { S.a.splice(i, 1); saveFormation(); renderTeams(); renderPool(); };
+        slot.onclick = () => { S.a[i] = null; saveFormation(); renderTeams(); renderPool(); };
       } else {
         slot.textContent = '空';
       }
       box.appendChild(slot);
     }
   }
-  const ac = $('#acount'); if (ac) ac.textContent = `${Math.min(S.a.length, cap)}/${cap}`;
+  const ac = $('#acount'); if (ac) ac.textContent = `${teamCount()}/${cap}`;
   const needA = modeNeedA();
   const hasStage = S.mode !== 'none' && S.b.length > 0;
   const ruleErr = S.mode === 'trial' ? trialRuleError(S.a, S.trialData)
-    : S.mode === 'personal' && S.personalName && !S.a.slice(0, 3).includes(S.personalName)
+    : S.mode === 'personal' && S.personalName && !teamActive().slice(0, 3).includes(S.personalName)
       ? `需要 ${S.personalName} 上阵` : '';
-  const ok = hasStage && S.a.length >= needA && !ruleErr;
+  const ok = hasStage && teamCount() >= needA && !ruleErr;
   const btn = $('#start');
   if (btn) {
     btn.disabled = hasStage ? !ok : false;
@@ -4577,21 +4646,22 @@ function renderTeams() {
 }
 
 function fillTeam(n) {
-  if (S.a.length >= n) return;
+  ensureTeamSlots();
+  if (teamCount() >= n) return;
   const pool = S.units.filter(u => S.owned.includes(u.name) && !S.a.includes(u.name) &&
     !(S.support || []).includes(u.name));
-  while (S.a.length < n && pool.length) S.a.push(pool.shift().name);
+  while (teamCount() < n && pool.length) teamAdd(pool.shift().name);
   saveFormation(); renderTeams();
 }
 
 function randomFill() {
-  const arr = S.a;
+  ensureTeamSlots();
   const cap = modeTeamCap();
   const pool = S.units.filter(u => S.owned.includes(u.name) && !S.a.includes(u.name) &&
     !(S.support || []).includes(u.name));
-  while (arr.length < cap && pool.length) {
+  while (teamCount() < cap && pool.length) {
     const i = Math.floor(Math.random() * pool.length);
-    arr.push(pool.splice(i, 1)[0].name);
+    teamAdd(pool.splice(i, 1)[0].name);
   }
   saveFormation();
   renderTeams(); renderPool();
@@ -4652,6 +4722,7 @@ function smartFormation() {
     picks.push(cands[0].name);
   }
   S.a = picks.slice(0, cap);
+  ensureTeamSlots();
   saveFormation();
   autoSupport();
   renderTeams(); renderPool();
@@ -4694,9 +4765,20 @@ function bagCard(type, k) {
   }
   if (type === 'shard') {
     return `<div class="bag-card">
-      <div class="bc-head"><i class="cat cat-support">碎片</i><b>神器碎片</b><span class="bc-n">${n}/10</span></div>
-      <div class="bc-desc">10 个合成随机神器</div>
+      <div class="bc-head"><i class="cat cat-support">碎片</i><b>神器碎片</b><span class="bc-n">${n}/20</span></div>
+      <div class="bc-desc">20 个合成随机神器</div>
       <div class="bc-foot"><button class="mini ghost bc-btn" onclick="synthesizeArtifact()">合成</button></div></div>`;
+  }
+  if (type === 'artifact') {
+    const lv = artifactLevel(k);
+    const a = ARTIFACTS[k] || {};
+    const cost = artifactRefineCost(k);
+    const costText = `神兵${cost.神兵} + 碎片${cost.神器碎片} + 铜钱${cost.铜钱}`;
+    const can = lv < 5 && (S.inventory['神兵'] || 0) >= cost.神兵 && (S.inventory['神器碎片'] || 0) >= cost.神器碎片 && (S.inventory['铜钱'] || 0) >= cost.铜钱;
+    return `<div class="bag-card">
+      <div class="bc-head"><i class="cat rar ${a.rarity || '传奇'}">${a.rarity || '传奇'}</i><b>${esc(meta.name)}</b><span class="bc-n">${lv}★ · ×${n}</span></div>
+      <div class="bc-desc">${esc(meta.desc)}</div>
+      <div class="bc-foot">${lv >= 5 ? '<span class="gb-note">已满 5 星</span>' : `<button class="mini${can ? '' : ' ghost'} bc-btn" ${can ? '' : 'disabled'} onclick="refineArtifact('${esc(k)}')">精炼 ${lv + 1}★（${esc(costText)}）</button>`}</div></div>`;
   }
   return `<div class="bag-card">
     <div class="bc-head"><i class="cat cat-support">神器</i><b>${esc(meta.name)}</b><span class="bc-n">×${n}</span></div>
@@ -4770,7 +4852,7 @@ function renderBag(tab) {
 function openBag() { renderBag(); $('#bag').hidden = false; }
 
 /* 存档导出 / 导入：只处理游戏数据键，画质与音量等设置不随存档走 */
-const SAVE_KEYS = ['sg_config', 'sg_progress', 'sg_clears', 'sg_inventory', 'sg_units', 'sg_formation', 'sg_owned', 'sg_gacha', 'sg_tower', 'sg_stamina', 'sg_secret', 'sg_season', 'sg_shop', 'sg_story', 'sg_tasks', 'sg_chapters', 'sg_relics', 'sg_trials', 'sg_achieve', 'sg_affinity', 'sg_worldboss', 'sg_expedition', 'sg_survival', 'sg_ancientrun', 'sg_newbie', 'sg_codexgift'];
+const SAVE_KEYS = ['sg_config', 'sg_progress', 'sg_clears', 'sg_inventory', 'sg_units', 'sg_formation', 'sg_owned', 'sg_gacha', 'sg_tower', 'sg_stamina', 'sg_secret', 'sg_season', 'sg_shop', 'sg_story', 'sg_tasks', 'sg_chapters', 'sg_relics', 'sg_trials', 'sg_achieve', 'sg_affinity', 'sg_worldboss', 'sg_expedition', 'sg_survival', 'sg_ancientrun', 'sg_newbie', 'sg_codexgift', 'sg_artifacts'];
 
 function saveSummary() {
   let n = 0, bytes = 0;
@@ -5161,12 +5243,12 @@ async function startBattle() {
   const isPersonal = S.mode === 'personal';
   const needA = modeNeedA();
   if (S.mode === 'none' || !S.b.length) { flash('请先在征战选择关卡'); showScreen('campaign'); return false; }
-  if (S.a.length < needA) { flash(isSecret ? '秘境需要至少 3 名武将' : `请先编满 ${needA} 名武将`); return false; }
+  if (teamCount() < needA) { flash(isSecret ? '秘境需要至少 3 名武将' : `请先编满 ${needA} 名武将`); return false; }
   if (isTrial) {
     const err = trialRuleError(S.a, S.trialData);
     if (err) { flash(err); return false; }
   }
-  if (isPersonal && (!S.personalName || !S.a.slice(0, 3).includes(S.personalName))) {
+  if (isPersonal && (!S.personalName || !teamActive().slice(0, 3).includes(S.personalName))) {
     flash(`个人传需要 ${S.personalName || '对应武将'} 上阵`); return false;
   }
   syncPlayerLevel();
@@ -5182,9 +5264,9 @@ async function startBattle() {
   else if (isAncient && S.ancientRun) {
     const ph = S.ancientRun.phase === 2 ? 2 : 1;
     teamA = S.a.slice(ph === 2 ? 4 : 0, ph === 2 ? 8 : 4)
-      .filter(n => S.by[n]);
-  } else if (isPersonal) teamA = S.a.slice(0, 3);
-  else teamA = S.a.slice(0, needA);
+      .filter(n => n && S.by[n]);
+  } else if (isPersonal) teamA = S.a.slice(0, 3).filter(Boolean);
+  else teamA = S.a.slice(0, needA).filter(Boolean);
   if (isAncient && teamA.length < 4) { flash('该队至少需要 4 名可出战武将'); return false; }
   const body = { a: teamA, b: S.b, seed: Math.floor(Math.random() * 1e9), level: playerLevel(), bt: 0, aw: 0, equip: 0 };
   const supA = (S.support || []).filter(n => !teamA.includes(n)).slice(0, 3);
@@ -5265,7 +5347,7 @@ async function startBattle() {
     const q = { ...p };
     if (p.skillBook) q.skillBook = skillBookInfo(p.skillBook);
     if (p.tacticBook) q.tacticBook = tacticBookInfo(p.tacticBook);
-    if (p.artifact) q.artifact = p.artifact;
+    if (p.artifact) { q.artifact = p.artifact; q.artifactLv = artifactLevel(p.artifact); }
     if (p.relic && S.relics[p.relic]) q.relic = S.relics[p.relic];
     if (p.sigils && p.sigils.length) q.sigils = p.sigils.map(s => ({ name: s.name, stats: s.stats, special: s.special || null }));
     pp[n] = q;
@@ -6259,7 +6341,7 @@ function showResult(data) {
   AudioSys.play(data.winner === 0 ? 'win' : 'lose');
   $('#overlay').hidden = false;
   updateBattleButtons();
-  if (data.winner === 0 && S.mode === 'level' && lv) chapterBattleResult(lv, S.a.slice());
+  if (data.winner === 0 && S.mode === 'level' && lv) chapterBattleResult(lv, teamActive());
   if (data.winner === 0) maybeEncounterAfterWin();
 }
 
