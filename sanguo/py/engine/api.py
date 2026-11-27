@@ -300,9 +300,10 @@ def _apply_progress(u, prog):
         bt = max(0, min(8, int(prog.get('bt', 0) or 0)))
         aw = max(0, min(10, int(prog.get('aw', 0) or 0)))
         star = max(0, min(6, int(prog.get('star', 0) or 0)))
+        dupstar = max(0, min(10, int(prog.get('dupStar', 0) or 0)))
     except Exception:
-        bt = aw = star = 0
-    mult = 1 + 0.02 * total + (0.15 if all(x > 0 for x in levels) else 0) + 0.06 * bt + 0.04 * aw + 0.03 * star
+        bt = aw = star = dupstar = 0
+    mult = 1 + 0.10 * dupstar + 0.02 * total + (0.15 if all(x > 0 for x in levels) else 0) + 0.06 * bt + 0.04 * aw + 0.03 * star
     if mult != 1:
         for k in core.SIX:
             u.stats[k] *= mult
