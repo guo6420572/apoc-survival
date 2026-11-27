@@ -283,7 +283,7 @@ function loadFormation() {
     if (S.mode !== 'level') { S.mode = 'none'; S.levelId = null; S.levelData = null; S.b = []; S.bLocked = false; }
   } catch (e) { /* ignore */ }
 }
-const STARTERS = ['管亥', '张勋', '桥蕤', '张梁', '张宝', '华佗', '王凌', '杨修', '曹洪', '淳于琼'];
+const STARTERS = ['张梁'];
 function loadOwned() {
   try {
     const v = JSON.parse(localStorage.getItem('sg_owned') || 'null');
@@ -857,6 +857,20 @@ function loadStamina() {
   if (!Array.isArray(S.stamina.claims)) S.stamina.claims = [false, false];
 }
 function saveStamina() { localStorage.setItem('sg_stamina', JSON.stringify(S.stamina)); }
+/* 兑换码：666 可无限兑换，每次 +666 体力 */
+function redeemCode() {
+  const el = $('#redeemCode');
+  const code = ((el && el.value) || '').trim();
+  if (!code) { flash('请输入兑换码'); return; }
+  if (code === '666') {
+    S.stamina.value = (S.stamina.value || 0) + 666;
+    saveStamina(); renderStamina();
+    if (el) el.value = '';
+    flash('兑换成功：体力 +666');
+  } else {
+    flash('兑换码无效');
+  }
+}
 /* 七日新兵补给 */
 function loadNewbie(fresh) {
   let v = null;
@@ -4842,6 +4856,8 @@ function bind() {
   };
   $('#setMusic').oninput = (e) => { $('#setMusicVal').textContent = e.target.value; localStorage.setItem('sg_bgm', e.target.value); AudioSys.setBgm(+e.target.value); };
   $('#setSfx').oninput = (e) => { $('#setSfxVal').textContent = e.target.value; localStorage.setItem('sg_sfx', e.target.value); AudioSys.setSfx(+e.target.value); };
+  if ($('#redeemBtn')) $('#redeemBtn').onclick = redeemCode;
+  if ($('#redeemCode')) $('#redeemCode').addEventListener('keydown', (e) => { if (e.key === 'Enter') redeemCode(); });
   $('#viewStats').onclick = () => { renderBattleStats(); $('#battleStats').hidden = false; };
   $('#closeBattleStats').onclick = () => { $('#battleStats').hidden = true; };
   $('#battleStats').onclick = (e) => { if (e.target.id === 'battleStats') $('#battleStats').hidden = true; };

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#07090c">
 <title>三国 · 将星录</title>
-<link rel="stylesheet" href="/style.css?v=20261127econ1">
+<link rel="stylesheet" href="/style.css?v=20261127econ2">
 </head>
 <body>
 <div id="app">
@@ -45,7 +45,7 @@
       <button data-go="campaign"><i class="tile-ico" data-ch="战"></i><span class="tile-txt"><b>征战</b><em>主线闯关</em></span></button>
       <button data-go="recruit"><i class="tile-ico" data-ch="招"></i><span class="tile-txt"><b>招募</b><em>招贤纳士</em></span></button>
       <button data-go="shop"><i class="tile-ico" data-ch="商"></i><span class="tile-txt"><b>商城</b><em>军需补给</em></span></button>
-      <button data-go="tower"><i class="tile-ico" data-ch="塔"></i><span class="tile-txt"><b>将星塔</b><em>百层试炼</em></span></button>
+      <button data-go="tower"><i class="tile-ico" data-ch="塔"></i><span class="tile-txt"><b>将星塔</b><em>登临绝顶</em></span></button>
       <button data-go="dungeon"><i class="tile-ico" data-ch="副"></i><span class="tile-txt"><b>副本</b><em>材料产出</em></span></button>
       <button data-go="secret"><i class="tile-ico" data-ch="秘"></i><span class="tile-txt"><b>秘境</b><em>随机构筑</em></span></button>
     </div>
@@ -59,7 +59,7 @@
       <button data-go="season"><i class="tile-ico" data-ch="赛"></i><span class="tile-txt"><b>赛季</b><em>六周目标</em></span></button>
       <button data-go="roster"><i class="tile-ico" data-ch="将"></i><span class="tile-txt"><b>武将</b><em>背包编队</em></span></button>
       <button data-go="growth"><i class="tile-ico" data-ch="养"></i><span class="tile-txt"><b>养成</b><em>技能装备</em></span></button>
-      <button data-go="codex"><i class="tile-ico" data-ch="鉴"></i><span class="tile-txt"><b>图鉴</b><em>二百将星</em></span></button>
+      <button data-go="codex"><i class="tile-ico" data-ch="鉴"></i><span class="tile-txt"><b>图鉴</b><em>星命图谱</em></span></button>
       <button data-go="bag"><i class="tile-ico" data-ch="包"></i><span class="tile-txt"><b>背包</b><em>技能书·秘宝</em></span></button>
       <button data-go="quest"><i class="tile-ico" data-ch="令"></i><span class="tile-txt"><b>任务</b><em>主线日常</em></span></button>
       <button data-go="story"><i class="tile-ico" data-ch="书"></i><span class="tile-txt"><b>剧情</b><em>章节故事</em></span></button>
@@ -329,7 +329,7 @@
     <div class="menu-crest"><span>将</span></div>
     <div class="menu-kicker">汉末群雄 · 星命共鸣</div>
     <h1><span>三国</span><b>·</b><span>将星录</span></h1>
-    <div class="menu-sub">200 将 · 700 关 · 单机卡牌 RPG</div>
+    <div class="menu-sub">星命既定 · 天下为局</div>
     <div class="menu-btns">
       <button id="continueBtn" class="menu-primary">继续征程</button>
       <button id="newBtn">新的征程</button>
@@ -485,6 +485,7 @@
     <div class="bmenu-row"><label>音乐</label><input id="setMusic" type="range" min="0" max="100" value="60"><b id="setMusicVal">60</b></div>
     <div class="bmenu-row"><label>音效</label><input id="setSfx" type="range" min="0" max="100" value="80"><b id="setSfxVal">80</b></div>
     <div class="bmenu-row"><label>主公</label><div class="lord-pick" id="lordPick"></div></div>
+    <div class="bmenu-row"><label>兑换码</label><input id="redeemCode" class="redeem-input" placeholder="输入兑换码"><button id="redeemBtn" class="mini">兑换</button></div>
     <div class="bmenu-row"><label>存档</label><span class="set-note" id="setSaveInfo">本地自动保存</span></div>
     <div class="bmenu-actions">
       <button id="exportSave" class="ghost">导出存档</button>
@@ -492,7 +493,7 @@
     </div>
     <input id="importFile" type="file" accept="application/json,.json" hidden>
     <div class="bmenu-actions"><button id="clearSave" class="ghost">清空本地存档</button></div>
-    <div class="build-tag">构建 v20261127econ1 · 体力成长 · 七日补给</div>
+    <div class="build-tag">构建 v20261127econ2 · 单将开局 · 兑换码</div>
   </div>
 </div>
 
@@ -618,7 +619,7 @@
 <script src="/hero_show_data.js?v=20261123z14"></script>
 <script src="/hero_show.js?v=20261127z15"></script>
 <script src="/meta.js?v=20261127art10"></script>
-<script src="/app.js?v=20261127econ1"></script>
+<script src="/app.js?v=20261127econ2"></script>
 <script>
 /* 自动更新：后台标签页发现 app.js 版本变化时静默刷新，避免长期挂着的旧页面继续用旧逻辑 */
 (function () {
