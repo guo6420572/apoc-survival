@@ -225,6 +225,19 @@ for r in sorted(RECORDS, key=lambda x: (ORDER.get(x['稀有度'], 9), x['编号'
         'bio': (BIO.get(r['姓名']) or {}).get('bio', ''),
         'comment': (BIO.get(r['姓名']) or {}).get('comment', ''),
     })
+# 星力：按稀有度区间 + 同稀有度内战力分位，普通1-3/精良2-5/传奇3-6/绝世4-8
+STAR_RANGE = {'普通': (1, 3), '精良': (2, 5), '传奇': (3, 6), '绝世': (4, 8)}
+_groups = {}
+for _u in UNITS:
+    _groups.setdefault(_u['rarity'], []).append(_u)
+for _rar, _arr in _groups.items():
+    _lo, _hi = STAR_RANGE.get(_rar, (1, 3))
+    _arr.sort(key=lambda u: (u.get('power') or 0, u['name']))
+    _n = len(_arr)
+    for _i, _u in enumerate(_arr):
+        _pct = 0 if _n <= 1 else _i / (_n - 1)
+        _u['star'] = int(round(_lo + (_hi - _lo) * _pct))
+
 CARD_FILE = {u['name']: u['card'] for u in UNITS}
 POWER = {r['姓名']: r['战力系数'] for r in RECORDS}
 # 技能书池：传奇/绝世武将的被动/特色技能
