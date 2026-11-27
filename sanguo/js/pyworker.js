@@ -32,7 +32,7 @@ async function boot() {
   ];
   for (var i = 0; i < files.length; i++) {
     var f = files[i];
-    var r = await fetch(BASE + f);
+    var r = await fetch(BASE + f + '?v=20261127content6');
     if (!r.ok) throw new Error('加载失败 ' + f + ' (' + r.status + ')');
     var buf = new Uint8Array(await r.arrayBuffer());
     var dst = '/home/pyodide/' + f;

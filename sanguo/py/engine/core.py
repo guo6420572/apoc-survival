@@ -163,6 +163,7 @@ def parse_effect(skill):
         'heal': None, 'heal_stat': None, 'buffs': [], 'control': [],
         'shield': None, 'rage': None, 'raw': desc,
         'dispel': None, 'summon': None, 'true_pct': 0.0, 'extra_action': False,
+        'hits': 1,
     }
     # 伤害
     if mult and str(mult) != '—':
@@ -171,13 +172,14 @@ def parse_effect(skill):
         except ValueError:
             eff['damage'] = None
     if eff['damage'] is None:
-        m = MULTI_RE.search(desc)
+        m = DMG_RE.search(desc)
         if m:
-            eff['damage'] = int(m.group(1)) * int(m.group(2)) / 100.0
-        else:
-            m = DMG_RE.search(desc)
-            if m:
-                eff['damage'] = int(m.group(1)) / 100.0
+            eff['damage'] = int(m.group(1)) / 100.0
+    # “N 次，每次 X%”：X% 是每次伤害，N 次分散结算；不能把总倍数套到每个目标
+    mh = MULTI_RE.search(desc)
+    if mh:
+        eff['hits'] = max(1, int(mh.group(1)))
+        eff['damage'] = float(mh.group(2)) / 100.0
     # 伤害类型
     if '策略' in desc:
         eff['dtype'] = 'strategy'
@@ -2112,11 +2114,19 @@ class Battle:
                     n = int(mm.group(1))
                     mult *= (n + 1) / n
             mult *= power   # 复制战法时按威力折扣
-            if eff['target'][0] == 'enemy_all':
-                mult *= 1 + sum(a.team_aoe_bonus for a in self.units
-                                if a.alive and a.side == u.side)
-            for t in targets:
-                self.deal_damage(u, t, sk, mult, is_basic=(sk['type'] == '普攻'))
+            if sk.get('type') == '普攻':
+                mult *= 1.25   # 普攻基础权重，避免被 AoE 技能完全压过
+            hits = max(1, int(eff.get('hits') or 1))
+            if hits > 1:
+                for _ in range(hits):
+                    t = targets[self.rng.randrange(len(targets))] if targets else None
+                    if t and t.alive:
+                        self.deal_damage(u, t, sk, mult, is_basic=(sk.get('type') == '普攻'))
+            else:
+                if eff['target'][0] in ('enemy_all', 'enemy_front', 'enemy_back') and len(targets) > 1:
+                    mult *= 1.0 / math.sqrt(len(targets))
+                for t in targets:
+                    self.deal_damage(u, t, sk, mult, is_basic=(sk['type'] == '普攻'))
             # 甘宁 百骑：首回合必定追击一次
             if u.first_round_chase and self.round == 1 and not u.first_round_used:
                 u.first_round_used = True
