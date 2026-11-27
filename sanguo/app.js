@@ -2832,7 +2832,7 @@ async function init() {
   syncViewToProgress();
   loadFormation();
   loadAncientRun();
-  $('#status').textContent = `${S.units.length} 将`;
+  $('#status').textContent = '星命既定';
   renderFilters();
   renderPool();
   renderVolumeTabs();
@@ -4647,7 +4647,7 @@ function flash(msg) {
     clearTimeout(flash._timer);
     flash._timer = setTimeout(() => t.classList.remove('show'), 1800);
   }
-  setTimeout(() => { $('#status').textContent = `${S.units.length} 将`; }, 1600);
+  setTimeout(() => { $('#status').textContent = '星命既定'; }, 1600);
 }
 
 
@@ -4814,7 +4814,7 @@ function setupLordPick() {
   if (pick.dataset.built !== '1') {
     pick.innerHTML = faces.map((n, i) =>
       `<button type="button" class="lord-opt" data-face="${i + 1}" title="${n}">` +
-      `<img src="/story/lord_thumb${i + 1}.jpg" alt="${n}" loading="lazy" decoding="async"></button>`).join('');
+      `<img src="assets/story/lord_thumb${i + 1}.jpg" alt="${n}" loading="lazy" decoding="async"></button>`).join('');
     pick.dataset.built = '1';
   }
   Array.from(pick.querySelectorAll('.lord-opt')).forEach(b => {

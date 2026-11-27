@@ -545,7 +545,7 @@ function renderStoryScreen() {
     const act = cs && cs.act ? `${esc(cs.act)} · ` : '';
     const key = (lv.volume || 1) * 100 + (lv.chapter || 1);
     return `<button class="story-item${locked ? ' locked' : ''}${seen.has(lv.id) ? ' seen' : ''}" data-id="${lv.id}">
-      <img class="si-thumb" src="/story/t${key}.jpg" alt="" loading="lazy" decoding="async">
+      <img class="si-thumb" src="assets/story/t${key}.jpg" alt="" loading="lazy" decoding="async">
       <div class="si-txt"><b>${esc(lv.volume_name)} · ${esc(lv.chapter_name)}</b>
       <span>${locked ? '尚未解锁' : act + (seen.has(lv.id) ? '已阅读 · 点击重看' : '点击阅读')}</span></div></button>`;
   }).join('');
@@ -658,11 +658,11 @@ function lordArtIndex() {
   try { n = parseInt(localStorage.getItem('sg_lord_face') || '1', 10); } catch (e) { n = 1; }
   return (n >= 1 && n <= LORD_FACES.length) ? n : 1;
 }
-function lordArtUrl(thumb) { return `/story/lord${thumb ? '_thumb' : ''}${lordArtIndex()}.jpg`; }
+function lordArtUrl(thumb) { return `assets/story/lord${thumb ? '_thumb' : ''}${lordArtIndex()}.jpg`; }
 function cinemaPortraitHtml(who) {
   if (who === '主公') {
     const i = lordArtIndex();
-    return `<div class="cinema-face lord" style="background-image:url('/story/lord${i}.jpg');background-position:center 16%"></div>
+    return `<div class="cinema-face lord" style="background-image:url('assets/story/lord${i}.jpg');background-position:center 16%"></div>
       <div class="cinema-who">主公 · ${LORD_FACES[i - 1]}</div>`;
   }
   if (S.by[who]) {
@@ -688,7 +688,7 @@ function openStoryCinema(id, onFinish) {
   cbg.style.backgroundImage = `url('${pthumb(c.boss)}')`;
   cbg.classList.remove('art');
   if (c.art) {
-    const artUrl = `/story/${c.art}.jpg`;
+    const artUrl = `assets/story/${c.art}.jpg`;
     const probe = new Image();
     probe.onload = () => {
       if (!S.cinema || S.cinema.id !== id) return;
