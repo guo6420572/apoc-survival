@@ -3915,6 +3915,7 @@ function renderRoster() {
     (S.rosterFaction === '全部' || !S.rosterFaction || u.faction === S.rosterFaction) &&
     (S.rosterRarity === '全部' || !S.rosterRarity || u.rarity === S.rosterRarity) &&
     (!S.rosterRole || S.rosterRole === '全部职业' || (u.role || '').split('·')[0] === S.rosterRole) &&
+    (!S.rosterStar || (u.star || 1) <= S.rosterStar) &&
     (!q || u.name.includes(q) || u.role.includes(q))
   );
   const rarOrder = { '绝世': 0, '传奇': 1, '精良': 2, '普通': 3 };
@@ -3953,6 +3954,10 @@ function renderRosterFilters() {
   sel.innerHTML = roles.map(r => `<option${(S.rosterRole || '全部职业') === r ? ' selected' : ''}>${esc(r)}</option>`).join('');
   sel.onchange = () => { S.rosterRole = sel.value; renderRoster(); };
   box.appendChild(sel);
+  const starSel = document.createElement('select'); starSel.className = 'codex-role';
+  starSel.innerHTML = [0, 2, 4, 6, 8].map(n => `<option value="${n}"${(S.rosterStar || 0) === n ? ' selected' : ''}>${n ? '星力 ≤' + n : '全部星力'}</option>`).join('');
+  starSel.onchange = () => { S.rosterStar = Number(starSel.value) || 0; renderRoster(); };
+  box.appendChild(starSel);
   const inp = document.createElement('input'); inp.placeholder = '搜索武将'; inp.value = S.rosterSearch || '';
   inp.oninput = (e) => { S.rosterSearch = e.target.value; renderRoster(); };
   box.appendChild(inp);
@@ -4511,6 +4516,10 @@ function renderFilters() {
     b.onclick = () => { S.rarity = r; renderFilters(); renderPool(); };
     el.appendChild(b);
   });
+  const starSel = document.createElement('select'); starSel.className = 'codex-role';
+  starSel.innerHTML = [0, 2, 4, 6, 8].map(n => `<option value="${n}"${(S.starMax || 0) === n ? ' selected' : ''}>${n ? '星力 ≤' + n : '全部星力'}</option>`).join('');
+  starSel.onchange = () => { S.starMax = Number(starSel.value) || 0; renderPool(); };
+  el.appendChild(starSel);
 }
 
 function filtered() {
@@ -4518,6 +4527,7 @@ function filtered() {
   return S.units.filter(u => S.owned.includes(u.name)).filter(u =>
     (S.faction === '全部' || u.faction === S.faction) &&
     (S.rarity === '全部' || u.rarity === S.rarity) &&
+    (!S.starMax || (u.star || 1) <= S.starMax) &&
     (!q || u.name.includes(q) || u.role.includes(q))
   );
 }
@@ -4734,6 +4744,14 @@ function showComboBanner(text) {
   showComboBanner._t = setTimeout(() => { el.hidden = true; }, 1800);
 }
 
+function roleClassOf(u) {
+  const r = (u && u.role) || '';
+  if (/虎卫/.test(r) || /猛将·护卫/.test(r)) return 'TANK';
+  if (/医者/.test(r) || /谋主·续航/.test(r)) return 'HEAL';
+  if (/弓手/.test(r)) return 'ARCHER';
+  if (/军师|术士|谋主/.test(r)) return 'CASTER';
+  return 'DPS';
+}
 function smartFormation() {
   const cap = modeTeamCap();
   const enemies = S.b || [];
@@ -4743,44 +4761,86 @@ function smartFormation() {
   if (S.mode === 'personal' && S.personalName && pool.some(u => u.name === S.personalName)) {
     picks.push(S.personalName);
   }
-  const score = (u) => {
-    let s = u.power || 0;
+  const picksStar = () => picks.reduce((sum, n) => sum + starOf(n), 0);
+  const classes = () => {
+    const c = {};
+    picks.forEach(n => { const cls = roleClassOf(S.by[n]); c[cls] = (c[cls] || 0) + 1; });
+    return c;
+  };
+  const isFrontTroop = u => u.troop === '步兵' || u.troop === '骑兵';
+  const isBackTroop = u => u.troop === '弓兵' || u.troop === '方士';
+  const frontTarget = cap >= 5 ? 3 : Math.max(1, Math.ceil(cap / 2));
+  const score = (u, section) => {
+    let v = u.power || 0;
     enemyTroops.forEach(t => {
-      if (TROOP_COUNTER[u.troop] === t) s += 90;
-      if (TROOP_COUNTER[t] === u.troop) s -= 45;
+      if (TROOP_COUNTER[u.troop] === t) v += 90;
+      if (TROOP_COUNTER[t] === u.troop) v -= 45;
     });
-    s += (affLevel(u.name) || 0) * 8;
+    v += (affLevel(u.name) || 0) * 8;
     const names = [...picks, u.name];
     (S.bondDefs || []).forEach(b => {
       const have = b.members.filter(m => names.includes(m)).length;
-      if (have >= b.need) s += 140;
-      else if (have > 0) s += have * 12;
+      if (have >= b.need) v += 140;
+      else if (have > 0) v += have * 12;
     });
-    return s;
+    const cls = roleClassOf(u);
+    if (section === 'front') {
+      if (isFrontTroop(u)) v += 130;
+      if (cls === 'TANK') v += 220;
+      else if (cls === 'DPS') v += 90;
+      else v -= 60;
+    } else {
+      if (isBackTroop(u)) v += 130;
+      if (cls === 'HEAL') v += 210;
+      else if (cls === 'CASTER') v += 150;
+      else if (cls === 'ARCHER') v += 125;
+      else v -= 60;
+    }
+    const seen = classes()[cls] || 0;
+    if (seen >= 2) v -= 180 * (seen - 1);
+    return v;
   };
-  const picksStar = () => picks.reduce((sum, n) => sum + starOf(n), 0);
-  while (picks.length < cap) {
+  const trialNeedMore = () => {
+    if (!(S.mode === 'trial' && S.trialData && S.trialData.req)) return null;
+    const req = S.trialData.req;
+    const key = req.type === 'faction' ? 'faction' : 'troop';
+    const have = picks.filter(n => (S.by[n] || {})[key] === req.value).length;
+    return have < req.min ? { key, value: req.value, min: req.min } : null;
+  };
+  const fitCands = (section) => {
     const remain = starCap() - picksStar();
     const reserve = Math.max(0, cap - picks.length - 1);
-    let cands = pool.filter(u => !picks.includes(u.name) && starOf(u.name) <= remain - reserve);
-    if (!cands.length) cands = pool.filter(u => !picks.includes(u.name) && starOf(u.name) <= remain);
-    if (S.mode === 'trial' && S.trialData && S.trialData.req) {
-      const req = S.trialData.req;
-      const key = req.type === 'faction' ? 'faction' : 'troop';
-      const matched = cands.filter(u => u[key] === req.value);
-      const needMore = picks.filter(n => (S.by[n] || {})[key] === req.value).length < req.min;
-      if (needMore && matched.length) cands = matched;
+    const base = pool.filter(u => !picks.includes(u.name) && starOf(u.name) <= remain - reserve);
+    const fallback = base.length ? base : pool.filter(u => !picks.includes(u.name) && starOf(u.name) <= remain);
+    let cands = section === 'front'
+      ? fallback.filter(isFrontTroop)
+      : section === 'back' ? fallback.filter(isBackTroop) : fallback;
+    if (!cands.length) cands = fallback;
+    const req = trialNeedMore();
+    if (req) {
+      const matched = cands.filter(u => (u[req.key] || '') === req.value);
+      if (matched.length) cands = matched;
     }
-    if (!cands.length) break;
-    cands.sort((a, b) => score(b) - score(a));
+    return cands;
+  };
+  const take = (section) => {
+    const cands = fitCands(section);
+    if (!cands.length) return false;
+    cands.sort((a, b) => score(b, section) - score(a, section));
     picks.push(cands[0].name);
-  }
+    return true;
+  };
+  let frontCount = picks.filter(n => isFrontTroop(S.by[n] || {})).length;
+  while (picks.length < cap && frontCount < frontTarget && take('front')) frontCount += 1;
+  while (picks.length < cap && take('back')) { /* fill back */ }
+  while (picks.length < cap && take('any')) { /* fallback */ }
   S.a = picks.slice(0, cap);
   ensureTeamSlots();
   saveFormation();
   autoSupport();
   renderTeams(); renderPool();
-  flash(`智能编队：${picks.join('、')} · 星力 ${picksStar()}/${starCap()}${picks.length < cap ? '（受星力上限限制）' : ''}${S.support && S.support.length ? ` · 助阵 ${S.support.join('、')}` : ''}`);
+  const front = picks.filter(n => isFrontTroop(S.by[n] || {})).length;
+  flash(`智能编队：前排${front}/后排${picks.length - front} · 星力 ${picksStar()}/${starCap()}${picks.length < cap ? '（受星力上限限制）' : ''}`);
 }
 
 function flash(msg) {
@@ -5215,6 +5275,66 @@ function bind() {
       $('#overlay').hidden = true;
       const ok = await startBattle();
       if (!ok) { $('#overlay').hidden = false; showScreen('secret'); }
+      return;
+    }
+    if (S.mode === 'dungeon') {
+      const nd = nextDungeonOf();
+      if (!nd) return;
+      challengeDungeon(nd.id);
+      fillTeam(5);
+      $('#overlay').hidden = true;
+      const ok = await startBattle();
+      if (!ok) { $('#overlay').hidden = false; showScreen('formation'); }
+      return;
+    }
+    if (S.mode === 'trial') {
+      const nt = nextTrialOf();
+      if (!nt) return;
+      challengeTrial(nt);
+      smartFormation();
+      if (trialRuleError(teamActive(), nt)) { flash('下一试炼阵容条件不满足，请调整编队'); $('#overlay').hidden = false; showScreen('formation'); return; }
+      $('#overlay').hidden = true;
+      const ok = await startBattle();
+      if (!ok) { $('#overlay').hidden = false; showScreen('formation'); }
+      return;
+    }
+    if (S.mode === 'worldboss') {
+      if (!S.worldBossData) return;
+      S.b = S.worldBossData.enemies.slice();
+      fillTeam(5);
+      $('#overlay').hidden = true;
+      const ok = await startBattle();
+      if (!ok) { $('#overlay').hidden = false; showScreen('formation'); }
+      return;
+    }
+    if (S.mode === 'survival') {
+      if (!S.survival.active) return;
+      const pend = S.survival.pending || [];
+      if (pend.length) { chooseSurvivalUpgrade(pend[0].id); flash(`自动选择强化：${pend[0].name}`); }
+      startSurvivalWave();
+      fillTeam(5);
+      $('#overlay').hidden = true;
+      const ok = await startBattle();
+      if (!ok) { $('#overlay').hidden = false; showScreen('survival'); }
+      return;
+    }
+    if (S.mode === 'personal') {
+      if (!S.personalData) return;
+      S.b = S.personalData.enemies.slice();
+      fillTeam(3);
+      $('#overlay').hidden = true;
+      const ok = await startBattle();
+      if (!ok) { $('#overlay').hidden = false; showScreen('formation'); }
+      return;
+    }
+    if (S.mode === 'ancient' && !S.ancientRun) {
+      const nd = nextAncientOf();
+      if (!nd) return;
+      challengeAncient(nd.id);
+      fillTeam(8);
+      $('#overlay').hidden = true;
+      const ok = await startBattle();
+      if (!ok) { $('#overlay').hidden = false; showScreen('formation'); }
       return;
     }
     const prevId = S.levelId;
@@ -6085,6 +6205,27 @@ function updateBattleButtons() {
   $('#skip').disabled = !S.playing;
 }
 
+function nextDungeonOf() {
+  const d = S.dungeonData; if (!d) return null;
+  const list = S.dungeons.filter(x => x.cat === d.cat).sort((a, b) => a.id - b.id);
+  const i = list.findIndex(x => x.id === d.id);
+  return list[i + 1] || null;
+}
+function nextTrialOf() {
+  const all = [...((S.trials || {}).trials || []), (S.trials || {}).weekly].filter(Boolean);
+  const cur = S.trialData && S.trialData.id;
+  const i = all.findIndex(t => t.id === cur);
+  for (let k = 1; k <= all.length; k++) {
+    const t = all[(i + k) % all.length];
+    if (t && !((S.trialState || {}).done || {})[t.id]) return t;
+  }
+  return null;
+}
+function nextAncientOf() {
+  const d = S.ancientData; if (!d) return null;
+  return (S.ancient || []).find(x => x.beast === d.beast && Number(x.stage) === Number(d.stage) + 1) || null;
+}
+
 function showResult(data) {
   if ($('#comboBtn')) $('#comboBtn').hidden = true;
   taskBump('battle');
@@ -6392,6 +6533,15 @@ function showResult(data) {
     $('#next').hidden = true;
     $('#status').textContent = `战斗结束 · ${win}`;
   }
+  const nbtn = $('#next');
+  if (nbtn && data.winner === 0) {
+    if (S.mode === 'dungeon') { const nd = nextDungeonOf(); nbtn.hidden = !nd; if (nd) nbtn.textContent = '下一难度'; }
+    else if (S.mode === 'trial') { const nt = nextTrialOf(); nbtn.hidden = !nt; if (nt) nbtn.textContent = '下一试炼'; }
+    else if (S.mode === 'survival') { nbtn.hidden = false; nbtn.textContent = '下一波'; }
+    else if (S.mode === 'personal') { nbtn.hidden = false; nbtn.textContent = '再战'; }
+    else if (S.mode === 'ancient' && !S.ancientRun) { const nd = nextAncientOf(); nbtn.hidden = !nd; if (nd) nbtn.textContent = '下一阶段'; }
+  }
+  if (nbtn && S.mode === 'worldboss') { nbtn.hidden = false; nbtn.textContent = '再战首领'; }
   $('#resultTitle').classList.toggle('lose', data.winner === 1);
   AudioSys.play(data.winner === 0 ? 'win' : 'lose');
   $('#overlay').hidden = false;
