@@ -2832,7 +2832,7 @@ async function init() {
   syncViewToProgress();
   loadFormation();
   loadAncientRun();
-  $('#status').textContent = `${S.units.length} 将`;
+  $('#status').textContent = '星命既定';
   renderFilters();
   renderPool();
   renderVolumeTabs();
@@ -4647,7 +4647,7 @@ function flash(msg) {
     clearTimeout(flash._timer);
     flash._timer = setTimeout(() => t.classList.remove('show'), 1800);
   }
-  setTimeout(() => { $('#status').textContent = `${S.units.length} 将`; }, 1600);
+  setTimeout(() => { $('#status').textContent = '星命既定'; }, 1600);
 }
 
 
