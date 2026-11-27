@@ -3,10 +3,10 @@ const $ = (s) => document.querySelector(s);
 const R = (v) => Math.round(Number(v) || 0);
 const FACTION = { '魏': 'var(--wei)', '蜀': 'var(--shu)', '吴': 'var(--wu)', '群雄': 'var(--qun)' };
 /* 新档初始资源：只够起步，主要成长靠首通与七日补给 */
-const STAMINA_START = 500;          // 开局库存体力（可高于恢复上限）
+const STAMINA_START = 2000;         // 开局库存体力（可高于恢复上限）
 const STAMINA_BASE_CAP = 200;       // 自然恢复上限，随通关成长
 const START_RES = { 铜钱: 20000, 兵书: 40, 将魂: 20, 魂石: 20, 图纸: 6, 玄铁: 6,
-  上古钥匙: 0, 招贤令: 5, 金符: 0, 塔币: 0, 秘境币: 0, 神兵: 0 };
+  上古钥匙: 0, 招贤令: 100, 金符: 0, 塔币: 0, 秘境币: 0, 神兵: 0 };
 /* 七日新兵补给：逐日递增，每日一次，共 8 招贤令 / 1.5 万铜钱 / 少量养成材料 */
 const NEWBIE_REWARDS = [
   { 铜钱: 2000, 兵书: 10 },
@@ -188,7 +188,7 @@ const S = {
   started: false, screen: 'campaign', codexFaction: '全部', codexRarity: '全部', codexSearch: '',
   inventory: { ...START_RES },
   stamina: { value: STAMINA_START, last: Date.now(), claimDate: '', claims: [false, false] },
-  newbie: null,
+  newbie: null, codexGift: [],
   dungeons: [], secretFloors: [], ancient: [], secret: { active: false, floor: 1, buffs: [], needBlessing: false, node: null, shopBought: false, temp: [], relics: [], used: {}, map: null, mapPos: { layer: -1, index: -1 }, nodeLayer: 0, nodeIndex: 0, activeShop: null, pendingNode: null },
   season: { claimed: [], points: 0, tierClaimed: [], weekly: { week: '', counters: {}, claimed: [] }, titles: [], frame: false, no: 0, ancientCleared: false }, dungeonData: null, ancientData: null, secretData: null,
   ancientRun: null, ancientPhase: 1, affinity: {}, personalData: null, personalName: null, eggClicks: {},
@@ -295,6 +295,29 @@ function loadOwned() {
   S.owned = [...new Set([...STARTERS, ...extra])];
 }
 function saveOwned() { localStorage.setItem('sg_owned', JSON.stringify(S.owned)); }
+/* 图鉴收集：每解锁一名武将（首次拥有）奖励 1 金符 */
+function loadCodexGift() {
+  try { const v = JSON.parse(localStorage.getItem('sg_codexgift') || '[]'); S.codexGift = Array.isArray(v) ? v : []; }
+  catch (e) { S.codexGift = []; }
+}
+function saveCodexGift() { localStorage.setItem('sg_codexgift', JSON.stringify(S.codexGift || [])); }
+function claimCodexGift(name, quiet) {
+  if (!name) return false;
+  if (!Array.isArray(S.codexGift)) S.codexGift = [];
+  if (S.codexGift.includes(name)) return false;
+  S.codexGift.push(name);
+  S.inventory['金符'] = (S.inventory['金符'] || 0) + 1;
+  if (!quiet) {
+    saveCodexGift(); saveInventory(); renderWallet();
+    flash(`图鉴解锁 · ${name} · 金符 +1`);
+  }
+  return true;
+}
+function syncCodexGifts() {
+  let n = 0;
+  (S.owned || []).forEach(name => { if (claimCodexGift(name, true)) n += 1; });
+  if (n) { saveCodexGift(); saveInventory(); renderWallet(); flash(`图鉴解锁奖励：金符 +${n}`); }
+}
 function loadGacha() {
   try {
     const v = JSON.parse(localStorage.getItem('sg_gacha') || 'null') || {};
@@ -571,7 +594,7 @@ function survivalRand(seed) {
 }
 function survivalWaveData(wave) {
   const seed = (S.survival.seed || 1) * 97 + wave * 7919;
-  const pool = S.units.filter(u => !S.a.includes(u.name) && !u.name.includes('·'));
+  const pool = S.units.filter(u => !u.name.includes('·'));
   const picked = [];
   const count = Math.min(5, 3 + Math.floor((wave - 1) / 4));
   let guard = 0;
@@ -636,7 +659,6 @@ function startSurvivalWave() {
   S.towerData = null; S.dungeonData = null; S.ancientData = null; S.secretData = null; S.trialData = null;
   S.ancientRun = null; S.ancientPhase = 1;
   S.b = data.enemies.slice();
-  S.a = S.a.filter(n => !S.b.includes(n));
   saveFormation();
   showScreen('formation');
   flash(`无尽生存 · 第 ${wave} 波`);
@@ -772,7 +794,6 @@ function challengeWorldBoss() {
   S.ancientRun = null; S.ancientPhase = 1;
   S.bLocked = true;
   S.b = d.enemies.slice();
-  S.a = S.a.filter(n => !S.b.includes(n));
   saveFormation();
   showScreen('formation');
   flash(`世界首领 · ${d.boss} · 记录最佳 ${S.worldBoss.best || 0}`);
@@ -1039,7 +1060,7 @@ function renderBondPanel() {
 }
 function autoSupport() {
   const cap = 3;
-  const pool = S.units.filter(u => S.owned.includes(u.name) && !S.a.includes(u.name) && !S.b.includes(u.name));
+  const pool = S.units.filter(u => S.owned.includes(u.name) && !S.a.includes(u.name));
   const chosen = [];
   while (chosen.length < cap && pool.length) {
     let best = null, bestAct = -1, bestProg = -1;
@@ -1162,7 +1183,7 @@ function challengeTrial(t) {
   S.levelData = null; S.levelId = null;
   S.towerData = null; S.dungeonData = null; S.ancientData = null; S.secretData = null;
   S.b = t.enemies.slice();
-  S.a = S.a.filter(n => !S.b.includes(n)).slice(0, t.size);
+  S.a = S.a.slice(0, t.size);
   saveFormation();
   showScreen('formation');
   flash(`试炼：${t.name} · ${t.desc}`);
@@ -1439,7 +1460,6 @@ function startPersonalStory(name) {
     S.ancientRun = null; S.ancientPhase = 1;
     S.bLocked = true;
     S.b = stage.enemies.slice();
-    S.a = S.a.filter(n => !S.b.includes(n));
     saveFormation();
     showScreen('formation');
     flash(`个人传 · ${name} · 需 ${name} 上阵（好感 Lv${stage.level}）`);
@@ -2338,7 +2358,6 @@ function selectLevel(id) {
   S.levelData = lv;
   S.bLocked = true;
   S.b = lv.enemies.map(e => e.name);
-  S.a = S.a.filter(n => !S.b.includes(n));
   syncPlayerLevel();
   saveFormation();
   renderConfig();
@@ -2814,6 +2833,8 @@ async function init() {
   loadUnitProgress();
   migrateEquipAffixes();
   loadOwned();
+  loadCodexGift();
+  syncCodexGifts();
   loadGacha();
   loadTower();
   const freshSave = !localStorage.getItem('sg_progress') && !localStorage.getItem('sg_owned');
@@ -2854,7 +2875,7 @@ function renderConfig() {
   syncPlayerLevel();
 }
 function hasSave() {
-  return !!(localStorage.getItem('sg_progress') || localStorage.getItem('sg_inventory') || localStorage.getItem('sg_units'));
+  return !!(localStorage.getItem('sg_progress') || localStorage.getItem('sg_owned') || localStorage.getItem('sg_units'));
 }
 
 function setupMenu() {
@@ -2887,6 +2908,9 @@ function resetGame() {
   S.secret = { active: false, floor: 1, buffs: [], needBlessing: false, node: null, shopBought: false, temp: [], relics: [], used: {}, map: null, mapPos: { layer: -1, index: -1 }, nodeLayer: 0, nodeIndex: 0, activeShop: null, pendingNode: null };
   S.season = defaultSeason(); S.season.no = seasonMeta().no;
   S.owned = STARTERS.slice();
+  S.codexGift = [];
+  saveCodexGift();
+  syncCodexGifts();
   S.gacha = { normal: { legend: 0, myth: 0, total: 0 }, limited: { legend: 0, myth: 0, total: 0 }, faction: { legend: 0, myth: 0, total: 0 }, newbie: { legend: 0, myth: 0, total: 0 }, event: { legend: 0, myth: 0, total: 0 } };
   S.tower = { floor: 1, best: 1 };
   S.towerBuff = null; S.towerData = null; S.towerBuffData = null;
@@ -2920,7 +2944,6 @@ function challengeDungeon(id) {
   if (!d) return;
   S.mode = 'dungeon'; S.dungeonData = d; S.levelData = null; S.levelId = null;
   S.bLocked = true; S.b = d.enemies.slice();
-  S.a = S.a.filter(n => !S.b.includes(n));
   saveFormation();
   showScreen('formation');
   flash(`副本：${d.cat}·${d.difficulty}`);
@@ -3207,9 +3230,9 @@ function renderSecret() {
 }
 
 function secretTeamA() {
-  const base = (S.a || []).filter(n => S.by[n] && !S.b.includes(n)).slice(0, 3);
+  const base = (S.a || []).filter(n => S.by[n]).slice(0, 3);
   const temps = ((S.secret && S.secret.temp) || [])
-    .filter(n => S.by[n] && !S.b.includes(n) && !base.includes(n));
+    .filter(n => S.by[n] && !base.includes(n));
   return [...base, ...temps].slice(0, 5);
 }
 function secretTeamNames() {
@@ -3964,12 +3987,13 @@ function doGacha(count) {
       results.push({ unit: u, dup: true, soul });
     } else {
       S.owned.push(u.name);
+      claimCodexGift(u.name);
       results.push({ unit: u, dup: false });
     }
   }
   if (count === 10 && best < 2) {
     const u = pickUnit('精良', pool);
-    if (!S.owned.includes(u.name)) { S.owned.push(u.name); results[9] = { unit: u, dup: false }; }
+    if (!S.owned.includes(u.name)) { S.owned.push(u.name); claimCodexGift(u.name); results[9] = { unit: u, dup: false }; }
     else { S.inventory['将魂'] = (S.inventory['将魂'] || 0) + 10; results[9] = { unit: u, dup: true, soul: 10 }; }
   }
   saveInventory(); saveOwned(); saveGacha(); renderWallet(); renderRecruit(); renderPool(); renderTeams();
@@ -4183,7 +4207,6 @@ async function challengeTower() {
   S.levelData = null; S.levelId = null;
   S.bLocked = true;
   S.b = data.enemies.slice();
-  S.a = S.a.filter(n => !S.b.includes(n));
   saveFormation();
   showScreen('formation');
   flash(`将星塔第 ${floor} 层 · 增益：${buff.name}`);
@@ -4411,7 +4434,7 @@ function renderPool() {
   list.forEach(u => {
     const d = document.createElement('div');
     const inSup = (S.support || []).includes(u.name);
-    const used = S.a.includes(u.name) || S.b.includes(u.name) || inSup;
+    const used = S.a.includes(u.name) || inSup;
     d.className = 'unit' + (used ? ' used' : '') + (inSup ? ' support' : '');
     d.innerHTML = `<div class="uph" style="background-image:url('${pthumb(u.name)}')"></div>
       <div class="umeta"><div class="n">${esc(u.name)}</div>
@@ -4424,7 +4447,6 @@ function renderPool() {
 
 function addUnit(name) {
   const cap = modeTeamCap();
-  if (S.b.includes(name)) { flash('该武将是本关敌军'); return; }
   if (S.a.includes(name)) { flash('该武将已在我军中'); return; }
   if ((S.support || []).includes(name)) { flash('该武将在助阵位，点击助阵槽可移出'); return; }
   if (S.a.length < cap) {
@@ -4481,7 +4503,7 @@ function renderTroopPanel() {
 function renderTeams() {
   const cap = modeTeamCap();
   // 助阵位不能与主力/敌军重复
-  S.support = (S.support || []).filter(n => S.owned.includes(n) && !S.a.includes(n) && !S.b.includes(n)).slice(0, 3);
+  S.support = (S.support || []).filter(n => S.owned.includes(n) && !S.a.includes(n)).slice(0, 3);
   const box = $('#teamA');
   if (box) {
     box.classList.toggle('many', cap > 5);
@@ -4557,7 +4579,7 @@ function renderTeams() {
 function fillTeam(n) {
   if (S.a.length >= n) return;
   const pool = S.units.filter(u => S.owned.includes(u.name) && !S.a.includes(u.name) &&
-    !S.b.includes(u.name) && !(S.support || []).includes(u.name));
+    !(S.support || []).includes(u.name));
   while (S.a.length < n && pool.length) S.a.push(pool.shift().name);
   saveFormation(); renderTeams();
 }
@@ -4566,7 +4588,7 @@ function randomFill() {
   const arr = S.a;
   const cap = modeTeamCap();
   const pool = S.units.filter(u => S.owned.includes(u.name) && !S.a.includes(u.name) &&
-    !S.b.includes(u.name) && !(S.support || []).includes(u.name));
+    !(S.support || []).includes(u.name));
   while (arr.length < cap && pool.length) {
     const i = Math.floor(Math.random() * pool.length);
     arr.push(pool.splice(i, 1)[0].name);
@@ -4748,7 +4770,7 @@ function renderBag(tab) {
 function openBag() { renderBag(); $('#bag').hidden = false; }
 
 /* 存档导出 / 导入：只处理游戏数据键，画质与音量等设置不随存档走 */
-const SAVE_KEYS = ['sg_config', 'sg_progress', 'sg_clears', 'sg_inventory', 'sg_units', 'sg_formation', 'sg_owned', 'sg_gacha', 'sg_tower', 'sg_stamina', 'sg_secret', 'sg_season', 'sg_shop', 'sg_story', 'sg_tasks', 'sg_chapters', 'sg_relics', 'sg_trials', 'sg_achieve', 'sg_affinity', 'sg_worldboss', 'sg_expedition', 'sg_survival', 'sg_ancientrun', 'sg_newbie'];
+const SAVE_KEYS = ['sg_config', 'sg_progress', 'sg_clears', 'sg_inventory', 'sg_units', 'sg_formation', 'sg_owned', 'sg_gacha', 'sg_tower', 'sg_stamina', 'sg_secret', 'sg_season', 'sg_shop', 'sg_story', 'sg_tasks', 'sg_chapters', 'sg_relics', 'sg_trials', 'sg_achieve', 'sg_affinity', 'sg_worldboss', 'sg_expedition', 'sg_survival', 'sg_ancientrun', 'sg_newbie', 'sg_codexgift'];
 
 function saveSummary() {
   let n = 0, bytes = 0;
@@ -5022,7 +5044,6 @@ function bind() {
       const buff = data.buffs[Math.floor(Math.random() * data.buffs.length)] || data.buffs[0];
       S.towerBuff = buff.id;
       S.towerBuffData = buff;
-      S.a = S.a.filter(n => !S.b.includes(n));
       fillTeam(5);
       $('#overlay').hidden = true;
       const ok = await startBattle();
@@ -5048,7 +5069,6 @@ function bind() {
       if (!node) { showScreen('secret'); return; }
       S.secretData = node;
       S.b = (node.enemies || []).slice();
-      S.a = S.a.filter(n => !S.b.includes(n));
       fillTeam(3);
       s.node = node;
       s.nodeLayer = node.layer;
@@ -5161,14 +5181,13 @@ async function startBattle() {
   if (isSecret) teamA = secretTeamA();
   else if (isAncient && S.ancientRun) {
     const ph = S.ancientRun.phase === 2 ? 2 : 1;
-    const foes = S.ancientRun.enemies[ph - 1] || [];
     teamA = S.a.slice(ph === 2 ? 4 : 0, ph === 2 ? 8 : 4)
-      .filter(n => S.by[n] && !foes.includes(n));
+      .filter(n => S.by[n]);
   } else if (isPersonal) teamA = S.a.slice(0, 3);
   else teamA = S.a.slice(0, needA);
   if (isAncient && teamA.length < 4) { flash('该队至少需要 4 名可出战武将'); return false; }
   const body = { a: teamA, b: S.b, seed: Math.floor(Math.random() * 1e9), level: playerLevel(), bt: 0, aw: 0, equip: 0 };
-  const supA = (S.support || []).filter(n => !S.b.includes(n) && !teamA.includes(n)).slice(0, 3);
+  const supA = (S.support || []).filter(n => !teamA.includes(n)).slice(0, 3);
   if (supA.length) body.support = supA;
   const _actBonds = isSecret ? secretActiveBonds()
     : isAncient ? bondsForNames([...teamA, ...supA])
