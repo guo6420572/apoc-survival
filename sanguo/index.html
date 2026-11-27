@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#07090c">
 <title>三国 · 将星录</title>
-<link rel="stylesheet" href="style.css?v=20261126xw5">
+<link rel="stylesheet" href="style.css?v=20261127art10">
 </head>
 <body>
 <div id="app">
@@ -484,6 +484,7 @@
     <div class="bmenu-row"><label>画质</label><select id="setQuality"><option value="smooth">流畅</option><option value="hd" selected>高清</option><option value="ultra">极致</option></select></div>
     <div class="bmenu-row"><label>音乐</label><input id="setMusic" type="range" min="0" max="100" value="60"><b id="setMusicVal">60</b></div>
     <div class="bmenu-row"><label>音效</label><input id="setSfx" type="range" min="0" max="100" value="80"><b id="setSfxVal">80</b></div>
+    <div class="bmenu-row"><label>主公</label><div class="lord-pick" id="lordPick"></div></div>
     <div class="bmenu-row"><label>存档</label><span class="set-note" id="setSaveInfo">本地自动保存</span></div>
     <div class="bmenu-actions">
       <button id="exportSave" class="ghost">导出存档</button>
@@ -492,7 +493,7 @@
     <input id="importFile" type="file" accept="application/json,.json" hidden>
     <div class="bmenu-actions"><button id="refillRes" class="ghost" hidden>测试资源补满（+200 招贤令）</button></div>
     <div class="bmenu-actions"><button id="clearSave" class="ghost">清空本地存档</button></div>
-    <div class="build-tag">构建 v20261126xw5 · UI祥纹 xw5</div>
+    <div class="build-tag">构建 v20261127art10 · 章法 · 宿将印 · 运镜</div>
   </div>
 </div>
 
@@ -603,12 +604,14 @@
 <div id="bondTip" class="bond-tip" hidden></div>
 <div id="toast" class="toast"></div>
 <div id="summonFx" class="summon-fx" hidden><div class="sf-ring"></div><div class="sf-seal">召</div><div class="sf-rays"></div></div>
+<script src="/save.js?v=20261127sv3"></script>
+<script src="/story_data.js?v=20261127st2"></script>
 <script src="js/assets_map.js"></script>
 <script src="js/pybridge.js"></script>
 <script src="hero_show_data.js?v=20261123z14"></script>
-<script src="hero_show.js?v=20261123z14"></script>
-<script src="meta.js?v=20261123z33"></script>
-<script src="app.js?v=20261123z53"></script>
+<script src="hero_show.js?v=20261127z15"></script>
+<script src="meta.js?v=20261127art10"></script>
+<script src="app.js?v=20261127art10"></script>
 
 </body>
 </html>

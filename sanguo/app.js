@@ -1689,8 +1689,8 @@ function renderDetailSlots(name) {
   const sigilHtml = sigs.length
     ? `<div class="dl">将星印记 · ${sigs.length}/5${sigs.length >= 3 ? ' · 共鸣中（攻击/减伤/兵力 +5%）' : ''}</div>` +
       sigs.map(s => `<div class="sigil-line ${s.rarity}">
-        <i class="rar ${s.rarity}">${s.rarity}</i><b>${esc(s.name)}</b>
-        <span>${esc(effLabel(s.stats))}${s.special ? ' · ' + esc(specialName(s.special)) : ''}</span></div>`).join('')
+        <i class="rar ${s.rarity}">${s.story ? '宿将' : esc(s.rarity)}</i><b>${esc(s.name)}</b>
+        <span>${esc(effLabel(s.stats))}${s.special ? ' · ' + esc(specialName(s.special)) : ''}${s.desc ? ' · ' + esc(s.desc) : ''}</span></div>`).join('')
     : '<div class="dl">将星印记</div><div class="row">尚无印记。通关每章第 10 关可获得永久增幅。</div>';
   box.innerHTML = `<div class="dl">装备栏</div>
     ${row('技能栏', 'skillBook', (p.bt || 0) >= 5, `突破至 5 段解锁（当前 ${p.bt || 0}/5）`)}
@@ -2160,9 +2160,10 @@ function renderLevels() {
     const label = lv.id <= 10 ? lv.name : `${lv.name}·${lv.sub}`;
     const d = document.createElement('div');
     d.className = 'level-card' + (locked ? ' locked' : '') + (S.levelId === lv.id ? ' active' : '');
+    const mech = chapterMech(lv);
     d.innerHTML = `<div class="no">${locked ? '未解锁' : '第 ' + lv.id + ' 关'}</div>
       <div class="name" title="${esc(label)}">${esc(label)}</div>
-      <div class="stars">${st ? '★'.repeat(st) : '　'}</div>`;
+      <div class="stars">${st ? '★'.repeat(st) : '　'}${mech ? `<em class="lv-mech" title="${esc(mech.name + '：' + mech.desc)}">${esc(mech.name)}</em>` : ''}</div>`;
     d.onclick = () => selectLevel(lv.id);
     box.appendChild(d);
   });
@@ -2188,6 +2189,22 @@ const LEVEL_MODS = [
 ];
 function levelModifier(id) {
   return LEVEL_MODS[(Number(id) * 7 + 3) % LEVEL_MODS.length];
+}
+/* 章节章法：每卷第 3、7 关压阵，只作用于敌军，形成章节里的两个难点 */
+const CHAPTER_MECHS = {
+  1: { id: 'warband', name: '蚁附', desc: '敌军兵力 +20%', effect: { hp: 0.20 } },
+  2: { id: 'iron', name: '铁骑', desc: '敌军速度 +15%，暴击 +8%', effect: { speed: 0.15, crit: 0.08 } },
+  3: { id: 'volley', name: '连弩', desc: '敌军攻击 +15%', effect: { atk: 0.15 } },
+  4: { id: 'fire', name: '火攻', desc: '敌军策略伤害 +25%', effect: { strategy_dmg: 0.25 } },
+  5: { id: 'ridge', name: '山险', desc: '敌军减伤 +15%', effect: { dr: 0.15 } },
+  6: { id: 'navy', name: '水寨', desc: '敌军减伤 +12%，我方速度 -8%', effect: { dr: 0.12 }, playerEffect: { speed: -0.08 } },
+  7: { id: 'fort', name: '坚壁', desc: '敌军减伤 +18%，兵力 +10%', effect: { dr: 0.18, hp: 0.10 } },
+};
+function chapterMech(lv) {
+  if (!lv) return null;
+  const local = lv.id % 10 === 0 ? 10 : lv.id % 10;
+  if (local !== 3 && local !== 7) return null;
+  return CHAPTER_MECHS[lv.volume || 1] || null;
 }
 
 function renderLevelInfo() {
@@ -2217,9 +2234,11 @@ function renderLevelInfo() {
     : '';
   const stage = lv.id <= 10 ? `${esc(lv.name)}（${esc(lv.sub)}）` : `${esc(lv.chapter_name)}（${esc(lv.sub)}）`;
   const mod = levelModifier(lv.id);
+  const mech = chapterMech(lv);
   box.innerHTML = `<b>第 ${lv.id} 关 · 第${lv.volume}卷 ${esc(lv.volume_name)} · 第${lv.chapter}章 ${stage}</b><br>${esc(lv.desc)}<br>
     敌军 Lv${c.level} · 推荐战力 ${lv.power}<br>
     <span class="level-mod">关卡词条：<b>${esc(mod.name)}</b>（${esc(mod.desc)}）</span>
+    ${mech ? `<br><span class="level-mech">章法 · <b>${esc(mech.name)}</b>（${esc(mech.desc)}）</span>` : ''}
     ${rewardLine ? '<br>' + rewardLine : ''}
     <div class="enemies">${chips}</div>`;
 }
@@ -3642,10 +3661,11 @@ function renderHome() {
   const level = Math.min(100, 1 + Math.floor((unlocked - 1) / 7));
   const exp = ((unlocked - 1) % 7) / 7 * 100;
   const power = owned.slice(0, 5).reduce((a, u) => a + (u.power || 0), 0);
-  const avatar = owned[0] ? `${SG_IMG.pthumb(owned[0].name)}` : '';
+  const lordFace = (typeof lordArtUrl === 'function') ? lordArtUrl(true) : '';
+  const avatar = lordFace || (owned[0] ? `${SG_IMG.pthumb(owned[0].name)}` : '');
   $('#homeHero').innerHTML = `${art}<div class="veil"></div>
     <div class="player-card">
-      <div class="pc-avatar${S.season.frame ? ' framed' : ''}" style="background-image:url('${avatar}')" title="${S.season.frame ? '赛季专属头像框' : ''}"></div>
+      <div class="pc-avatar${S.season.frame ? ' framed' : ''}" style="background-image:url('${avatar}')${lordFace ? ';background-position:center 14%' : ''}" title="${S.season.frame ? '赛季专属头像框' : ''}"></div>
       <div class="pc-meta"><b>主公${titleName(S.achieve.title) ? `<em class="pc-title">${esc(titleName(S.achieve.title))}</em>` : ''}</b><span>Lv.${level} · 战力 ${power}</span>
         <div class="pc-exp"><i style="width:${exp.toFixed(1)}%"></i></div></div>
     </div>
@@ -4217,6 +4237,7 @@ function applyDetailTab() {
 function openDetail(name) {
   const u = S.by[name];
   if (!u) return;
+  if (window.HeroShow && HeroShow.warmup) HeroShow.warmup();
   S.detailName = name;
   $('#detailName').textContent = u.name;
   applyDetailArt();
@@ -4691,6 +4712,27 @@ function importSave(file) {
   reader.readAsText(file, 'utf-8');
 }
 
+function setupLordPick() {
+  const pick = $('#lordPick');
+  if (!pick) return;
+  const faces = (typeof LORD_FACES !== 'undefined') ? LORD_FACES
+    : ['汉室宗亲', '江东少主', '西凉雄主', '寒门游侠'];
+  const cur = (typeof lordArtIndex === 'function') ? lordArtIndex() : 1;
+  if (pick.dataset.built !== '1') {
+    pick.innerHTML = faces.map((n, i) =>
+      `<button type="button" class="lord-opt" data-face="${i + 1}" title="${n}">` +
+      `<img src="/story/lord_thumb${i + 1}.jpg" alt="${n}" loading="lazy" decoding="async"></button>`).join('');
+    pick.dataset.built = '1';
+  }
+  Array.from(pick.querySelectorAll('.lord-opt')).forEach(b => {
+    b.classList.toggle('active', Number(b.dataset.face) === cur);
+    b.onclick = () => {
+      localStorage.setItem('sg_lord_face', b.dataset.face);
+      Array.from(pick.querySelectorAll('.lord-opt')).forEach(x => x.classList.toggle('active', x === b));
+      flash('主公形象已更换，下次剧情演出生效');
+    };
+  });
+}
 function setupSettings() {
   const q = localStorage.getItem('sg_quality') || 'hd';
   const bgm = localStorage.getItem('sg_bgm') || '60';
@@ -4700,6 +4742,7 @@ function setupSettings() {
   if ($('#setMusic')) { $('#setMusic').value = bgm; $('#setMusicVal').textContent = bgm; }
   if ($('#setSfx')) { $('#setSfx').value = sfx; $('#setSfxVal').textContent = sfx; }
   if ($('#setSaveInfo')) $('#setSaveInfo').textContent = saveSummary();
+  if (typeof setupLordPick === 'function') setupLordPick();
   if ($('#refillRes')) $('#refillRes').hidden = !(location.search.includes('debug=1') || localStorage.getItem('sg_debug') === '1');
 }
 function bind() {
@@ -5003,6 +5046,7 @@ function bind() {
 }
 
 async function startBattle() {
+  if (window.HeroShow && HeroShow.warmup) HeroShow.warmup();
   const isSecret = S.mode === 'secret';
   const isTrial = S.mode === 'trial';
   const isAncient = S.mode === 'ancient';
@@ -5056,6 +5100,11 @@ async function startBattle() {
     if (mod) {
       body.player_buffs = (body.player_buffs || []).concat([{ effect: mod.effect }]);
       body.enemy_buffs = [{ effect: mod.effect }];
+    }
+    const mech = chapterMech(S.levelData);
+    if (mech) {
+      body.enemy_buffs = (body.enemy_buffs || []).concat([{ effect: mech.effect }]);
+      if (mech.playerEffect) body.player_buffs = (body.player_buffs || []).concat([{ effect: mech.playerEffect }]);
     }
   }
   if (S.mode === 'tower' && S.towerData) {
@@ -6077,6 +6126,10 @@ function showResult(data) {
       $('#resultSub').textContent = `第 ${lv.id} 关 · ${lv.name} · ${rounds} 回合 · ${'★'.repeat(stars)}`;
       $('#rewards').textContent = `${first ? '首通奖励' : '重复奖励'}：${fmtRewards(reward)}`;
       $('#next').hidden = lv.id >= 700;
+      // 章末关首通：自动播放本章剧情，看完赐宿将印（永久增幅）
+      if (first && lv.id % 10 === 0 && typeof playChapterCinema === 'function') {
+        setTimeout(() => playChapterCinema(lv.id), 2000);
+      }
     } else {
       $('#resultTitle').textContent = '战败';
       $('#resultSub').textContent = `第 ${lv.id} 关 · ${lv.name} · ${rounds} 回合，调整阵容再战`;
