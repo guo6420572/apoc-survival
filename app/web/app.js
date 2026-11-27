@@ -1822,6 +1822,15 @@ function unitProg(name) {
   p.equipSet = p.equipSet || '破军';
   return p;
 }
+function unitDupStar(name) { return Math.max(0, Math.min(10, Number((S.unitProgress[name] || {}).dupStar || 0))); }
+function gainDupStar(name) {
+  const p = unitProg(name);
+  const lv = Math.max(0, Math.min(10, p.dupStar || 0));
+  if (lv >= 10) return null;
+  p.dupStar = lv + 1;
+  saveUnitProgress();
+  return p.dupStar;
+}
 
 function renderDetailSlots(name) {
   const box = $('#detailSlots');
@@ -2176,6 +2185,11 @@ function renderGrowth() {
   b3.disabled = star >= 6 || (S.inventory['神兵'] || 0) < costStarS || (S.inventory['神器碎片'] || 0) < costStarF || (S.inventory['铜钱'] || 0) < costStarM;
   b3.onclick = () => upgradeStar(u.name);
   row3.appendChild(b3); adv.appendChild(row3);
+  const dup = unitDupStar(u.name);
+  const row4 = document.createElement('div'); row4.className = 'grow-row';
+  row4.innerHTML = `<span class="gn">升星</span><span class="gl">${dup}/10</span>
+    <span class="gc">每星全属性 +10% · 抽到重复武将自动升星${dup >= 10 ? ' · 已满，重复转将魂' : ''}</span>`;
+  adv.appendChild(row4);
   adv.insertAdjacentHTML('beforeend', '<div class="grow-title">觉醒分支</div>');
   if (aw >= 6) {
     branchChoicesFor(u.name).forEach(id => {
@@ -2197,7 +2211,7 @@ function renderGrowth() {
   } else {
     adv.insertAdjacentHTML('beforeend', '<div class="branch-hint">觉醒满 6 星后解锁觉醒分支（二选一）。</div>');
   }
-  $('#growthSet').textContent = `装备 +${total * 2}%${all ? ' · 四件套+15%' : ''} · ${set.name}${pieces}件 · 突破+${bt * 6}% · 觉醒+${aw * 4}% · 将星+${star * 3}%`;
+  $('#growthSet').textContent = `升星+${unitDupStar(u.name) * 10}% · 装备 +${total * 2}%${all ? ' · 四件套+15%' : ''} · ${set.name}${pieces}件 · 突破+${bt * 6}% · 觉醒+${aw * 4}% · 将星+${star * 3}%`;
   $('#growthHint').textContent = '技能=兵书（15级）；装备=图纸+玄铁（8级）；洗练=玄铁10；突破=魂石+铜钱（8段）；觉醒=将魂（10星）；将星=神兵+碎片+铜钱（6阶）。技能书/战法书/神器/秘宝在「武将详情 → 装备栏」装备。';
 }
 function upgradeSkill(name, type) {
@@ -3988,7 +4002,7 @@ function renderRecruit() {
   const mythPool = pool === 'limited' || pool === 'event';
   $('#gachaInfo').innerHTML = `<b>${cfg.name}</b> · 消耗 ${cfg.cost}（当前 ${cost}）${cfg.faction ? ` · 当前阵营 ${S.gachaFaction}` : ''}<br>
     ${maxInfo || `累计 ${g.total || 0} 抽 · 距离传奇硬保底 ${Math.max(0, 80 - (g.legend || 0))} 抽${mythPool ? ` · 距离绝世硬保底 ${Math.max(0, 120 - (g.myth || 0))} 抽` : ''}`}<br>
-    ${cfg.max ? '新手池：精良/传奇，单抽 1 招贤令。' : '10 连必出精良以上；50/90 抽起软保底。'}`;
+    ${cfg.max ? '新手池：精良/传奇，单抽 1 招贤令。' : '10 连必出精良以上；50/90 抽起软保底；重复武将自动升星（上限 10 星，每星 +10% 属性）。'}`;
   const resultBox = $('#gachaResult');
   if (resultBox && !resultBox.children.length) {
     resultBox.innerHTML = `<div class="gacha-empty">
@@ -4054,9 +4068,13 @@ function doGacha(count) {
     const u = pickUnit(rar, pool);
     const dup = S.owned.includes(u.name);
     if (dup) {
-      const soul = { 普通: 5, 精良: 10, 传奇: 30, 绝世: 80 }[rar];
-      S.inventory['将魂'] = (S.inventory['将魂'] || 0) + soul;
-      results.push({ unit: u, dup: true, soul });
+      const ds = gainDupStar(u.name);
+      if (ds) results.push({ unit: u, dup: true, starUp: true, star: ds });
+      else {
+        const soul = { 普通: 5, 精良: 10, 传奇: 30, 绝世: 80 }[rar];
+        S.inventory['将魂'] = (S.inventory['将魂'] || 0) + soul;
+        results.push({ unit: u, dup: true, soul, maxed: true });
+      }
     } else {
       S.owned.push(u.name);
       claimCodexGift(u.name);
@@ -4066,7 +4084,11 @@ function doGacha(count) {
   if (count === 10 && best < 2) {
     const u = pickUnit('精良', pool);
     if (!S.owned.includes(u.name)) { S.owned.push(u.name); claimCodexGift(u.name); results[9] = { unit: u, dup: false }; }
-    else { S.inventory['将魂'] = (S.inventory['将魂'] || 0) + 10; results[9] = { unit: u, dup: true, soul: 10 }; }
+    else {
+      const ds = gainDupStar(u.name);
+      if (ds) results[9] = { unit: u, dup: true, starUp: true, star: ds };
+      else { S.inventory['将魂'] = (S.inventory['将魂'] || 0) + 10; results[9] = { unit: u, dup: true, soul: 10, maxed: true }; }
+    }
   }
   saveInventory(); saveOwned(); saveGacha(); renderWallet(); renderRecruit(); renderPool(); renderTeams();
   taskBump('recruit', count);
@@ -4075,7 +4097,7 @@ function doGacha(count) {
   box.innerHTML = results.map(r => {
     const cls = r.unit.rarity === '绝世' ? ' myth' : r.unit.rarity === '传奇' ? ' legend' : '';
     return `<div class="gacha-card${cls}${r.dup ? '' : ' new'}">
-      <div class="tag">${r.dup ? '将魂+' + r.soul : '新'}</div>
+      <div class="tag">${r.starUp ? '升星 ' + r.star + '★' : r.dup ? '将魂+' + r.soul : '新'}</div>
       <img src="${thumb(r.unit.name)}" alt="${esc(r.unit.name)}">
       <div class="gn">${esc(r.unit.name)}</div></div>`;
   }).join('');
@@ -4437,7 +4459,7 @@ function openDetail(name) {
   box.className = 'detail-box fac-' + fac;
   box.style.setProperty('--fac', color);
   $('#detailName').textContent = u.name;
-  $('#detailSub').textContent = `${u.faction} · ${u.rarity} · ${u.role} · ${u.troop} · 星力 ${u.star || 1}` +
+  $('#detailSub').textContent = `${u.faction} · ${u.rarity} · ${u.role} · ${u.troop} · 星力 ${u.star || 1} · 升星 ${unitDupStar(u.name)}★` +
     (((S.unitProgress[name] || {}).branch && BRANCHES[(S.unitProgress[name] || {}).branch])
       ? ` · ${BRANCHES[S.unitProgress[name].branch].name}` : '');
   const stats = ['武勇', '智谋', '统御', '机变', '威仪', '天命'];
@@ -4512,7 +4534,7 @@ function renderPool() {
     d.className = 'unit' + (used ? ' used' : '') + (inSup ? ' support' : '');
     d.innerHTML = `<div class="uph" style="background-image:url('${pthumb(u.name)}')"></div>
       <div class="umeta"><div class="n">${esc(u.name)}</div>
-      <div class="r">${esc(u.role)} · ${esc(u.faction)}</div><div class="ustar">星力 ${u.star || 1}</div></div>
+      <div class="r">${esc(u.role)} · ${esc(u.faction)}</div><div class="ustar">星力 ${u.star || 1} · 升星 ${unitDupStar(u.name)}★</div></div>
       <div class="rar ${u.rarity}">${u.rarity}</div>${inSup ? '<i class="sup-mark">助</i>' : ''}`;
     d.onclick = () => addUnit(u.name);
     pool.appendChild(d);
