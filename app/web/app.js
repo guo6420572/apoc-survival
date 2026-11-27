@@ -2,10 +2,21 @@
 const $ = (s) => document.querySelector(s);
 const R = (v) => Math.round(Number(v) || 0);
 const FACTION = { '魏': 'var(--wei)', '蜀': 'var(--shu)', '吴': 'var(--wu)', '群雄': 'var(--qun)' };
-/* 测试版初始资源 */
-const STAMINA_MAX = 10000;
-const START_RES = { 铜钱: 1000000, 兵书: 1000, 将魂: 5000, 魂石: 1000, 图纸: 500, 玄铁: 500,
-  上古钥匙: 50, 招贤令: 200, 金符: 200, 塔币: 10000, 秘境币: 5000, 神兵: 100 };
+/* 新档初始资源：只够起步，主要成长靠首通与七日补给 */
+const STAMINA_START = 500;          // 开局库存体力（可高于恢复上限）
+const STAMINA_BASE_CAP = 200;       // 自然恢复上限，随通关成长
+const START_RES = { 铜钱: 20000, 兵书: 40, 将魂: 20, 魂石: 20, 图纸: 6, 玄铁: 6,
+  上古钥匙: 0, 招贤令: 5, 金符: 0, 塔币: 0, 秘境币: 0, 神兵: 0 };
+/* 七日新兵补给：逐日递增，每日一次，共 8 招贤令 / 1.5 万铜钱 / 少量养成材料 */
+const NEWBIE_REWARDS = [
+  { 铜钱: 2000, 兵书: 10 },
+  { 铜钱: 3000, 图纸: 3 },
+  { 招贤令: 2, 兵书: 12 },
+  { 铜钱: 4000, 玄铁: 4 },
+  { 魂石: 10, 将魂: 10 },
+  { 招贤令: 2, 图纸: 4, 玄铁: 4 },
+  { 招贤令: 4, 神器碎片: 5, 铜钱: 6000 },
+];
 /* 技能书 / 战法书 / 神器 */
 const ARTIFACTS = {
   '青龙偃月刀': { atk: 0.10 }, '丈八蛇矛': { crit: 0.08 },
@@ -176,7 +187,8 @@ const S = {
   volume: 1, chapter: 1, growthUnit: '吕布', unitProgress: {},
   started: false, screen: 'campaign', codexFaction: '全部', codexRarity: '全部', codexSearch: '',
   inventory: { ...START_RES },
-  stamina: { value: STAMINA_MAX, last: Date.now(), claimDate: '', claims: [false, false] },
+  stamina: { value: STAMINA_START, last: Date.now(), claimDate: '', claims: [false, false] },
+  newbie: null,
   dungeons: [], secretFloors: [], ancient: [], secret: { active: false, floor: 1, buffs: [], needBlessing: false, node: null, shopBought: false, temp: [], relics: [], used: {}, map: null, mapPos: { layer: -1, index: -1 }, nodeLayer: 0, nodeIndex: 0, activeShop: null, pendingNode: null },
   season: { claimed: [], points: 0, tierClaimed: [], weekly: { week: '', counters: {}, claimed: [] }, titles: [], frame: false, no: 0, ancientCleared: false }, dungeonData: null, ancientData: null, secretData: null,
   ancientRun: null, ancientPhase: 1, affinity: {}, personalData: null, personalName: null, eggClicks: {},
@@ -227,17 +239,6 @@ function loadInventory() {
   } catch (e) { /* ignore */ }
 }
 function saveInventory() { localStorage.setItem('sg_inventory', JSON.stringify(S.inventory)); }
-/* 测试版：老存档首次进入时把资源补足到初始值（只补一次） */
-function grantTestRes() {
-  const KEY = 'sg_testgrant_20261120';
-  if (localStorage.getItem(KEY)) return;
-  let changed = false;
-  for (const k in START_RES) {
-    if ((S.inventory[k] || 0) < START_RES[k]) { S.inventory[k] = START_RES[k]; changed = true; }
-  }
-  localStorage.setItem(KEY, '1');
-  if (changed) saveInventory();
-}
 function migrateEquipAffixes() {
   let changed = false;
   Object.keys(S.unitProgress || {}).forEach(name => {
@@ -829,15 +830,79 @@ function syncTrialState() {
     saveTrialState();
   }
 }
+/* 体力恢复上限 = 200 + 主线首通数×1 + 将星塔每10层×2 + 无尽每5波×2 */
+function staminaCap() {
+  const cleared = typeof clearedLvCount === 'function' ? clearedLvCount() : Object.keys(S.progress.stars || {}).length;
+  const tower = Math.max(0, (S.tower.floor || 1) - 1);
+  const surv = Math.max(0, S.survival.best || 0);
+  return STAMINA_BASE_CAP + cleared + 2 * Math.floor(tower / 10) + 2 * Math.floor(surv / 5);
+}
+function notifyStaminaGrowth(before) {
+  const now = staminaCap();
+  if (now > before) { flash(`体力上限 +${now - before}（当前 ${now}）`); renderStamina(); }
+}
 function loadStamina() {
   try { const v = JSON.parse(localStorage.getItem('sg_stamina') || 'null'); if (v) S.stamina = Object.assign(S.stamina, v); } catch (e) { /* ignore */ }
-  if (!localStorage.getItem('sg_stamina_grant_10000')) {
-    S.stamina.value = STAMINA_MAX; S.stamina.last = Date.now();
-    localStorage.setItem('sg_stamina_grant_10000', '1'); saveStamina();
+  // 旧测试版万体力：一次性归一到新经济（库存保留不超过开局 500）
+  if (localStorage.getItem('sg_stamina_grant_10000')) {
+    if (!localStorage.getItem('sg_stamina_econ2')) {
+      S.stamina.value = Math.min(STAMINA_START, Number(S.stamina.value) || 0);
+      localStorage.setItem('sg_stamina_econ2', '1');
+      saveStamina();
+    }
+    localStorage.removeItem('sg_stamina_grant_10000');
   }
-  S.stamina.value = Math.min(STAMINA_MAX, S.stamina.value || 0);
+  localStorage.removeItem('sg_testgrant_20261120');
+  S.stamina.value = Math.max(0, Number(S.stamina.value) || 0);
+  if (!Array.isArray(S.stamina.claims)) S.stamina.claims = [false, false];
 }
 function saveStamina() { localStorage.setItem('sg_stamina', JSON.stringify(S.stamina)); }
+/* 七日新兵补给 */
+function loadNewbie(fresh) {
+  let v = null;
+  try { v = JSON.parse(localStorage.getItem('sg_newbie') || 'null'); } catch (e) { v = null; }
+  if (v && Array.isArray(v.claimed)) { S.newbie = Object.assign({ start: '', claimed: [], last: '' }, v); return; }
+  if (!fresh) { S.newbie = null; return; }
+  startNewbie();
+}
+function startNewbie() {
+  S.newbie = { start: new Date().toISOString().slice(0, 10), claimed: [], last: '' };
+  saveNewbie();
+}
+function saveNewbie() { if (S.newbie) localStorage.setItem('sg_newbie', JSON.stringify(S.newbie)); }
+function newbieActive() { return !!(S.newbie && Array.isArray(S.newbie.claimed) && S.newbie.claimed.length < NEWBIE_REWARDS.length); }
+function newbieDay() { return newbieActive() ? S.newbie.claimed.length + 1 : 0; }
+function newbieCanClaim() { return newbieActive() && S.newbie.last !== new Date().toISOString().slice(0, 10); }
+function claimNewbieGift() {
+  if (!newbieActive()) { flash('七日补给已全部领取'); return; }
+  if (!newbieCanClaim()) { flash('今日已领取，明日再来'); return; }
+  const day = newbieDay();
+  const rw = NEWBIE_REWARDS[day - 1];
+  addReward(rw);
+  S.newbie.claimed.push(day);
+  S.newbie.last = new Date().toISOString().slice(0, 10);
+  saveNewbie();
+  renderHome();
+  renderNewbieModal();
+  flash(`第 ${day} 天补给：${fmtRewards(rw)}`);
+}
+function renderNewbieModal() {
+  const box = $('#newbieList');
+  if (!box) return;
+  const claimed = new Set((S.newbie && S.newbie.claimed) || []);
+  const day = newbieDay();
+  box.innerHTML = NEWBIE_REWARDS.map((r, i) => {
+    const d = i + 1, done = claimed.has(d), today = newbieActive() && d === day;
+    return `<div class="newbie-day${done ? ' done' : ''}${today ? ' today' : ''}">
+      <b>第 ${d} 天${done ? ' · 已领' : today ? ' · 今日' : ''}</b><span>${fmtRewards(r)}</span></div>`;
+  }).join('');
+  const btn = $('#newbieClaim');
+  if (btn) {
+    btn.textContent = !newbieActive() ? '已全部领取' : newbieCanClaim() ? `领取第 ${day} 天` : '今日已领';
+    btn.disabled = !newbieCanClaim();
+  }
+}
+function openNewbieGift() { renderNewbieModal(); $('#newbieModal').hidden = false; }
 function loadSecret() {
   try { const v = JSON.parse(localStorage.getItem('sg_secret') || 'null'); if (v) S.secret = Object.assign(S.secret, v); } catch (e) { /* ignore */ }
   if (!S.secret.node) S.secret.node = null;
@@ -865,7 +930,12 @@ function staminaNow() {
   const now = Date.now();
   if (!st.last) st.last = now;
   const gain = Math.floor((now - st.last) / 360000);
-  if (gain > 0) { st.value = Math.min(STAMINA_MAX, (st.value || 0) + gain); st.last += gain * 360000; saveStamina(); }
+  if (gain > 0) {
+    const cap = staminaCap();
+    if ((st.value || 0) < cap) st.value = Math.min(cap, (st.value || 0) + gain);
+    st.last += gain * 360000;
+    saveStamina();
+  }
   return st.value || 0;
 }
 function spendStamina(n) {
@@ -875,10 +945,11 @@ function spendStamina(n) {
 }
 function renderStamina() {
   const v = staminaNow();
+  const cap = staminaCap();
   const el = $('#staminaLine');
   if (el) el.innerHTML = `<i class="seal" data-ch="力"></i><span class="st-label">体力</span>
-    <div class="st-bar"><i style="width:${Math.min(100, v / STAMINA_MAX * 100).toFixed(1)}%"></i></div>
-    <b>${v}/${STAMINA_MAX}</b><small>每 6 分钟 +1</small>`;
+    <div class="st-bar"><i style="width:${Math.min(100, v / cap * 100).toFixed(1)}%"></i></div>
+    <b>${v}/${cap}</b><small>每 6 分钟 +1 · 上限随通关提升</small>`;
 }
 function loadShopStock() {
   try { S.shopStock = JSON.parse(localStorage.getItem('sg_shop') || '{}'); }
@@ -2501,6 +2572,7 @@ function doSweepInner() {
       const floor = S.tower.floor || 1;
       const fd = S.towerFloors[floor - 1];
       if (!fd) break;
+      const capBefore = staminaCap();
       r = fd.reward || {};
       addReward(r);
       const buffs = fd.buffs || [];
@@ -2508,6 +2580,7 @@ function doSweepInner() {
       S.tower.best = Math.max(S.tower.best || 1, floor);
       S.tower.floor = floor + 1;
       saveTower();
+      notifyStaminaGrowth(capBefore);
       taskBump('battle'); taskBump('win'); taskBump('tower');
       const mark = fd.milestone ? '（百层里程碑 · 新奖励开启）' : (floor % 10 === 0 ? '（奖励升阶）' : '');
       line = `第 ${floor} 层${buff ? `（增益：${buff.name}）` : ''}：${fmtRewards(r)}${mark}`;
@@ -2724,13 +2797,14 @@ async function init() {
   loadClears();
   syncPlayerLevel();
   loadInventory();
-  grantTestRes();
   loadUnitProgress();
   migrateEquipAffixes();
   loadOwned();
   loadGacha();
   loadTower();
+  const freshSave = !localStorage.getItem('sg_progress') && !localStorage.getItem('sg_owned');
   loadStamina();
+  loadNewbie(freshSave);
   loadSecret();
   loadSeason();
   loadShopStock();
@@ -2793,9 +2867,9 @@ function resetGame() {
   S.clears = {};
   S.inventory = { ...START_RES };
   localStorage.removeItem('sg_testgrant_20261120');
-  S.stamina = { value: STAMINA_MAX, last: Date.now(), claimDate: '', claims: [false, false] };
-  localStorage.setItem('sg_stamina_grant_10000', '1');
+  S.stamina = { value: STAMINA_START, last: Date.now(), claimDate: '', claims: [false, false] };
   saveStamina();
+  startNewbie();
   S.secret = { active: false, floor: 1, buffs: [], needBlessing: false, node: null, shopBought: false, temp: [], relics: [], used: {}, map: null, mapPos: { layer: -1, index: -1 }, nodeLayer: 0, nodeIndex: 0, activeShop: null, pendingNode: null };
   S.season = defaultSeason(); S.season.no = seasonMeta().no;
   S.owned = STARTERS.slice();
@@ -3530,9 +3604,9 @@ function claimStamina(i) {
   const today = new Date().toISOString().slice(0, 10);
   if (S.stamina.claimDate !== today) { S.stamina.claimDate = today; S.stamina.claims = [false, false]; }
   if (S.stamina.claims[i]) { flash('今日已领取'); return; }
-  if (staminaNow() >= STAMINA_MAX) { flash('体力已满'); return; }
+  if (staminaNow() >= staminaCap()) { flash('体力已满'); return; }
   S.stamina.claims[i] = true;
-  S.stamina.value = Math.min(STAMINA_MAX, (S.stamina.value || 0) + 60);
+  S.stamina.value = Math.min(staminaCap(), (S.stamina.value || 0) + 60);
   saveStamina(); renderWallet(); renderHome();
 }
 
@@ -3700,6 +3774,11 @@ function renderHome() {
       <button class="mini" ${cs[0] ? 'disabled' : ''} onclick="claimStamina(0)">${cs[0] ? '已领取' : '领取体力 60'}</button>
       <button class="mini" ${cs[1] ? 'disabled' : ''} onclick="claimStamina(1)">${cs[1] ? '已领取' : '领取体力 60'}</button>
     </div>
+    ${S.newbie ? `<div class="info-row"><i class="seal" data-ch="礼"></i><b>新兵补给</b><span class="info-label">七日签到 ${S.newbie.claimed.length}/7${newbieActive() ? '' : ' · 已领完'}</span></div>
+    <div class="info-actions">
+      <button class="mini" ${newbieCanClaim() ? '' : 'disabled'} onclick="claimNewbieGift()">${newbieActive() ? (newbieCanClaim() ? `领取第 ${newbieDay()} 天` : '今日已领') : '已全部领取'}</button>
+      <button class="mini ghost" onclick="openNewbieGift()">查看七日</button>
+    </div>` : ''}
     <div class="info-row"><i class="seal" data-ch="将"></i><span class="info-label">当前阵容</span>
       <b>${S.a.length ? S.a.join('、') : '未编队'}</b><span class="info-label">（${S.a.length}/5）</span></div>`;
   renderStamina();
@@ -4004,7 +4083,7 @@ function renderShop() {
     b.onclick = () => {
       if ((S.inventory[it.cur] || 0) < it.price) { flash(`${it.cur}不足`); return; }
       S.inventory[it.cur] -= it.price;
-      if (it.name === '体力') { if (staminaNow() >= STAMINA_MAX) { flash('体力已满'); return; } S.stamina.value = Math.min(STAMINA_MAX, (S.stamina.value || 0) + it.amount); saveStamina(); renderStamina(); }
+      if (it.name === '体力') { if (staminaNow() >= staminaCap()) { flash('体力已满'); return; } S.stamina.value = Math.min(staminaCap(), (S.stamina.value || 0) + it.amount); saveStamina(); renderStamina(); }
       else { S.inventory[it.name] = (S.inventory[it.name] || 0) + it.amount; }
       S.shopStock[key] -= 1;
       saveInventory(); saveShopStock(); renderWallet(); renderShop();
@@ -4655,7 +4734,7 @@ function renderBag(tab) {
 function openBag() { renderBag(); $('#bag').hidden = false; }
 
 /* 存档导出 / 导入：只处理游戏数据键，画质与音量等设置不随存档走 */
-const SAVE_KEYS = ['sg_config', 'sg_progress', 'sg_clears', 'sg_inventory', 'sg_units', 'sg_formation', 'sg_owned', 'sg_gacha', 'sg_tower', 'sg_stamina', 'sg_secret', 'sg_season', 'sg_shop', 'sg_story', 'sg_tasks', 'sg_chapters', 'sg_relics', 'sg_trials', 'sg_achieve', 'sg_affinity', 'sg_worldboss', 'sg_expedition', 'sg_survival', 'sg_ancientrun'];
+const SAVE_KEYS = ['sg_config', 'sg_progress', 'sg_clears', 'sg_inventory', 'sg_units', 'sg_formation', 'sg_owned', 'sg_gacha', 'sg_tower', 'sg_stamina', 'sg_secret', 'sg_season', 'sg_shop', 'sg_story', 'sg_tasks', 'sg_chapters', 'sg_relics', 'sg_trials', 'sg_achieve', 'sg_affinity', 'sg_worldboss', 'sg_expedition', 'sg_survival', 'sg_ancientrun', 'sg_newbie'];
 
 function saveSummary() {
   let n = 0, bytes = 0;
@@ -4743,7 +4822,6 @@ function setupSettings() {
   if ($('#setSfx')) { $('#setSfx').value = sfx; $('#setSfxVal').textContent = sfx; }
   if ($('#setSaveInfo')) $('#setSaveInfo').textContent = saveSummary();
   if (typeof setupLordPick === 'function') setupLordPick();
-  if ($('#refillRes')) $('#refillRes').hidden = !(location.search.includes('debug=1') || localStorage.getItem('sg_debug') === '1');
 }
 function bind() {
   AudioSys.setBgm(+(localStorage.getItem('sg_bgm') || 60));
@@ -4767,12 +4845,6 @@ function bind() {
   $('#viewStats').onclick = () => { renderBattleStats(); $('#battleStats').hidden = false; };
   $('#closeBattleStats').onclick = () => { $('#battleStats').hidden = true; };
   $('#battleStats').onclick = (e) => { if (e.target.id === 'battleStats') $('#battleStats').hidden = true; };
-  $('#refillRes').onclick = () => {
-    for (const k in START_RES) S.inventory[k] = Math.max(S.inventory[k] || 0, START_RES[k]);
-    S.inventory['招贤令'] = (S.inventory['招贤令'] || 0) + 200;
-    saveInventory(); renderWallet(); renderRecruit(); renderPool();
-    flash('测试资源已补满（招贤令 +200）');
-  };
   $('#exportSave').onclick = exportSave;
   $('#importSave').onclick = () => { const f = $('#importFile'); f.value = ''; f.click(); };
   $('#importFile').onchange = (e) => importSave(e.target.files && e.target.files[0]);
@@ -5906,10 +5978,12 @@ function showResult(data) {
   } else if (S.mode === 'survival' && S.survivalData) {
     const wave = S.survival.wave;
     if (data.winner === 0) {
+      const capBefore = staminaCap();
       addReward(S.survivalData.reward || {});
       S.survival.best = Math.max(S.survival.best || 0, wave);
       S.survival.pending = survivalRollChoices();
       saveSurvival();
+      notifyStaminaGrowth(capBefore);
       $('#resultTitle').textContent = `第 ${wave} 波通过`;
       $('#resultSub').textContent = `${S.survivalData.enemies.length} 名敌军 · ${rounds} 回合 · 历史最高 ${S.survival.best} 波`;
       $('#rewards').textContent = `本波奖励：${fmtRewards(S.survivalData.reward || {})}`;
@@ -6093,12 +6167,14 @@ function showResult(data) {
   } else if (S.mode === 'tower' && S.towerData) {
     const floor = S.towerData.floor;
     if (data.winner === 0) {
+      const capBefore = staminaCap();
       const reward = S.towerData.reward || {};
       for (const k in reward) S.inventory[k] = (S.inventory[k] || 0) + reward[k];
       S.tower.best = Math.max(S.tower.best || 1, floor);
       S.tower.floor = floor + 1;      // 无限塔：没有层数上限
       S.towerBuff = null;
       saveTower(); saveInventory(); renderWallet();
+      notifyStaminaGrowth(capBefore);
       bumpSeasonWeekly('tower', 1);
       if (floor % 100 === 0) claimMilestone(floor, true);
       ensureTowerFloors(floor + 13);  // 预取下一层，便于直接“下一关”
@@ -6114,12 +6190,14 @@ function showResult(data) {
     $('#status').textContent = `将星塔 · ${win}`;
   } else if (S.mode === 'level' && lv) {
     if (data.winner === 0) {
+      const capBefore = staminaCap();
       const first = !Object.prototype.hasOwnProperty.call(S.progress.stars, lv.id);
       const reward = grantRewards(lv, first);
       const stars = rounds <= 10 ? 3 : rounds <= 18 ? 2 : 1;
       S.progress.stars[lv.id] = Math.max(S.progress.stars[lv.id] || 0, stars);
       S.progress.unlocked = Math.max(S.progress.unlocked, Math.min(700, lv.id + 1));
       saveProgress();
+      notifyStaminaGrowth(capBefore);
       renderLevels();
       renderLevelInfo();
       $('#resultTitle').textContent = lv.id >= 700 ? '全卷通关' : '关卡通关';
