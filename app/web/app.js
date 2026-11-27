@@ -992,11 +992,11 @@ function staminaNow() {
   const st = S.stamina;
   const now = Date.now();
   if (!st.last) st.last = now;
-  const gain = Math.floor((now - st.last) / 360000);
+  const gain = Math.floor((now - st.last) / 60000);
   if (gain > 0) {
     const cap = staminaCap();
     if ((st.value || 0) < cap) st.value = Math.min(cap, (st.value || 0) + gain);
-    st.last += gain * 360000;
+    st.last += gain * 60000;
     saveStamina();
   }
   return st.value || 0;
@@ -1012,7 +1012,7 @@ function renderStamina() {
   const el = $('#staminaLine');
   if (el) el.innerHTML = `<i class="seal" data-ch="力"></i><span class="st-label">体力</span>
     <div class="st-bar"><i style="width:${Math.min(100, v / cap * 100).toFixed(1)}%"></i></div>
-    <b>${v}/${cap}</b><small>每 6 分钟 +1 · 上限随通关提升</small>`;
+    <b>${v}/${cap}</b><small>每分钟 +1 · 上限随通关提升</small>`;
 }
 function loadShopStock() {
   try { S.shopStock = JSON.parse(localStorage.getItem('sg_shop') || '{}'); }
